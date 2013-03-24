@@ -1,5 +1,6 @@
 from django.db import models
 from decimal import Decimal
+from django.contrib.auth.models import User, UserManager #######Jennifer
 
 '''
 #http://stackoverflow.com/questions/2013835/django-how-should-i-store-a-money-value
@@ -45,22 +46,25 @@ I'm implementing these user classes, possibly just for version 0
 convenience.  We need to reconcile this with using the Admin site
 for users, roles, permissions, etc.
 '''
-class User(models.Model):
-    #first_name = models.CharField(max_length=30)
-    #last_name = models.CharField(max_length=30)
-    
-    name = models.CharField(max_length=60)
-    
-    def __unicode__(self):
-        return self.name
+#####Jennifer deleted custom user
 
 class Seller(User):
+    account = models.OneToOneField(User)   #####Jennifer 
+    objects = UserManager() ###Jennifer
     products = models.ManyToManyField(Product) #todo: filter by owner
     #products = product_set.all()
     
     #we might want to check out https://github.com/dcramer/django-ratings
     CHOICES = [(i,i) for i in range(6)]
-    rating = models.IntegerField(choices=CHOICES)
+    rating = models.IntegerField(choices=CHOICES, null=True, blank=True)  ###Jennifer edited
+
+#####Jennifer from here
+class Buyer(User):
+    account = models.OneToOneField(User)
+    objects = UserManager() ###Jennifer
+    CHOICES = [(i,i) for i in range(6)]
+    rating = models.IntegerField(choices=CHOICES, null=True, blank=True) 
+#####Jennifer above
 
 class Listing(models.Model):
     name = models.CharField(max_length=50)
