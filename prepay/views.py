@@ -1,8 +1,38 @@
 from django.http import HttpResponse
 from django.template import Context, loader
 from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.models import User, Group   ####Jennifer
+from prepay.forms import RegistrationForm  #####Jennifer
+from django.shortcuts import render_to_response  ###Jennifer
+from django.http import HttpResponseRedirect ####Jennifer
+from django.template import RequestContext ###Jennifer
+from django.db import models ###Jennifer
 
-from prepay.models import Listing, Category
+from prepay.models import Listing, Category, Seller, Buyer  ###Jennifer edited
+
+###Jennifer
+def register(request):
+    if request.method =='POST':
+		form = RegistrationForm(request.POST)
+		new_data = request.POST.copy()
+		if form.is_valid():
+			username1 = request.POST.get('username')
+			if not User.objects.filter(username = username1).exists():
+				acttype = request.POST.get('account_type')
+				if acttype == 'Seller':
+					u = Seller.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
+				elif acttype == 'Buyer':
+					u = Buyer.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
+				u.groups.add(Group.objects.get(name = acttype))
+				u.is_staff = True
+				u.save()
+				return HttpResponseRedirect('/')
+			else:
+				return render_to_response('prepay/register.html',{'form':form,'error':True}, context_instance=RequestContext(request))
+	else:
+		form = RegistrationForm()
+	return render_to_response('prepay/register.html',{'form':form},context_instance=RequestContext(request))
+####Jennifer
 
 def index(request):
     return render(request, 'prepay/home.html')
