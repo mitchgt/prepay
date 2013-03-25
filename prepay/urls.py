@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'^category/(?P<category_id>.*)$', views.browse_category, name='browse_category'),
     url(r'^browse$', views.browse, name='browse'),
     url(r'^register$', views.register, name = 'register'), ###Jennifer
+    url(r'^user/(?P<user_username>.*)$', views.profile, name = 'user'),  ####Jennifer new
     url(r'^listings/(?P<listing_id>.*)$', views.listing_detail, name='listing_detail'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
