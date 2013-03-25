@@ -10,6 +10,15 @@ from django.db import models  # ##Jennifer
 
 from prepay.models import Listing, Category, Seller, Buyer  # ##Jennifer edited
 
+####Jennifer new
+def profile(request, user_username):
+    user = get_object_or_404(User, username=user_username)
+	if(Seller.objects.filter(username = user_username).exists()):
+		return render(request, 'prepay/profile_seller.html', {'user':user})
+	else:
+		return render(request, 'prepay/profile_buyer.html', {'user':user})
+#####Jennifer new
+        
 ####Jennifer
 def register(request):
     if request.method =='POST':
