@@ -64,12 +64,19 @@ todo:
 refactor this to support browse by different criteria e.g. category
 for now, created redundant browse_category
 '''
-def browse(request):
+def browse_listings(request):
     all_listings = Listing.objects.all().order_by('-created_at')
     context = Context({
         'all_listings': all_listings,
     })
     return render(request, 'prepay/browse.html', context)
+
+def browse_product_requests(request):
+    all_product_requests = ProductRequest.objects.all()
+    context = Context({
+        'all_product_requests': all_product_requests,
+    })
+    return render(request, 'prepay/browse_product_requests.html', context)
 
 '''
 Pretty sick how this:
