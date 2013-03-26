@@ -1,0 +1,31 @@
+{% extends "prepay/base.html" %}
+
+{% load url from future %}
+
+{% block content %}
+
+<h2>Browse Product Requests</h2>
+
+{% if all_product_requests %}
+	{% for pr in all_product_requests %}
+	<p>
+		<b>Idea:</b> {{ pr.name }}</a><br/>
+		<b>Pitch:</b> {{ pr.description}}<br/>
+		<b>Categories:</b> 
+		{% for c in pr.categories.all %} 
+			<a href="{% url 'browse_category' c.pk %}">{{ c.name }}</a>, 
+		{% endfor %}<br/>
+	</p>
+	<br clear="all"/>
+	
+	{% endfor %}
+{% else %}
+	<p>No Listings are available.</p>
+{% endif %}
+
+
+{% endblock %}
+
+
+
+
