@@ -24,6 +24,14 @@ class Product(models.Model):
     def __unicode__(self):
         return self.name
 
+class ProductRequest(models.Model):
+    name = models.CharField(max_length=200)
+    categories = models.ManyToManyField(Category)
+    description = models.TextField(max_length=1000)
+
+    def __unicode__(self):
+        return self.name
+
 class BankAccount(models.Model):
     name = models.CharField(max_length=50)
     
