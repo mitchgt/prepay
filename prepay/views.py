@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect  ####Jennifer
 from django.template import RequestContext  # ##Jennifer
 from django.db import models  # ##Jennifer
 
-from prepay.models import Listing, Category, Seller, Buyer  # ##Jennifer edited
+from prepay.models import Listing, Category, Seller, Buyer, ProductRequest  # ##Jennifer edited
 
 '''
 ####Jennifer new
@@ -69,7 +69,7 @@ def browse_listings(request):
     context = Context({
         'all_listings': all_listings,
     })
-    return render(request, 'prepay/browse.html', context)
+    return render(request, 'prepay/browse_listings.html', context)
 
 def browse_product_requests(request):
     all_product_requests = ProductRequest.objects.all()
