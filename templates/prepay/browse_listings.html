@@ -13,7 +13,7 @@
 		<a href="{% url 'listing_detail' listing.pk %}">{{ listing.name }}</a><br/>
 		{{ listing.description|truncatewords:40 }}<br/>
 		<b>Product:</b> {{ listing.product.name }}<br/>
-		<b>Seller:</b> {{listing.seller.name}} (rating = {{ listing.seller.rating }}/5)<br/>
+		<b>Seller:</b> {{listing.seller.username}} (rating = {{ listing.seller.rating }}/5)<br/>
 		<b>Categories:</b> 
 		{% for c in listing.product.categories.all %} 
 			<a href="{% url 'browse_category' c.pk %}">{{ c.name }}</a>, 

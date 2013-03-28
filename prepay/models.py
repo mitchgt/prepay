@@ -48,16 +48,6 @@ class BankAccount(models.Model):
         return self.name
     
 
-
-'''
-class PrePayUser(User, models.Model):
-
-    bank_account = models.ForeignKey(BankAccount)
-    name = models.CharField(max_length=60)
-    
-    def __unicode__(self):
-        return self.name
-'''
 #Lara start1
 class UserProfile    (User): ####Jennifer
 
