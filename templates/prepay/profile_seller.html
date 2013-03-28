@@ -13,7 +13,7 @@ Password: <a href= "{% url 'admin:password_change' %}">Change password?</a><br/>
 Email: {{user.email}}<br/>
 Products: 
 {% for p in user.products.all %}
-    {{ p.name }}
+    {{ p.name }},
 {% empty %}
     No products!
 {% endfor %}
