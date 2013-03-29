@@ -6,11 +6,36 @@
 
 <h2>Buyer Profile</h2>
 
-<!--Name: {{user.name}}<br/>-->
+{% if user.photo %}
+  <img src="{{user.photo}}"><br/>
+{% endif %}
+Name: {{user.first_name}} {{user.last_name}}<br/>
 Rating: {{user.rating}}<br/>
 Username: {{user.username}}<br/>
 Password: <a href= "{% url 'admin:password_change' %}">Change password?</a><br/>
 Email: {{user.email}}<br/>
-<!--Requests: {{user.products}}<br/>-->
-<!--<a href = "/admin/prepay/request/add/">Add a new request?</a><br/>-->
+{% if user.phone_number.all %}
+Phone number:
+{% for item in user.phone_number.all %}
+  {{item}}<br/>
+{% endfor %}{% endif %}
+{% if user.street_address.all %}
+Street Address:
+{% for item in user.street_address.all %}
+  {{item}}<br/>
+{% endfor %}{% endif %}
+{% if user.instant_messenger.all %}
+Instant messenger:
+{% for item in user.instant_messenger.all %}
+  {{item}}<br/>
+{% endfor %}{% endif %}
+{% if user.web_site.all %}
+Website:
+{% for item in user.web_site.all %}
+  {{item}}<br/>
+{% endfor %}{% endif %}
+{% if user.about %}
+About me:
+  {{user.about}}<br/>
+{% endif %}
 {% endblock %}
