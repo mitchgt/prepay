@@ -1,5 +1,7 @@
 {% extends "prepay/base.html" %}
 
+{% load url from future %}
+
 {% block content %}
 
 <h2>Detailed view of a listing</h2>
@@ -14,7 +16,7 @@
 			<b>Listing Name:</b> {{ listing.name }}</span><br/>
 			<b>Listing Description:</b> {{ listing.description }}<br/>
 			<b>Product Description:</b> {{ listing.product.description }}<br/>
-			<b>Seller:</b> {{ listing.seller.username }} (rating = {{ listing.seller.rating }}/5)<br/>
+			<b>Seller:</b> <a href="{% url 'profile' listing.seller.username %}">{{ listing.seller.username }}</a> (rating = {{ listing.seller.rating }}/5)<br/>
 			<b>Categories:</b> {% for c in listing.product.categories.all %} {{ c.name }}, {% endfor %}<br/>
 			<b>Created Date:</b> {{listing.created_at}}<br/>
 		</td>
