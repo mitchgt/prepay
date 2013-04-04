@@ -54,7 +54,8 @@ class UserProfile    (User): ####Jennifer
     middle_name = models.CharField(_('middle name'), max_length=200, blank=True, null=True)
     suffix = models.CharField(_('suffix'), max_length=50, blank=True, null=True)
     nickname = models.CharField(_('nickname'), max_length=100, blank=True)
-    slug = models.SlugField(_('slug'), max_length=50, unique=True)
+    #slug = models.SlugField(_('slug'), max_length=50, unique=True)
+    slug = models.SlugField(_('slug'), max_length=50, blank=True, null=True)
     title = models.CharField(_('title'), max_length=200, blank=True)
     about = models.TextField(_('about'), blank=True)
     photo = models.ImageField(_('photo'), upload_to='contacts/person/', blank=True)
@@ -100,7 +101,8 @@ class UserProfile    (User): ####Jennifer
 class Seller(UserProfile):
     #account = models.OneToOneField(UserProfile)   #####Jennifer
     objects = UserManager()
-    products = models.ManyToManyField(Product) #todo: filter by owner
+    #products = models.ManyToManyField(Product) #todo: filter by owner
+    products = models.ManyToManyField(Product, blank=True, null=True)
     #products = product_set.all()
     #bank_account = models.ForeignKey(BankAccount)
     #we might want to check out https://github.com/dcramer/django-ratings
