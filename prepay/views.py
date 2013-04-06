@@ -2,13 +2,14 @@ from django.http import HttpResponse
 from django.template import Context, loader
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User, Group  ####Jennifer
-from prepay.forms import RegistrationForm  #####Jennifer
+from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm #####Jennifer
 from django.shortcuts import render_to_response  # ##Jennifer
 from django.http import HttpResponseRedirect  ####Jennifer
 from django.template import RequestContext  # ##Jennifer
 from django.db import models  # ##Jennifer
 
 from prepay.models import Listing, Category, Seller, Buyer, ProductRequest  # ##Jennifer edited
+from django.contrib.auth import authenticate, login, logout##Lara
 
 '''
 ####Jennifer new
@@ -20,6 +21,7 @@ def profile(request, user_username):
         return render(request, 'prepay/profile_buyer.html', {'user':user})
 #####Jennifer new
 '''
+
 
 def profile(request, user_username):
     if(Seller.objects.filter(username = user_username).exists()):
@@ -54,7 +56,34 @@ def register(request):
 ####Jennifer
 
 def index(request):
-    return render(request, 'prepay/home.html')
+    if request.method == 'POST':
+		if 'logout' in request.POST:
+			logout(request)
+	if request.user.is_authenticated():
+		login_flag=1
+		return render(request, 'prepay/browse_listings.html',{'login_flag':login_flag})
+	else:
+		login_flag=0
+		form = LoginForm()
+		if request.method =='POST':
+			form1 = LoginForm(request.POST)
+			if form1.is_valid():
+				username = request.POST['username']
+				password = request.POST['password']
+				user = authenticate(username=username, password=password)
+				if user is not None:
+					if user.is_active:
+						login(request, user)
+						login_flag=1
+						return render(request, 'prepay/browse_listings.html',{'login_flag':login_flag})
+					else:
+		          # Return a 'disabled account' error message
+						return render(request, 'prepay/home.html', {'form':form,'login_flag':login_flag})
+				else:
+        	# Return an 'invalid login' error message.
+					return render(request, 'prepay/home.html', {'form':form,'login_flag':login_flag})
+		return render(request, 'prepay/home.html',{'login_flag':login_flag,'form':form})
+
 
 def about(request):
     return render(request, 'prepay/about.html')
@@ -104,5 +133,15 @@ def browse_category(request, category_id):
 
 def listing_detail(request, listing_id):
     # return HttpResponse("You're looking at the detailed view of listing %s." % listing_id)
-    listing = get_object_or_404(Listing, pk=listing_id)
-    return render(request, 'prepay/detail.html', {'listing':listing})
+	listing = get_object_or_404(Listing, pk=listing_id)
+	if request.method =='POST':
+		form = CommentForm(request.POST,request.FILES)
+		if form.is_valid():
+			comment = request.POST.get('comment')
+			rating = request.POST.get('rating')
+			image = request.FILES.get('image')
+			listing.Listing_Comment_set.create(comment=comment, rating = rating,  date=date, image=image, )
+
+	form = ListingCommentForm()
+	return render(request, 'prepay/detail.html', {'listing':listing,'form':form})
+
