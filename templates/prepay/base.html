@@ -15,6 +15,15 @@
 	{% endblock %}
 </div>
 
+{% if login_flag %}
+<div>
+<form action="" method="post">
+{% csrf_token %}
+<input type="submit" value="Logout" name="logout">
+</form>
+</div>
+{% endif %}
+
 <div id="nav">
 	{% block nav %}
 		<a href="{% url 'browse_listings' %}">Browse Listings</a> &#149; 
