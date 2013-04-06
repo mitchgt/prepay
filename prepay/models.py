@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.generic import GenericRelation
 from django.utils.translation import ugettext as _
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
@@ -50,7 +51,6 @@ class BankAccount(models.Model):
 
 #Lara start1
 class UserProfile    (User): ####Jennifer
-
     middle_name = models.CharField(_('middle name'), max_length=200, blank=True, null=True)
     suffix = models.CharField(_('suffix'), max_length=50, blank=True, null=True)
     nickname = models.CharField(_('nickname'), max_length=100, blank=True)
@@ -144,7 +144,27 @@ class Listing(models.Model):
     
     def __unicode__(self):
         return self.name
-    
+
+class Listing_Comment(models.Model):
+    listing = models.ForeignKey(Listing)
+	commenter=models.ForeignKey(UserProfile)
+	comment = models.CharField(max_length=1000)
+	rating = models.IntegerField(
+		default=1,
+		validators=[
+			MaxValueValidator(5),
+			MinValueValidator(0)
+		]
+	)
+	date = models.DateTimeField('Date added')
+	image = models.ImageField(_('image'), upload_to='listing/comment/img', blank=True)
+	def __unicode__(self):
+		return u'%s %d' % (self.comment, self.rating)
+	class Meta:
+		db_table = 'prepay_listins_comments'
+		verbose_name = 'listing comment'
+		verbose_name_plural = 'listing comments'
+
 class Bank(models.Model):
     name = models.CharField(max_length=50)
     def __unicode__(self):
