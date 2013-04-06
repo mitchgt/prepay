@@ -5,8 +5,8 @@ from prepay import views, settings
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    #url(r'^$', views.index, name='index'),
-    url(r'^$', views.browse_listings, name='index'),
+    url(r'^$', views.index, name='index'),
+    #url(r'^$', views.browse_listings, name='index'),
     url(r'^about$', views.about, name='about'),
     url(r'^category/(?P<category_id>.*)$', views.browse_category, name='browse_category'),
     url(r'^browse_listings$', views.browse_listings, name='browse_listings'),
