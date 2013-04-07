@@ -28,7 +28,9 @@
 	{% block nav %}
 		<a href="{% url 'browse_listings' %}">Browse Listings</a> &#149; 
 		<a href="{% url 'admin:prepay_productrequest_add' %}">Request Product</a> &#149; 
+		{% comment %}
 		<a href="{% url 'browse_product_requests' %}">Browse Product Requests</a> &#149; 
+		{% endcomment %}
 		<a href="{% url 'register' %}">Register as Buyer or Seller</a> &#149; 
 		<a href="{% url 'admin:index' %}">Admin</a> &#149; 
 		<a href="{% url 'about' %}">About</a> 

@@ -1,5 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
+from prepay.models import UserProfile, PhoneNumber, WebSite, StreetAddress, InstantMessenger 
+from django.forms import ModelForm
+from django.contrib.contenttypes.generic import generic_inlineformset_factory 
 
 class LoginForm(forms.Form):
 	username=forms.CharField(max_length=15)
@@ -25,3 +28,18 @@ class ListingCommentForm(forms.Form):
 			if (file_type not in settings.TASK_UPLOAD_FILE_TYPES):
 				raise forms.ValidationError('File type is not supported')
 		return image
+	
+class EditProfileForm(ModelForm):
+
+	class Meta:
+		model = UserProfile
+		exclude = ('username', 'password', 'is_staff', 'is_active', 'is_superuser', 'last_login', 'date_joined', 'groups', 'user_permissions', 'user')
+
+class SearchForm(forms.Form):
+	q = forms.CharField(label = 'Search', max_length=30)
+
+
+PhoneNumberFormSet = generic_inlineformset_factory(PhoneNumber, extra=1)
+InstantMessengerFormSet = generic_inlineformset_factory(InstantMessenger, extra=1)
+WebSiteFormSet = generic_inlineformset_factory(WebSite, extra=1)
+StreetAddressFormSet = generic_inlineformset_factory(StreetAddress, extra=1)

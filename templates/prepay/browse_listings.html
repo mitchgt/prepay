@@ -6,6 +6,21 @@
 
 <h2>Browse Listings</h2>
 
+<form action="/browse/search/" method="post">
+		{% csrf_token %}
+        {{form.as_p}}
+        <input type="submit" value="Search">
+ </form>
+
+Sort by:
+<form action="" method="get">
+	<select name = 'sort' onChange = "this.form.submit();">
+		<option value="" selected="selected">---------</option>
+		<option value="1">Date created</option>
+		<option value="2">Seller</option>
+	</select>
+ </form>
+
 {% if all_listings %}
 	{% for listing in all_listings %}
 	<p>
@@ -13,7 +28,7 @@
 		<a href="{% url 'listing_detail' listing.pk %}">{{ listing.name }}</a><br/>
 		{{ listing.description|truncatewords:40 }}<br/>
 		<b>Product:</b> {{ listing.product.name }}<br/>
-		<b>Seller:</b> <a href="{% url 'profile' listing.seller.username %}">{{listing.seller.username}}</a> (rating = {{ listing.seller.rating }}/5)<br/>
+		<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{listing.product.seller.username}}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>
 		<b>Categories:</b> 
 		{% for c in listing.product.categories.all %} 
 			<a href="{% url 'browse_category' c.pk %}">{{ c.name }}</a>, 

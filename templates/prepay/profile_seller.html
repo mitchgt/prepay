@@ -51,7 +51,9 @@ Products:
 <!-- http://mitchgt.com/prepay/admin/prepay/listing/add/ -->
 <a href = "{% url 'admin:prepay_product_add' %}">Add a new product and listing?</a><br/>
 <!--Listings: {{listings}}<br/>-->
+{% comment %}
 <!--<a href = "{% url 'admin:prepay_listing_add' %}">Create a new listing?</a><br/>-->
+{% endcomment %}
 
 {% if user.about %}
 About me:

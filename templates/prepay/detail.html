@@ -16,8 +16,7 @@
 			<b>Listing Name:</b> {{ listing.name }}</span><br/>
 			<b>Listing Description:</b> {{ listing.description }}<br/>
 			<b>Product Description:</b> {{ listing.product.description }}<br/>
-			<b>Seller:</b> <a href="{% url 'profile' listing.seller.username %}">{{ listing.seller.username }}</a> (rating = {{ listing.seller.rating }}/5)<br/>
-			<b>Categories:</b> {% for c in listing.product.categories.all %} {{ c.name }}, {% endfor %}<br/>
+			<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{ listing.product.seller.username }}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>			<b>Categories:</b> {% for c in listing.product.categories.all %} {{ c.name }}, {% endfor %}<br/>
 			<b>Created Date:</b> {{listing.created_at}}<br/>
 		</td>
 	</tr>

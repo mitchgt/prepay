@@ -24,11 +24,22 @@ class UserAdmin(admin.ModelAdmin):
             StreetAddressInline,
             WebSiteInline,
     ]
+    
+class ListingInline(admin.TabularInline):
+    model = Listing
+    extra = 1
 
-admin.site.register(Product)
+class PLAdmin(admin.ModelAdmin): 
+    inlines = [ListingInline,]
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'seller':
+            kwargs["queryset"] = Seller.objects.filter(user = request.user)
+        return super(PLAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+admin.site.register(Product, PLAdmin)
 admin.site.register(Category)
 admin.site.register(Seller, UserAdmin)
-admin.site.register(Listing)
+#admin.site.register(Listing)
 admin.site.register(Bank)
 admin.site.register(Escrow)
 admin.site.register(BankAccount)
