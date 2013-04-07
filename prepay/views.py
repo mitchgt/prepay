@@ -2,14 +2,15 @@ from django.http import HttpResponse
 from django.template import Context, loader
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User, Group  ####Jennifer
-from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm #####Jennifer
+from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm, EditProfileForm, PhoneNumberFormSet, InstantMessengerFormSet, WebSiteFormSet, StreetAddressFormSet, SearchForm #####Jennifer
 from django.shortcuts import render_to_response  # ##Jennifer
 from django.http import HttpResponseRedirect  ####Jennifer
 from django.template import RequestContext  # ##Jennifer
 from django.db import models  # ##Jennifer
 
-from prepay.models import Listing, Category, Seller, Buyer, ProductRequest  # ##Jennifer edited
+from prepay.models import Listing, Category, Seller, Buyer, ProductRequest, PhoneNumber, StreetAddress, WebSite, InstantMessenger, Product  # ##Jennifer edited
 from django.contrib.auth import authenticate, login, logout##Lara
+from django.db.models import Q
 
 '''
 ####Jennifer new
@@ -22,11 +23,42 @@ def profile(request, user_username):
 #####Jennifer new
 '''
 
+def edit_profile(request, user_username):
+	if (Seller.objects.filter(username = user_username).exists()):
+		user = get_object_or_404(Seller, username=user_username)
+	else:
+		user = get_object_or_404(Buyer, username=user_username)
+	phone_formset = PhoneNumberFormSet(instance=user)
+	im_formset = InstantMessengerFormSet(instance=user)
+	website_formset = WebSiteFormSet(instance=user)
+	address_formset = StreetAddressFormSet(instance=user)
+	form = EditProfileForm(instance = user)
+
+	if request.method=='POST':
+		form = EditProfileForm(request.POST, request.FILES, instance=user)
+		phone_formset = PhoneNumberFormSet(request.POST, instance=user)
+		im_formset = InstantMessengerFormSet(request.POST, instance=user)
+		website_formset = WebSiteFormSet(request.POST, instance=user)
+		address_formset = StreetAddressFormSet(request.POST, instance=user)
+
+		if form.is_valid() and phone_formset.is_valid() and im_formset.is_valid() and website_formset.is_valid() and address_formset.is_valid():
+			form.save()
+			phone_formset.save()
+			im_formset.save()
+			website_formset.save()
+			address_formset.save()
+			return HttpResponseRedirect(reverse('prepay.views.profile', args=(user_username,)))
+		else:
+			return render_to_response('prepay/edit_profile.html',{'form':form, 'p_formset': phone_formset, 'i_formset': im_formset,'w_formset': website_formset, 's_formset': address_formset, 'Error': True, 'user':user},context_instance=RequestContext(request))
+
+	return render_to_response('prepay/edit_profile.html',{'form':form, 'p_formset': phone_formset, 'i_formset': im_formset,'w_formset': website_formset, 's_formset': address_formset, 'user':user},context_instance=RequestContext(request))
+
 
 def profile(request, user_username):
     if(Seller.objects.filter(username = user_username).exists()):
         user = get_object_or_404(Seller, username=user_username)
-        return render(request, 'prepay/profile_seller.html', {'user':user})
+        products = Product.objects.filter(seller = user)
+		return render(request, 'prepay/profile_seller.html', {'user':user, 'products':products})
     else:
         user = get_object_or_404(Buyer, username=user_username)
         return render(request, 'prepay/profile_buyer.html', {'user':user})
@@ -46,6 +78,7 @@ def register(request):
                     u = Buyer.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
                 u.groups.add(Group.objects.get(name = acttype))
                 u.is_staff = True
+                u.slug = username1
                 u.save()
                 return HttpResponseRedirect('/')
             else:
@@ -94,18 +127,37 @@ refactor this to support browse by different criteria e.g. category
 for now, created redundant browse_category
 '''
 def browse_listings(request):
-    all_listings = Listing.objects.all().order_by('-created_at')
-    context = Context({
-        'all_listings': all_listings,
-    })
-    return render(request, 'prepay/browse_listings.html', context)
-
-def browse_product_requests(request):
-    all_product_requests = ProductRequest.objects.all()
-    context = Context({
-        'all_product_requests': all_product_requests,
-    })
-    return render(request, 'prepay/browse_product_requests.html', context)
+    if request.method =='POST':
+		form = SearchForm(request.POST)
+		if form.is_valid:
+			keywords=request.POST.get('q')
+			form = SearchForm(request.POST, initial = {'q':keywords})
+			query = Q()
+			for term in keywords.split():
+				q = Q(name__icontains=term) | Q(description__icontains=term) | Q(product__name__icontains=term) | Q(product__description__icontains=term) | Q(product__seller__username__icontains=term)
+				query = query & q
+			all_listings = Listing.objects.all().filter(query).order_by('-created_at')
+			request.session['last_listings']=all_listings
+			request.session['oldq']=keywords
+			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form}, context_instance=RequestContext(request))
+	elif request.method == 'GET':    	
+		if 'sort' in request.GET and request.GET['sort']:
+			all_listings = request.session.get('last_listings')
+			keywords = request.session.get('oldq')
+			form = SearchForm(initial = {'q':keywords})	
+			if request.GET['sort']=="1":
+				all_listings = all_listings.order_by('-created_at')
+			elif request.GET['sort']=="2":
+				all_listings = all_listings.order_by('-product__seller__username')
+			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form}, context_instance=RequestContext(request))
+	all_listings = Listing.objects.all().order_by('-created_at')
+	form = SearchForm()	
+	request.session['last_listings']=all_listings
+	request.session['oldq']=None
+	context = Context({
+        'all_listings': all_listings, 'form':form
+	})
+	return render(request, 'prepay/browse_listings.html', context)
 
 '''
 Pretty sick how this:
