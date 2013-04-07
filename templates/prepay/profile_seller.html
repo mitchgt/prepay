@@ -5,6 +5,7 @@
 {% block content %}
 
 <h2>Seller Profile</h2>
+<p><a href = "/edit/{{user.username}}">Edit?</a><p>
 
 {% if user.photo %}
     <img src="{{user.photo}}"><br/>
