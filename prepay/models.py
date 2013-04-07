@@ -14,22 +14,6 @@ class Category(models.Model):
     def __unicode__(self):
         return self.name    
     
-class Product(models.Model):
-    name = models.CharField(max_length=200)
-    #seller = models.ForeignKey(Seller)
-    picture = models.ImageField(upload_to='%Y/%m/%d')
-    categories = models.ManyToManyField(Category)
-    description = models.TextField(max_length=1000)
-
-    def purchase(self):
-        return str("sold!")
-
-    def get_picture_url(self):
-        return str(self.picture.url)
-
-    def __unicode__(self):
-        return self.name
-
 class ProductRequest(models.Model):
     name = models.CharField(max_length=200)
     categories = models.ManyToManyField(Category)
@@ -102,7 +86,7 @@ class Seller(UserProfile):
     #account = models.OneToOneField(UserProfile)   #####Jennifer
     objects = UserManager()
     #products = models.ManyToManyField(Product) #todo: filter by owner
-    products = models.ManyToManyField(Product, blank=True, null=True)
+    #products = models.ManyToManyField(Product, blank=True, null=True)
     #products = product_set.all()
     #bank_account = models.ForeignKey(BankAccount)
     #we might want to check out https://github.com/dcramer/django-ratings
@@ -126,9 +110,25 @@ class Buyer(UserProfile):
         verbose_name_plural = 'buyers'
 #Lara end1
 
+class Product(models.Model):
+    name = models.CharField(max_length=200)
+    seller = models.ForeignKey(Seller)
+    picture = models.ImageField(upload_to='%Y/%m/%d')
+    categories = models.ManyToManyField(Category)
+    description = models.TextField(max_length=1000)
+
+    def purchase(self):
+        return str("sold!")
+
+    def get_picture_url(self):
+        return str(self.picture.url)
+
+    def __unicode__(self):
+        return self.name
+
 class Listing(models.Model):
     name = models.CharField(max_length=50)
-    seller = models.ForeignKey(Seller)
+    #seller = models.ForeignKey(Seller)
     product = models.ForeignKey(Product)
     description = models.TextField(max_length=1000)
     #quantity = models.IntegerField()
