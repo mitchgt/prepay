@@ -1,0 +1,46 @@
+{% extends "prepay/base.html" %}
+
+{% load url from future %}
+
+{% block content %}
+
+<p><a href ="/user/{{user.username}}">Back to profile</a></p>
+
+{% if error %}
+  <p>Please check over your changes.</p>
+{% endif %}
+
+<h1>Edit your Profile!</h1>
+
+<form enctype="multipart/form-data" method="post" action="">
+{% csrf_token %}
+{{form.as_p}}
+Addresses:<br/>
+{{s_formset.management_form}}
+{% for field in s_formset %}
+	{{field.as_table}}<br/>	
+{% endfor %}<br/>
+Phone Numbers:</br>	
+{{p_formset.management_form}}
+{% for field in p_formset %}
+	{{field.as_table}}<br/>	
+{% endfor %}<br/>
+Instant Messenger:<br>
+{{i_formset.management_form}}
+{% for field in i_formset %}
+	{{field.as_table}}<br/>	
+{% endfor %}<br/>
+Websites:<br/>
+{{w_formset.management_form}}
+{% for field in w_formset %}
+	{{field.as_table}}<br/>	
+{% endfor %}<br/>
+<input type = "submit" value = "Save changes">
+</form>
+
+
+{% endblock %}
+
+
+
+
