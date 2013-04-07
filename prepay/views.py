@@ -59,10 +59,10 @@ def index(request):
     if request.method == 'POST':
 		if 'logout' in request.POST:
 			logout(request)
-	if request.user.is_authenticated():
-		login_flag=1
-		return render(request, 'prepay/browse_listings.html',{'login_flag':login_flag})
-	else:
+    if request.user.is_authenticated():
+        login_flag=1
+        return render(request, 'prepay/browse_listings.html',{'login_flag':login_flag})
+    else:
 		login_flag=0
 		form = LoginForm()
 		if request.method =='POST':

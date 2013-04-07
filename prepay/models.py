@@ -147,23 +147,24 @@ class Listing(models.Model):
 
 class Listing_Comment(models.Model):
     listing = models.ForeignKey(Listing)
-	commenter=models.ForeignKey(UserProfile)
-	comment = models.CharField(max_length=1000)
-	rating = models.IntegerField(
-		default=1,
+    commenter=models.ForeignKey(UserProfile)
+    comment = models.CharField(max_length=1000)
+    rating = models.IntegerField(
+        default=1,
 		validators=[
 			MaxValueValidator(5),
 			MinValueValidator(0)
 		]
 	)
-	date = models.DateTimeField('Date added')
-	image = models.ImageField(_('image'), upload_to='listing/comment/img', blank=True)
-	def __unicode__(self):
-		return u'%s %d' % (self.comment, self.rating)
-	class Meta:
-		db_table = 'prepay_listins_comments'
-		verbose_name = 'listing comment'
-		verbose_name_plural = 'listing comments'
+    date = models.DateTimeField('Date added')
+    image = models.ImageField(_('image'), upload_to='listing/comment/img', blank=True)
+    
+    def __unicode__(self):
+        return u'%s %d' % (self.comment, self.rating)
+class Meta:
+	db_table = 'prepay_listins_comments'
+	verbose_name = 'listing comment'
+	verbose_name_plural = 'listing comments'
 
 class Bank(models.Model):
     name = models.CharField(max_length=50)
