@@ -12,6 +12,7 @@ from django.db import models  # ##Jennifer
 from prepay.models import Listing, Category, Seller, Buyer, ProductRequest, PhoneNumber, StreetAddress, WebSite, InstantMessenger, Product  # ##Jennifer edited
 from django.contrib.auth import authenticate, login, logout##Lara
 from django.db.models import Q
+from django.core.urlresolvers import reverse
 
 '''
 ####Jennifer new
