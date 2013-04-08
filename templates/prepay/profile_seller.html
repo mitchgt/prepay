@@ -5,7 +5,9 @@
 {% block content %}
 
 <h2>Seller Profile</h2>
+{% if mine %}
 <p><a href = "{% url 'edit_profile' user.username %}">Edit?</a><p>
+{% endif %}
 
 {% if user.photo %}
     <img src="{{user.photo}}"><br/>
@@ -19,7 +21,9 @@ Nickname: {{user.nickname}}<br/>
 {% endif %}
 Rating: {{user.rating}}<br/>
 Username: {{user.username}}<br/>
+{% if mine %}
 Password: <a href= "{% url 'admin:password_change' %}">Change password?</a><br/>
+{% endif %}
 Email: {{user.email}}<br/>
 {% if user.phone_number.all %}
 Phone number:
@@ -48,9 +52,10 @@ Products:
     No products!
 {% endfor %}
 <br/>
-
+{% if mine %}
 <!-- http://mitchgt.com/prepay/admin/prepay/listing/add/ -->
 <a href = "{% url 'admin:prepay_product_add' %}">Add a new product and listing?</a><br/>
+{% endif %}
 <!--Listings: {{listings}}<br/>-->
 {% comment %}
 <!--<a href = "{% url 'admin:prepay_listing_add' %}">Create a new listing?</a><br/>-->
