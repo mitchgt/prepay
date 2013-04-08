@@ -26,6 +26,8 @@ def profile(request, user_username):
 '''
 
 def edit_profile(request, user_username):
+	if not request.user.username == user_username:
+		return HttpResponseRedirect(reverse('prepay.views.profile', args=(user_username,)))
 	if (Seller.objects.filter(username = user_username).exists()):
 		user = get_object_or_404(Seller, username=user_username)
 	else:
@@ -57,13 +59,18 @@ def edit_profile(request, user_username):
 
 
 def profile(request, user_username):
+    mine = False
     if(Seller.objects.filter(username = user_username).exists()):
         user = get_object_or_404(Seller, username=user_username)
         products = Product.objects.filter(seller = user)
-        return render(request, 'prepay/profile_seller.html', {'user':user, 'products':products})
+        if request.user.username == user_username:
+			mine = True
+        return render(request, 'prepay/profile_seller.html', {'user':user, 'products':products, 'mine':mine})
     else:
         user = get_object_or_404(Buyer, username=user_username)
-        return render(request, 'prepay/profile_buyer.html', {'user':user})
+        if request.user.username == user_username:
+			mine = True
+        return render(request, 'prepay/profile_buyer.html', {'user':user, 'mine':mine})
         
 ####Jennifer
 def register(request):
