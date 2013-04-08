@@ -4,7 +4,8 @@
 
 {% block content %}
 
-<p><a href ="/user/{{user.username}}">Back to profile</a></p>
+<!-- p><a href ="/user/{{user.username}}">Back to profile</a></p -->
+<p><a href = "{% url 'profile' user.username %}">Back to profile</a></p>
 
 {% if error %}
   <p>Please check over your changes.</p>
