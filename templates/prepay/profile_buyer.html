@@ -5,7 +5,9 @@
 {% block content %}
 
 <h2>Buyer Profile</h2>
+{% if mine %}
 <p><a href = "{% url 'edit_profile' user.username %}">Edit?</a><p>
+{% endif %}
 
 {% if user.photo %}
   <img src="{{user.photo}}"><br/>
@@ -19,7 +21,9 @@ Nickname: {{user.nickname}}<br/>
 {% endif %}
 Rating: {{user.rating}}<br/>
 Username: {{user.username}}<br/>
+{% if mine %}
 Password: <a href= "{% url 'admin:password_change' %}">Change password?</a><br/>
+{% endif %}
 Email: {{user.email}}<br/>
 {% if user.phone_number.all %}
 Phone number:
@@ -42,9 +46,10 @@ Website:
   {{item}}<br/>
 {% endfor %}{% endif %}
 Requests: <br/>
-
+{% if mine %}
 <!-- a href = "/admin/prepay/productrequest/add/">Add a new request?</a><br/ -->
 <a href = "{% url 'admin:prepay_productrequest_add' %}">Add a new request?</a><br/>
+{% endif %}
 {% if user.about %}
 About me:
   {{user.about}}<br/>
