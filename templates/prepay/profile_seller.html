@@ -9,6 +9,7 @@
 <p><a href = "{% url 'edit_profile' user.username %}">Edit?</a><p>
 {% endif %}
 
+
 {% if user.photo %}
     <img src="{{user.photo}}"><br/>
 {% endif %}
