@@ -97,11 +97,11 @@ def register(request):
     return render_to_response('prepay/register.html',{'form':form},context_instance=RequestContext(request))
 ####Jennifer
 
-def index(request):
-    return render(request, 'prepay/home.html')
-
 #def index(request):
-def browse_listings(request):
+#    return render(request, 'prepay/home.html')
+
+#def browse_listings(request):
+def index(request):
     if request.method == 'POST':
 		if 'logout' in request.POST:
 			logout(request)
