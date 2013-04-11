@@ -168,3 +168,7 @@ LOGGING = {
         },
     }
 }
+
+
+LOGIN_URL='/'
+LOGOUT_URL='/'
