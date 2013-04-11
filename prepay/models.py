@@ -14,6 +14,22 @@ class Category(models.Model):
     def __unicode__(self):
         return self.name    
     
+class Product(models.Model):
+    name = models.CharField(max_length=200)
+    #seller = models.ForeignKey(Seller)
+    picture = models.ImageField(upload_to='%Y/%m/%d')
+    categories = models.ManyToManyField(Category)
+    description = models.TextField(max_length=1000)
+
+    def purchase(self):
+        return str("sold!")
+
+    def get_picture_url(self):
+        return str(self.picture.url)
+
+    def __unicode__(self):
+        return self.name
+
 class ProductRequest(models.Model):
     name = models.CharField(max_length=200)
     categories = models.ManyToManyField(Category)
@@ -86,7 +102,7 @@ class Seller(UserProfile):
     #account = models.OneToOneField(UserProfile)   #####Jennifer
     objects = UserManager()
     #products = models.ManyToManyField(Product) #todo: filter by owner
-    #products = models.ManyToManyField(Product, blank=True, null=True)
+    products = models.ManyToManyField(Product, blank=True, null=True)
     #products = product_set.all()
     #bank_account = models.ForeignKey(BankAccount)
     #we might want to check out https://github.com/dcramer/django-ratings
@@ -110,25 +126,9 @@ class Buyer(UserProfile):
         verbose_name_plural = 'buyers'
 #Lara end1
 
-class Product(models.Model):
-    name = models.CharField(max_length=200)
-    seller = models.ForeignKey(Seller)
-    picture = models.ImageField(upload_to='%Y/%m/%d')
-    categories = models.ManyToManyField(Category)
-    description = models.TextField(max_length=1000)
-
-    def purchase(self):
-        return str("sold!")
-
-    def get_picture_url(self):
-        return str(self.picture.url)
-
-    def __unicode__(self):
-        return self.name
-
 class Listing(models.Model):
     name = models.CharField(max_length=50)
-    #seller = models.ForeignKey(Seller)
+    seller = models.ForeignKey(Seller)
     product = models.ForeignKey(Product)
     description = models.TextField(max_length=1000)
     #quantity = models.IntegerField()
@@ -146,25 +146,24 @@ class Listing(models.Model):
         return self.name
 
 class Listing_Comment(models.Model):
-    listing = models.ForeignKey(Listing)
-    commenter=models.ForeignKey(UserProfile)
-    comment = models.CharField(max_length=1000)
-    rating = models.IntegerField(
-        default=1,
+	listing = models.ForeignKey(Listing)
+	commenter=models.ForeignKey(UserProfile)
+	comment = models.CharField(max_length=1000)
+	rating = models.IntegerField(
+		default=1,
 		validators=[
 			MaxValueValidator(5),
 			MinValueValidator(0)
 		]
 	)
-    date = models.DateTimeField('Date added')
-    image = models.ImageField(_('image'), upload_to='listing/comment/img', blank=True)
-    
-    def __unicode__(self):
-        return u'%s %d' % (self.comment, self.rating)
-class Meta:
-	db_table = 'prepay_listins_comments'
-	verbose_name = 'listing comment'
-	verbose_name_plural = 'listing comments'
+	date = models.DateTimeField('Date added')
+	image = models.ImageField(_('image'), upload_to='listing/comment/img',null=True, blank=True)
+	def __unicode__(self):
+		return u'%s %d' % (self.comment, self.rating)
+	class Meta:
+		db_table = 'prepay_listins_comments'
+		verbose_name = 'listing comment'
+		verbose_name_plural = 'listing comments'
 
 class Bank(models.Model):
     name = models.CharField(max_length=50)
