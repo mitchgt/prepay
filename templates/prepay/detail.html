@@ -16,19 +16,46 @@
 			<b>Listing Name:</b> {{ listing.name }}</span><br/>
 			<b>Listing Description:</b> {{ listing.description }}<br/>
 			<b>Product Description:</b> {{ listing.product.description }}<br/>
-			<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{ listing.product.seller.username }}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>			<b>Categories:</b> {% for c in listing.product.categories.all %} {{ c.name }}, {% endfor %}<br/>
+			<b>Seller:</b> <a href="{% url 'profile' listing.seller.username %}">{{ listing.seller.username }}</a> (rating = {{ listing.seller.rating }}/5)<br/>
+			<b>Categories:</b> {% for c in listing.product.categories.all %} {{ c.name }}, {% endfor %}<br/>
 			<b>Created Date:</b> {{listing.created_at}}<br/>
 		</td>
 	</tr>
 </table>	
 
+
+{% if listing.Listing_Comment_set.all %}
+	{% for co in listing.Listing_Comment_set.all %}
+			{{co.UserProfile.username}}, {{co.date}}<br/>
+			Comment:{{co.comment}}<br/>
+			Rating: {{co.rating}}/5<br/>
+			{% if co.image %}
+				<img src="{{MEDIA_URL}}{{co.picture}}">
+			{% endif %}
+		<br/>
+	{% endfor %}
 {% else %}
-hmm... we seem not to find that listing
+	<p> No comments available. </p>
 {% endif %}
+
+{% if login_flag %}
+	<p>Leave a comment!</p>
+	<form enctype="multipart/form-data" action = "" method = "post">
+	{% csrf_token %}
+
+		{{form.as_p}}
+	<input type = "submit" value = "Submit Comment">
+	</form>
+{% else %}
+	<a href="{% url 'index' %}">Login to comment!</a>
+{% endif %}
+
+	{% else %}
+	hmm... we seem not to find that listing
+	{% endif %}
 
 
 {% endblock %}
-
 
 
 
