@@ -2,17 +2,17 @@ from django.http import HttpResponse
 from django.template import Context, loader
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User, Group  ####Jennifer
-from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm, EditProfileForm, PhoneNumberFormSet, InstantMessengerFormSet, WebSiteFormSet, StreetAddressFormSet, SearchForm #####Jennifer
+from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm #####Jennifer
 from django.shortcuts import render_to_response  # ##Jennifer
-from django.shortcuts import redirect
 from django.http import HttpResponseRedirect  ####Jennifer
 from django.template import RequestContext  # ##Jennifer
 from django.db import models  # ##Jennifer
 
-from prepay.models import Listing, Category, Seller, Buyer, ProductRequest, PhoneNumber, StreetAddress, WebSite, InstantMessenger, Product  # ##Jennifer edited
+from prepay.models import Listing, Category, UserProfile, Seller, Buyer, ProductRequest,Listing_Comment  # ##Jennifer edited
 from django.contrib.auth import authenticate, login, logout##Lara
-from django.db.models import Q
-from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required##Lara
+from django.core.urlresolvers import reverse##Lara
+from django.utils import timezone
 
 '''
 ####Jennifer new
@@ -25,52 +25,14 @@ def profile(request, user_username):
 #####Jennifer new
 '''
 
-def edit_profile(request, user_username):
-	if not request.user.username == user_username:
-		return HttpResponseRedirect(reverse('prepay.views.profile', args=(user_username,)))
-	if (Seller.objects.filter(username = user_username).exists()):
-		user = get_object_or_404(Seller, username=user_username)
-	else:
-		user = get_object_or_404(Buyer, username=user_username)
-	phone_formset = PhoneNumberFormSet(instance=user)
-	im_formset = InstantMessengerFormSet(instance=user)
-	website_formset = WebSiteFormSet(instance=user)
-	address_formset = StreetAddressFormSet(instance=user)
-	form = EditProfileForm(instance = user)
-
-	if request.method=='POST':
-		form = EditProfileForm(request.POST, request.FILES, instance=user)
-		phone_formset = PhoneNumberFormSet(request.POST, instance=user)
-		im_formset = InstantMessengerFormSet(request.POST, instance=user)
-		website_formset = WebSiteFormSet(request.POST, instance=user)
-		address_formset = StreetAddressFormSet(request.POST, instance=user)
-
-		if form.is_valid() and phone_formset.is_valid() and im_formset.is_valid() and website_formset.is_valid() and address_formset.is_valid():
-			form.save()
-			phone_formset.save()
-			im_formset.save()
-			website_formset.save()
-			address_formset.save()
-			return HttpResponseRedirect(reverse('prepay.views.profile', args=(user_username,)))
-		else:
-			return render_to_response('prepay/edit_profile.html',{'form':form, 'p_formset': phone_formset, 'i_formset': im_formset,'w_formset': website_formset, 's_formset': address_formset, 'Error': True, 'user':user},context_instance=RequestContext(request))
-
-	return render_to_response('prepay/edit_profile.html',{'form':form, 'p_formset': phone_formset, 'i_formset': im_formset,'w_formset': website_formset, 's_formset': address_formset, 'user':user},context_instance=RequestContext(request))
-
 
 def profile(request, user_username):
-    mine = False
     if(Seller.objects.filter(username = user_username).exists()):
         user = get_object_or_404(Seller, username=user_username)
-        products = Product.objects.filter(seller = user)
-        if request.user.username == user_username:
-			mine = True
-        return render(request, 'prepay/profile_seller.html', {'user':user, 'products':products, 'mine':mine})
+        return render(request, 'prepay/profile_seller.html', {'user':user})
     else:
         user = get_object_or_404(Buyer, username=user_username)
-        if request.user.username == user_username:
-			mine = True
-        return render(request, 'prepay/profile_buyer.html', {'user':user, 'mine':mine})
+        return render(request, 'prepay/profile_buyer.html', {'user':user})
         
 ####Jennifer
 def register(request):
@@ -87,7 +49,6 @@ def register(request):
                     u = Buyer.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
                 u.groups.add(Group.objects.get(name = acttype))
                 u.is_staff = True
-                u.slug = username1
                 u.save()
                 return HttpResponseRedirect('/')
             else:
@@ -97,38 +58,35 @@ def register(request):
     return render_to_response('prepay/register.html',{'form':form},context_instance=RequestContext(request))
 ####Jennifer
 
-#def index(request):
-#    return render(request, 'prepay/home.html')
 
-#def browse_listings(request):
+
 def index(request):
-    if request.method == 'POST':
-		if 'logout' in request.POST:
-			logout(request)
-    if request.user.is_authenticated():
-        login_flag=1
-        return render(request, 'prepay/browse_listings.html',{'login_flag':login_flag})
-    else:
-		login_flag=0
+	if request.user.is_authenticated():
+		return HttpResponseRedirect('/browse_listings')
+	else:
 		form = LoginForm()
+		context = Context({
+		'form':form
+	})
+		
 		if request.method =='POST':
-			form1 = LoginForm(request.POST)
-			if form1.is_valid():
+			form = LoginForm(request.POST)
+			if form.is_valid():
 				username = request.POST['username']
 				password = request.POST['password']
 				user = authenticate(username=username, password=password)
 				if user is not None:
 					if user.is_active:
 						login(request, user)
-						login_flag=1
-						return render(request, 'prepay/browse_listings.html',{'login_flag':login_flag})
+						return HttpResponseRedirect('/browse_listings')
 					else:
 		          # Return a 'disabled account' error message
-						return render(request, 'prepay/home.html', {'form':form,'login_flag':login_flag})
+						return render(request, 'prepay/home.html', context)
 				else:
         	# Return an 'invalid login' error message.
-					return render(request, 'prepay/home.html', {'form':form,'login_flag':login_flag})
-		return render(request, 'prepay/home.html',{'login_flag':login_flag,'form':form})
+					return render(request, 'prepay/home.html', context)
+		return render(request, 'prepay/home.html',context)
+
 
 
 def about(request):
@@ -139,61 +97,81 @@ todo:
 refactor this to support browse by different criteria e.g. category
 for now, created redundant browse_category
 '''
+@login_required
 def browse_listings(request):
-    if request.method =='POST':
-		form = SearchForm(request.POST)
-		if form.is_valid:
-			keywords=request.POST.get('q')
-			form = SearchForm(request.POST, initial = {'q':keywords})
-			query = Q()
-			for term in keywords.split():
-				q = Q(name__icontains=term) | Q(description__icontains=term) | Q(product__name__icontains=term) | Q(product__description__icontains=term) | Q(product__seller__username__icontains=term)
-				query = query & q
-			all_listings = Listing.objects.all().filter(query).order_by('-created_at')
-			request.session['last_listings']=all_listings
-			request.session['oldq']=keywords
-			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form}, 
-                                      context_instance=RequestContext(request)) 
-    elif request.method == 'GET':    	
-		if 'sort' in request.GET and request.GET['sort']:
-			all_listings = request.session.get('last_listings')
-			keywords = request.session.get('oldq')
-			form = SearchForm(initial = {'q':keywords})	
-			if request.GET['sort']=="1":
-				all_listings = all_listings.order_by('-created_at')
-			elif request.GET['sort']=="2":
-				all_listings = all_listings.order_by('-product__seller__username')
-			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form}, 
-                                      context_instance=RequestContext(request))
-    all_listings = Listing.objects.all().order_by('-created_at')
-    form = SearchForm()	
-    request.session['last_listings']=all_listings
-    request.session['oldq']=None
-    context = Context({
-        'all_listings': all_listings, 'form':form
+	login_flag=login_check(request)	
+	all_listings = Listing.objects.all().order_by('-created_at')
+	context = Context({
+		'all_listings': all_listings,
+		'login_flag':login_flag
 	})
-    return render(request, 'prepay/browse_listings.html', context)
+	return render(request, 'prepay/browse_listings.html',context)
 
+
+@login_required
+def browse_product_requests(request):
+	login_flag=login_check(request)
+	all_product_requests = ProductRequest.objects.all()
+	context = Context({
+		'all_product_requests': all_product_requests,
+		'login_flag':login_flag
+	})
+	return render(request, 'prepay/browse_product_requests.html', context)
+
+'''
+Pretty sick how this:
+
+select prepay_listing.name, prepay_product.name, prepay_category.name
+from prepay_product, prepay_category, prepay_product_categories, prepay_listing
+where prepay_product.id = prepay_product_categories.product_id
+and prepay_product.id = prepay_listing.product_id
+and prepay_category.id = prepay_product_categories.category_id
+and prepay_category.id = 1
+
+equals this:
+
+Listing.objects.filter(product__category__exact=cat_id)
+
+'''
+@login_required
 def browse_category(request, category_id):
-    category = Category.objects.filter(pk=category_id)
-    listings_by_category = Listing.objects.filter(product__categories__exact=category_id)
-    context = Context({
-        'category': category[0],
-        'listings_by_category': listings_by_category,
-    })
-    return render(request, 'prepay/category.html', context)
+	login_flag=login_check(request)
+	category = Category.objects.filter(pk=category_id)
+	listings_by_category = Listing.objects.filter(product__categories__exact=category_id)
+	context = Context({
+		'category': category[0],
+		'listings_by_category': listings_by_category,
+		'login_flag':login_flag
+	})
+	return render(request, 'prepay/category.html', context)
 
+@login_required
 def listing_detail(request, listing_id):
     # return HttpResponse("You're looking at the detailed view of listing %s." % listing_id)
+	login_flag=login_check(request)
 	listing = get_object_or_404(Listing, pk=listing_id)
 	if request.method =='POST':
-		form = CommentForm(request.POST,request.FILES)
+		form = ListingCommentForm(request.POST,request.FILES)
 		if form.is_valid():
 			comment = request.POST.get('comment')
 			rating = request.POST.get('rating')
 			image = request.FILES.get('image')
-			listing.Listing_Comment_set.create(comment=comment, rating = rating,  date=date, image=image, )
+			date = timezone.now()
+			username=request.user.username
+			User_Profile=get_object_or_404(UserProfile, username=username)
+			Listing_Comment.objects.create(listing=listing,commenter=User_Profile,comment=comment, rating = rating,  date=date, image=image)
 
 	form = ListingCommentForm()
-	return render(request, 'prepay/detail.html', {'listing':listing,'form':form})
+	context = Context({
+		'listing':listing,
+		'form':form,
+		'login_flag':login_flag
+	})
+	return render(request, 'prepay/detail.html',context)
 
+def login_check(request):
+	if request.user.is_authenticated():
+		login_flag=1
+	else:
+		login_flag=0
+	return login_flag
