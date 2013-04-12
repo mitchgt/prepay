@@ -16,6 +16,7 @@
 </div>
 
 {% if login_flag %}
+	<a href="{% url 'profile' user.username %}">{{user.username}}</a>
 	<a href="{% url 'auth_logout' %}">Logout</a>
 {% endif %}
 
