@@ -118,21 +118,7 @@ def browse_product_requests(request):
 	})
 	return render(request, 'prepay/browse_product_requests.html', context)
 
-'''
-Pretty sick how this:
 
-select prepay_listing.name, prepay_product.name, prepay_category.name
-from prepay_product, prepay_category, prepay_product_categories, prepay_listing
-where prepay_product.id = prepay_product_categories.product_id
-and prepay_product.id = prepay_listing.product_id
-and prepay_category.id = prepay_product_categories.category_id
-and prepay_category.id = 1
-
-equals this:
-
-Listing.objects.filter(product__category__exact=cat_id)
-
-'''
 @login_required
 def browse_category(request, category_id):
 	login_flag=login_check(request)
