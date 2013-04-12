@@ -19,6 +19,13 @@
 				<b>Seller:</b> <a href="{% url 'profile' listing.seller.username %}">{{ listing.seller.username }}</a> (rating = {{ listing.seller.rating }}/5)<br/>
 				<b>Categories:</b> {% for c in listing.product.categories.all %} {{ c.name }}, {% endfor %}<br/>
 				<b>Created Date:</b> {{listing.created_at}}<br/>
+				<b>Price:</b> ${{listing.price}}<br/>
+				<b>Status:</b> {{listing.status}}<br/>
+				<b>Minimum goal:</b> {{listing.minGoal}}<br/>
+				<b>Maximum goal:</b> {{listing.maxGoal}}<br/>
+				<b>Current number of bidders:</b> {{listing.numBidders}}<br/>
+				<b>Deadline for bidding:</b> {{listing.deadlineBid}}<br/>
+				<b>Deadline for delivery:</b> {{listing.deadlineDeliver}}<br/>
 			</td>
 		</tr>
 	</table>	
