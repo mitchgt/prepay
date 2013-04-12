@@ -27,10 +27,12 @@ class UserAdmin(admin.ModelAdmin):
     
 class ListingInline(admin.TabularInline):
     model = Listing
+    exclude = ('numBidders',)
     extra = 1
 
 class PLAdmin(admin.ModelAdmin): 
     inlines = [ListingInline,]
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'seller':
             if not request.user.is_superuser:
