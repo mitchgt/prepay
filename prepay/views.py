@@ -63,18 +63,20 @@ def edit_profile(request, user_username):
 
 
 def profile(request, user_username):
+    login_flag=login_check(request)
     mine = False
     if(Seller.objects.filter(username = user_username).exists()):
         user = get_object_or_404(Seller, username=user_username)
         products = Product.objects.filter(seller = user)
+        listings = Listing.objects.filter(product__seller = user)
         if request.user.username == user_username:
     		mine = True
-        return render(request, 'prepay/profile_seller.html', {'user':user, 'products':products, 'mine':mine})
+        return render(request, 'prepay/profile_seller.html', {'user':user, 'products':products, 'listings':listings, 'mine':mine, 'login_flag': login_flag})
     else:
         user = get_object_or_404(Buyer, username=user_username)
         if request.user.username == user_username:
 			mine = True
-        return render(request, 'prepay/profile_buyer.html', {'user':user, 'mine':mine})
+        return render(request, 'prepay/profile_buyer.html', {'user':user, 'mine':mine, 'login_flag': login_flag})
 
         
 ####Jennifer
