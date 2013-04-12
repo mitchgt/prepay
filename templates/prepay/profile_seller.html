@@ -47,8 +47,8 @@ Website:
     {{item}}<br/>
 {% endfor %}{% endif %}
 Products: 
-{% for p in products %}
-    {{ p.name }},
+{% for l in listings %}
+    <a href = "{% url 'listing_detail' l.id %}">{{ l.product.name }}</a>,
 {% empty %}
     No products!
 {% endfor %}
