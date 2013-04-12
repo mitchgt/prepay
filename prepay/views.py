@@ -63,18 +63,18 @@ def edit_profile(request, user_username):
 
 
 def profile(request, user_username):
-    mine = False
-    if(Seller.objects.filter(username = user_username).exists()):
-        user = get_object_or_404(Seller, username=user_username)
-        products = Product.objects.filter(seller = user)
-        if request.user.username == user_username:
-    		mine = True
-        return render(request, 'prepay/profile_seller.html', {'user':user, 'products':products, 'mine':mine})
-    else:
-        user = get_object_or_404(Buyer, username=user_username)
-        if request.user.username == user_username:
+	mine = False
+	if(Seller.objects.filter(username = user_username).exists()):
+		user = get_object_or_404(Seller, username=user_username)
+		products = Product.objects.filter(seller = user)
+		if request.user.username == user_username:
 			mine = True
-        return render(request, 'prepay/profile_buyer.html', {'user':user, 'mine':mine})
+		return render(request, 'prepay/profile_seller.html', {'user':user, 'products':products, 'mine':mine})
+	else:
+		user = get_object_or_404(Buyer, username=user_username)
+		if request.user.username == user_username:
+			mine = True
+		return render(request, 'prepay/profile_buyer.html', {'user':user, 'mine':mine})
 
         
 ####Jennifer
@@ -145,7 +145,7 @@ for now, created redundant browse_category
 def browse_listings(request):
 	login_flag=login_check(request)	
 	if request.method =='POST':
-    	form = SearchForm(request.POST)
+		form = SearchForm(request.POST)
 		if form.is_valid:
 			keywords=request.POST.get('q')
 			form = SearchForm(request.POST, initial = {'q':keywords})
