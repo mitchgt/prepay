@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from prepay.models import UserProfile, PhoneNumber, WebSite, StreetAddress, InstantMessenger 
 from django.forms import ModelForm
 from django.contrib.contenttypes.generic import generic_inlineformset_factory 
+from prepay import settings
 
 class LoginForm(forms.Form):
 	username=forms.CharField(max_length=15)
@@ -22,7 +23,7 @@ class ListingCommentForm(forms.Form):
 	)
 	image = forms.FileField(required=False)
 	def clean(self):
-		image = self.cleaned_data['picture']
+		image = self.cleaned_data['image']
 		if image:
 			file_type = image.content_type.split('/')[0]
 			if (file_type not in settings.TASK_UPLOAD_FILE_TYPES):
