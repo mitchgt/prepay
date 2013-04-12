@@ -123,7 +123,7 @@ def index(request):
 				if user is not None:
 					if user.is_active:
 						login(request, user)
-						return HttpResponseRedirect('/browse_listings')
+						return HttpResponseRedirect(reverse('browse_listings'))
 					else:
 		          # Return a 'disabled account' error message
 						return render(request, 'prepay/home.html', context)
