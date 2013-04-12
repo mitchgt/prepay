@@ -105,9 +105,10 @@ def register(request):
 
 
 def index(request):
-	if request.user.is_authenticated():
-		return HttpResponseRedirect('/browse_listings')
-	else:
+    if request.user.is_authenticated():
+		#return HttpResponseRedirect('/browse_listings')
+        return HttpResponseRedirect(reverse('browse_listings'))
+    else:
 		form = LoginForm()
 		context = Context({
 		'form':form
