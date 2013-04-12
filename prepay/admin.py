@@ -33,7 +33,8 @@ class PLAdmin(admin.ModelAdmin):
     inlines = [ListingInline,]
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'seller':
-            kwargs["queryset"] = Seller.objects.filter(user = request.user)
+            if not request.user.is_superuser:
+                kwargs["queryset"] = Seller.objects.filter(user = request.user)
         return super(PLAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 admin.site.register(Product, PLAdmin)
