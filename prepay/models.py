@@ -7,6 +7,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.generic import GenericRelation
 from django.utils.translation import ugettext as _
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models.signals import post_save
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
@@ -24,6 +25,7 @@ class ProductRequest(models.Model):
 
 class BankAccount(models.Model):
     name = models.CharField(max_length=50)
+    user = models.ForeignKey(User) 
     
     #might be a better way:
     #http://stackoverflow.com/questions/2013835/django-how-should-i-store-a-money-value
@@ -128,6 +130,14 @@ class Product(models.Model):
         
 class Listing(models.Model):
     name = models.CharField(max_length=50)
+    CHOICES = (('Open for bidding', 'Open for bidding'), ('In Production', 'In Production'), ('Closed', 'Closed'))
+    status = models.CharField(max_length=30, choices=CHOICES, default = 'Open for bidding') 
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    numBidders = models.IntegerField(default = 0)
+    minGoal = models.IntegerField()
+    maxGoal = models.IntegerField()
+    deadlineBid = models.DateTimeField()
+    deadlineDeliver = models.DateTimeField()
     #seller = models.ForeignKey(Seller)
     product = models.ForeignKey(Product)
     description = models.TextField(max_length=1000)
@@ -172,6 +182,8 @@ class Bank(models.Model):
     
 class Escrow(models.Model):
     name = models.CharField(max_length=50)
+    listing = models.ForeignKey(Listing)
+    balance = models.DecimalField(max_digits=8, decimal_places=2)
     def __unicode__(self):
         return self.name
 
@@ -307,3 +319,12 @@ class StreetAddress(models.Model):
 #Lara end2
 
 #editted by Lara, reference: https://github.com/myles/django-contacts/blob/master/src/contacts/models.py
+
+def save_escrow_handler(sender, **kwargs):
+	l = kwargs['instance']
+	if kwargs['created']:
+		l.escrow_set.create(name=l.name, listing = l, balance = 0)
+	return
+
+post_save.connect(save_escrow_handler, sender = Listing)
+
