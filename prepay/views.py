@@ -219,7 +219,7 @@ def listing_detail(request, listing_id):
 			username=request.user.username
 			User_Profile=get_object_or_404(UserProfile, username=username)
 			Listing_Comment.objects.create(listing=listing,commenter=User_Profile,comment=comment, rating = rating,  date=date, image=image)
-
+			return HttpResponseRedirect(reverse("prepay.views.listing_detail", args=(listing.id,)))
 	form = ListingCommentForm()
 	context = Context({
 		'listing':listing,
