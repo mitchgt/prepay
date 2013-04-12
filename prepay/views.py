@@ -158,7 +158,7 @@ def browse_listings(request):
 			request.session['oldq']=keywords
 			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag }, 
                                       context_instance=RequestContext(request)) 
-    elif request.method == 'GET':    	
+	elif request.method == 'GET':    	
 		if 'sort' in request.GET and request.GET['sort']:
 			all_listings = request.session.get('last_listings')
 			keywords = request.session.get('oldq')
@@ -169,14 +169,14 @@ def browse_listings(request):
 				all_listings = all_listings.order_by('-product__seller__username')
 			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag }, 
                                       context_instance=RequestContext(request))
-    all_listings = Listing.objects.all().order_by('-created_at')
-    form = SearchForm()	
-    request.session['last_listings']=all_listings
-    request.session['oldq']=None
-    context = Context({
+	all_listings = Listing.objects.all().order_by('-created_at')
+	form = SearchForm()	
+	request.session['last_listings']=all_listings
+	request.session['oldq']=None
+	context = Context({
         'all_listings': all_listings, 'form':form, 'login_flag':login_flag 
 	})
-    return render(request, 'prepay/browse_listings.html', context)
+	return render(request, 'prepay/browse_listings.html', context)
 
 
 
