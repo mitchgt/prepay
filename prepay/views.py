@@ -144,7 +144,7 @@ for now, created redundant browse_category
 @login_required
 def browse_listings(request):
 	login_flag=login_check(request)	
-	 if request.method =='POST':
+	if request.method =='POST':
     	form = SearchForm(request.POST)
 		if form.is_valid:
 			keywords=request.POST.get('q')
