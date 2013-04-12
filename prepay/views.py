@@ -96,6 +96,7 @@ def register(request):
                 u.is_staff = True
                 u.slug = username1 
                 u.save()
+                u.bankaccount_set.create(name = u.username, user = u, balance = 0)
                 return HttpResponseRedirect('/')
             else:
                 return render_to_response('prepay/register.html',{'form':form,'error':True}, context_instance=RequestContext(request))
