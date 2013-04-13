@@ -83,9 +83,6 @@ class UserProfile    (User): ####Jennifer
         'pk': self.pk,
         'slug': self.slug,
     })
-        
-    def get_picture_url(self):
-        return str(self.photo.url)       
 
 	def get_picture_url(self):
 		return str(self.photo.url) 
