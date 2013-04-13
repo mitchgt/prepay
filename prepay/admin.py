@@ -1,5 +1,5 @@
 from django.contrib import admin
-from prepay.models import Product, Category, Seller, Listing, Bank, Escrow, BankAccount, Buyer, ProductRequest, BankAccount, PhoneNumber, InstantMessenger, StreetAddress, WebSite
+from prepay.models import Product, Category, Seller, Listing, Bank, Escrow, BankAccount, Buyer, ProductRequest, BankAccount, PhoneNumber, InstantMessenger, StreetAddress, WebSite, Order
 from django.contrib.contenttypes import generic
 
 class PhoneNumberInline(generic.GenericTabularInline):
@@ -48,3 +48,4 @@ admin.site.register(Escrow)
 admin.site.register(BankAccount)
 admin.site.register(Buyer, UserAdmin)
 admin.site.register(ProductRequest)
+admin.site.register(Order)
