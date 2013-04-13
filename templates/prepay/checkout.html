@@ -1,0 +1,28 @@
+{% extends "prepay/base.html" %}
+
+{% load url from future %}
+
+{% block content %}
+
+<h2>Checkout</h2>
+Buyer: {{user}}<br/>
+Seller: {{listing.product.seller}}<br/>
+Product: {{listing.name}}<br/>
+Price: ${{listing.price}}<br/>
+<form enctype="multipart/form-data" action = "" method = "post">
+{% csrf_token %}
+{{form.as_p}}
+
+{{a_formset.management_form}}
+{% for field in a_formset %}
+	{{field.as_table}}<br/>	
+{% endfor %}<br/>
+
+
+<input class = "button" type = "submit" value = "Confirm"/>
+</form>
+
+<p><a href = "{% url 'listing_detail' listing.id %}">Cancel</a><p>
+
+{% endblock %}
+
