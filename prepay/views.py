@@ -2,13 +2,13 @@ from django.http import HttpResponse
 from django.template import Context, loader
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User, Group  ####Jennifer
-from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm, EditProfileForm, PhoneNumberFormSet, InstantMessengerFormSet, WebSiteFormSet, StreetAddressFormSet, SearchForm #####Jennifer
+from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm, EditProfileForm, PhoneNumberFormSet, InstantMessengerFormSet, WebSiteFormSet, StreetAddressFormSet, SearchForm, CheckoutForm #####Jennifer
 from django.shortcuts import render_to_response  # ##Jennifer
 from django.http import HttpResponseRedirect  ####Jennifer
 from django.template import RequestContext  # ##Jennifer
 from django.db import models  # ##Jennifer
 
-from prepay.models import Listing, Category, UserProfile, Seller, Buyer, ProductRequest,Listing_Comment, PhoneNumber, StreetAddress, WebSite, InstantMessenger, Product  # ##Jennifer edited
+from prepay.models import Listing, Category, UserProfile, Seller, Buyer, ProductRequest,Listing_Comment, PhoneNumber, StreetAddress, WebSite, InstantMessenger, Product, Order  # ##Jennifer edited
 from django.contrib.auth import authenticate, login, logout##Lara
 from django.contrib.auth.decorators import login_required##Lara
 from django.core.urlresolvers import reverse##Lara
@@ -243,3 +243,28 @@ def login_check(request):
 	else:
 		login_flag=0
 	return login_flag
+
+
+def confirmed(request):
+	login_flag=login_check(request)
+	return render(request, 'prepay/confirmed.html',{'login_flag':login_flag,})
+
+def checkout(request, listing_id):
+	login_flag=login_check(request)
+	listing = Listing.objects.get(pk = listing_id)
+	form = CheckoutForm()
+	address_formset = StreetAddressFormSet()
+	if request.method=='POST':
+		form=CheckoutForm(request.POST)
+		address_formset = StreetAddressFormSet(request.POST, instance = request.user)
+		if form.is_valid() and address_formset.is_valid():
+			if 'quantity' in request.POST:
+				buyer=Buyer.objects.get(username = request.user.username)
+				seller=listing.product.seller
+				address=address_formset.save()
+				neworder = Order.objects.create(seller=seller, buyer=buyer, listing=listing)
+				neworder.shipping_address = address
+				return HttpResponseRedirect(reverse("prepay.views.confirmed"))
+
+
+	return render_to_response('prepay/checkout.html',{'a_formset':address_formset, 'form':form, 'login_flag':login_flag, 'listing':listing }, context_instance=RequestContext(request))
