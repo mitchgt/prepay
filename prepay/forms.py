@@ -6,7 +6,7 @@ from django.contrib.contenttypes.generic import generic_inlineformset_factory
 from prepay import settings
 
 class CheckoutForm(forms.Form):
-	quantity = forms.IntegerField()
+	quantity = forms.IntegerField(min_value=1)
 
 class LoginForm(forms.Form):
 	username=forms.CharField(max_length=15)
