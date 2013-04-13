@@ -259,11 +259,16 @@ def checkout(request, listing_id):
 		address_formset = StreetAddressFormSet(request.POST, instance = request.user)
 		if form.is_valid() and address_formset.is_valid():
 			if 'quantity' in request.POST:
+				quantity = int(request.POST.get('quantity'))
 				buyer=Buyer.objects.get(username = request.user.username)
 				seller=listing.product.seller
 				address=address_formset.save()
-				neworder = Order.objects.create(seller=seller, buyer=buyer, listing=listing)
-				neworder.shipping_address = address
+				for i in range(quantity):
+					neworder = Order.objects.create(seller=seller, buyer=buyer, listing=listing)
+					neworder.shipping_address = address
+				a = listing.numBidders + quantity
+				listing.numBidders = a
+				listing.save()
 				return HttpResponseRedirect(reverse("prepay.views.confirmed"))
 
 
