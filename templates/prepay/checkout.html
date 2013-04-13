@@ -5,6 +5,11 @@
 {% block content %}
 
 <h2>Checkout</h2>
+
+{% if error %}
+You do not have enough credit to place this order!<br/>
+{% endif %}
+
 Buyer: {{user}}<br/>
 Seller: {{listing.product.seller}}<br/>
 Product: {{listing.name}}<br/>
