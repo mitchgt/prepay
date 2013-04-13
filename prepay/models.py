@@ -83,6 +83,9 @@ class UserProfile    (User): ####Jennifer
         'pk': self.pk,
         'slug': self.slug,
     })
+        
+    def get_picture_url(self):
+        return str(self.photo.url)       
 
 class Seller(UserProfile):
     #account = models.OneToOneField(UserProfile)   #####Jennifer

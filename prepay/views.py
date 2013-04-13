@@ -140,11 +140,6 @@ def index(request):
 def about(request):
     return render(request, 'prepay/about.html')
 
-'''
-todo: 
-refactor this to support browse by different criteria e.g. category
-for now, created redundant browse_category
-'''
 @login_required
 def browse_listings(request):
 	login_flag=login_check(request)	
