@@ -20,6 +20,10 @@
 				<b>Categories:</b> {% for c in listing.product.categories.all %} {{ c.name }}, {% endfor %}<br/>
 				<b>Created Date:</b> {{listing.created_at}}<br/>
 				<b>Price:</b> ${{listing.price}}<br/>
+				<form action = "{% url 'checkout' listing.id %}" method = "get">
+				{% csrf_token %}
+				<input class = "button" type = "submit" value = "Pre-order"/>
+				</form>
 				<b>Status:</b> {{listing.status}}<br/>
 				<b>Minimum goal:</b> {{listing.minGoal}}<br/>
 				<b>Maximum goal:</b> {{listing.maxGoal}}<br/>
