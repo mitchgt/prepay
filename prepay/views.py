@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect  ####Jennifer
 from django.template import RequestContext  # ##Jennifer
 from django.db import models  # ##Jennifer
 
-from prepay.models import Listing, Category, UserProfile, Seller, Buyer, ProductRequest,Listing_Comment, PhoneNumber, StreetAddress, WebSite, InstantMessenger, Product, Order  # ##Jennifer edited
+from prepay.models import Listing, Category, UserProfile, Seller, Buyer, ProductRequest,Listing_Comment, PhoneNumber, StreetAddress, WebSite, InstantMessenger, Product, Order, BankAccount, Escrow  # ##Jennifer edited
 from django.contrib.auth import authenticate, login, logout##Lara
 from django.contrib.auth.decorators import login_required##Lara
 from django.core.urlresolvers import reverse##Lara
@@ -71,12 +71,12 @@ def profile(request, user_username):
         listings = Listing.objects.filter(product__seller = user)
         if request.user.username == user_username:
     		mine = True
-        return render(request, 'prepay/profile_seller.html', {'user':user, 'products':products, 'listings':listings, 'mine':mine, 'login_flag': login_flag})
+        return render(request, 'prepay/profile_seller.html', {'theuser':user, 'products':products, 'listings':listings, 'mine':mine, 'login_flag': login_flag})
     else:
         user = get_object_or_404(Buyer, username=user_username)
         if request.user.username == user_username:
 			mine = True
-        return render(request, 'prepay/profile_buyer.html', {'user':user, 'mine':mine, 'login_flag': login_flag})
+        return render(request, 'prepay/profile_buyer.html', {'theuser':user, 'mine':mine, 'login_flag': login_flag})
 
         
 ####Jennifer
@@ -140,11 +140,6 @@ def index(request):
 def about(request):
     return render(request, 'prepay/about.html')
 
-'''
-todo: 
-refactor this to support browse by different criteria e.g. category
-for now, created redundant browse_category
-'''
 @login_required
 def browse_listings(request):
 	login_flag=login_check(request)	
@@ -252,6 +247,9 @@ def confirmed(request):
 def checkout(request, listing_id):
 	login_flag=login_check(request)
 	listing = Listing.objects.get(pk = listing_id)
+	error = False ###
+	if listing.status != "Open for bidding":
+		return HttpResponseRedirect(reverse('prepay.views.listing_detail', args=(listing_id)))
 	form = CheckoutForm()
 	address_formset = StreetAddressFormSet()
 	if request.method=='POST':
@@ -260,16 +258,25 @@ def checkout(request, listing_id):
 		if form.is_valid() and address_formset.is_valid():
 			if 'quantity' in request.POST:
 				quantity = int(request.POST.get('quantity'))
+				total = quantity * listing.price 
 				buyer=Buyer.objects.get(username = request.user.username)
-				seller=listing.product.seller
-				address=address_formset.save()
-				for i in range(quantity):
-					neworder = Order.objects.create(seller=seller, buyer=buyer, listing=listing)
-					neworder.shipping_address = address
-				a = listing.numBidders + quantity
-				listing.numBidders = a
-				listing.save()
-				return HttpResponseRedirect(reverse("prepay.views.confirmed"))
+				ba = BankAccount.objects.get(user = request.user)
+				if ba.balance>=total:
+					seller=listing.product.seller
+					address=address_formset.save()
+					for i in range(quantity):
+						neworder = Order.objects.create(seller=seller, buyer=buyer, listing=listing)
+						neworder.shipping_address = address
+					a = listing.numBidders + quantity
+					listing.numBidders = a
+					listing.save()
+					ba.balance = ba.balance - total
+					ba.save()
+					e = Escrow.objects.get(listing=listing)
+					e.balance = e.balance + total
+					e.save()
+					return HttpResponseRedirect(reverse("prepay.views.confirmed"))
+				else:
+					error = True
 
-
-	return render_to_response('prepay/checkout.html',{'a_formset':address_formset, 'form':form, 'login_flag':login_flag, 'listing':listing }, context_instance=RequestContext(request))
+	return render_to_response('prepay/checkout.html',{'a_formset':address_formset, 'form':form, 'login_flag':login_flag, 'listing':listing, 'error':error }, context_instance=RequestContext(request))
