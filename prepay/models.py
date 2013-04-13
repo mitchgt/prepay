@@ -187,6 +187,16 @@ class Escrow(models.Model):
     def __unicode__(self):
         return self.name
 
+class Order(models.Model):
+    CHOICES = (('Ongoing', 'Ongoing'), ('Closed', 'Closed'), ('Aborted', 'Aborted'))
+    status = models.CharField(max_length=30, choices=CHOICES, default = 'Ongoing') 
+    buyer = models.ForeignKey(Buyer)
+    seller = models.ForeignKey(Seller)
+    listing = models.ForeignKey(Listing)
+    date_added = models.DateTimeField(_('date added'), auto_now_add=True)
+    date_delivered = models.DateTimeField(_('date delivered'),null=True, blank=True)
+    shipping_address = GenericRelation('StreetAddress')
+
 #Lara start2
 PHONE_LOCATION_CHOICES = (
     ('work', _('Work')),
