@@ -213,6 +213,9 @@ def listing_detail(request, listing_id):
     # return HttpResponse("You're looking at the detailed view of listing %s." % listing_id)
 	login_flag=login_check(request)
 	listing = get_object_or_404(Listing, pk=listing_id)
+	buyer = False
+	if Buyer.objects.filter(username = request.user.username):
+		buyer = True
 	if request.method =='POST':
 		form = ListingCommentForm(request.POST,request.FILES)
 		if form.is_valid():
@@ -228,7 +231,8 @@ def listing_detail(request, listing_id):
 	context = Context({
 		'listing':listing,
 		'form':form,
-		'login_flag':login_flag
+		'login_flag':login_flag,
+		'isBuyer':buyer
 	})
 	return render(request, 'prepay/detail.html',context)
 
@@ -246,9 +250,10 @@ def confirmed(request):
 
 def checkout(request, listing_id):
 	login_flag=login_check(request)
+	
 	listing = Listing.objects.get(pk = listing_id)
 	error = False ###
-	if listing.status != "Open for bidding":
+	if listing.status != "Open for bidding" or not Buyer.objects.filter(username = request.user.username):
 		return HttpResponseRedirect(reverse('prepay.views.listing_detail', args=(listing_id)))
 	form = CheckoutForm()
 	address_formset = StreetAddressFormSet()
@@ -258,8 +263,8 @@ def checkout(request, listing_id):
 		if form.is_valid() and address_formset.is_valid():
 			if 'quantity' in request.POST:
 				quantity = int(request.POST.get('quantity'))
-				total = quantity * listing.price 
 				buyer=Buyer.objects.get(username = request.user.username)
+				total = quantity * listing.price 
 				ba = BankAccount.objects.get(user = request.user)
 				if ba.balance>=total:
 					seller=listing.product.seller
