@@ -1,9 +1,12 @@
 from django import forms
 from django.contrib.auth.models import User
-from prepay.models import UserProfile, PhoneNumber, WebSite, StreetAddress, InstantMessenger 
+from prepay.models import UserProfile, PhoneNumber, WebSite, StreetAddress, InstantMessenger, Order
 from django.forms import ModelForm
 from django.contrib.contenttypes.generic import generic_inlineformset_factory 
 from prepay import settings
+
+class CheckoutForm(forms.Form):
+	quantity = forms.IntegerField()
 
 class LoginForm(forms.Form):
 	username=forms.CharField(max_length=15)
