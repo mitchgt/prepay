@@ -17,6 +17,8 @@ urlpatterns = patterns('',
 #    url(r'^user/(?P<user_username>.*)$', views.profile, name = 'user'),  ####Jennifer new
     url(r'^profile/(?P<user_username>.*)$', views.profile, name = 'profile'), 
     url(r'^listings/(?P<listing_id>.*)$', views.listing_detail, name='listing_detail'),
+    url(r'^checkout/(?P<listing_id>.*)$', views.checkout, name='checkout'),
+    url(r'^confirmed$', views.confirmed, name='confirmed'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
     url(r'^logout/$', 'django.contrib.auth.views.logout', name="auth_logout"),
