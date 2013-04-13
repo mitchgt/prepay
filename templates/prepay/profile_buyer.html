@@ -55,4 +55,20 @@ Requests: <br/>
 About me:
   {{user.about}}<br/>
 {% endif %}
+
+
+
+Orders: <br/>
+{% for order in user.order_set.all %}
+	Product: {{order.listing.name}}<br/>
+	Seller: {{order.listing.product.seller}}<br/>
+	Status: {{order.status}}<br/>
+	Date ordered: {{order.date_added}}<br/>
+	Shipping address: 
+	{% for ship in order.shipping_address.all %}
+	{{ship}}
+	{% endfor %}<br/>
+*****************************<br/>
+{% endfor %}
+
 {% endblock %}
