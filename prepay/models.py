@@ -84,6 +84,9 @@ class UserProfile    (User): ####Jennifer
         'slug': self.slug,
     })
 
+	def get_picture_url(self):
+		return str(self.photo.url) 
+
 class Seller(UserProfile):
     #account = models.OneToOneField(UserProfile)   #####Jennifer
     objects = UserManager()
@@ -196,6 +199,9 @@ class Order(models.Model):
     date_added = models.DateTimeField(_('date added'), auto_now_add=True)
     date_delivered = models.DateTimeField(_('date delivered'),null=True, blank=True)
     shipping_address = GenericRelation('StreetAddress')
+
+    def __unicode__(self):
+        return self.listing.name
 
 #Lara start2
 PHONE_LOCATION_CHOICES = (
