@@ -81,6 +81,7 @@ def profile(request, user_username):
         
 ####Jennifer
 def register(request):
+    login_flag=login_check(request)
     if request.method =='POST':
         form = RegistrationForm(request.POST)
         new_data = request.POST.copy()
@@ -97,12 +98,12 @@ def register(request):
                 u.slug = username1 
                 u.save()
                 u.bankaccount_set.create(name = u.username, user = u, balance = 0)
-                return HttpResponseRedirect('/')
+                return HttpResponseRedirect(reverse('browse_listings'))
             else:
-                return render_to_response('prepay/register.html',{'form':form,'error':True}, context_instance=RequestContext(request))
+                return render_to_response('prepay/register.html', {'form':form,'error':True, 'login_flag': login_flag}, context_instance=RequestContext(request))
     else:
         form = RegistrationForm()
-    return render_to_response('prepay/register.html',{'form':form},context_instance=RequestContext(request))
+    return render_to_response('prepay/register.html',{'form':form, 'login_flag': login_flag},context_instance=RequestContext(request))
 ####Jennifer
 
 
@@ -136,9 +137,9 @@ def index(request):
 		return render(request, 'prepay/home.html',context)
 
 
-
 def about(request):
-    return render(request, 'prepay/about.html')
+    login_flag=login_check(request)
+    return render(request, 'prepay/about.html', {'login_flag':login_flag})
 
 @login_required
 def browse_listings(request):

@@ -1,9 +1,13 @@
 {% extends "prepay/base.html" %}
 
+{% load url from future %}
 
 {% block content %}
 
 <h2>About Prepay</h2>
+
+{% csrf_token %}
+
 <p>
 Individuals with an idea for some product often have the potential to make it a reality. However, it is a difficult process because practical hindrances, such as lack of knowledge about how marketable the product will be, often outweigh the driving force for producing the product. Connections and resources are two absolute necessities that generally determine if an idea will take shape. Our project will facilitate the procurement of both, and thus allow for greater creativity and business for the mass.
 </p>
