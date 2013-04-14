@@ -10,6 +10,10 @@
 You do not have enough credit to place this order!<br/>
 {% endif %}
 
+{% if exceed %}
+Your quantity you order will exceed the maximum goal of the listing. Please enter a quantity smaller or equal to {{exceed}}.<br/>
+{% endif %}
+
 Buyer: {{user}}<br/>
 Seller: {{listing.product.seller}}<br/>
 Product: {{listing.name}}<br/>
