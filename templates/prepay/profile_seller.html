@@ -9,42 +9,45 @@
 <p><a href = "{% url 'edit_profile' user.username %}">Edit?</a><p>
 {% endif %}
 
-
-{% if user.photo %}
-    <img src="{{ user.get_picture_url }}" width="150" align="left" style="border:none; padding-right:8px;">
+{% if theuser.photo %}
+    <img src="{{ theuser.get_picture_url }}" width="150" align="left" style="border:none; padding-right:8px;">
     <br/>
 {% endif %}
 Name:
-{% if user.last_name or user.first_name %}
-{{user.title}} {{user.first_name}} {{user.middle_name}} {{user.last_name}} {{user.suffix}}
+{% if theuser.last_name or theuser.first_name %}
+{{theuser.title}} {{theuser.first_name}} {{theuser.middle_name}} {{theuser.last_name}} {{theuser.suffix}}
 {% endif %}<br/>
-{% if user.nickname %}
-Nickname: {{user.nickname}}<br/>
+{% if theuser.nickname %}
+Nickname: {{theuser.nickname}}<br/>
 {% endif %}
-Rating: {{user.rating}}<br/>
-Username: {{user.username}}<br/>
+Rating: {{theuser.rating}}<br/>
+Username: {{theuser.username}}<br/>
 {% if mine %}
 Password: <a href= "{% url 'admin:password_change' %}">Change password?</a><br/>
+Balance: 
+{% for ba in theuser.bankaccount_set.all %}
+{{ba.balance}}
+{% endfor %}<br/>
 {% endif %}
-Email: {{user.email}}<br/>
-{% if user.phone_number.all %}
+Email: {{theuser.email}}<br/>
+{% if theuser.phone_number.all %}
 Phone number:
-{% for item in user.phone_number.all %}
+{% for item in theuser.phone_number.all %}
     {{item}}<br/>
 {% endfor %}{% endif %}
-{% if user.street_address.all %}
+{% if theuser.street_address.all %}
 Street Address:
-{% for item in user.street_address.all %}
+{% for item in theuser.street_address.all %}
     {{item}}<br/>
 {% endfor %}{% endif %}
-{% if user.instant_messenger.all %}
+{% if theuser.instant_messenger.all %}
 Instant messenger:
-{% for item in user.instant_messenger.all %}
+{% for item in theuser.instant_messenger.all %}
     {{item}}<br/>
 {% endfor %}{% endif %}
-{% if user.web_site.all %}
+{% if theuser.web_site.all %}
 Website:
-{% for item in user.web_site.all %}
+{% for item in theuser.web_site.all %}
     {{item}}<br/>
 {% endfor %}{% endif %}
 Products: 
@@ -58,14 +61,15 @@ Products:
 <!-- http://mitchgt.com/prepay/admin/prepay/listing/add/ -->
 <a href = "{% url 'admin:prepay_product_add' %}">Add a new product and listing?</a><br/>
 {% endif %}
+
 <!--Listings: {{listings}}<br/>-->
 {% comment %}
 <!--<a href = "{% url 'admin:prepay_listing_add' %}">Create a new listing?</a><br/>-->
 {% endcomment %}
 
-{% if user.about %}
+{% if theuser.about %}
 About me:
-    {{user.about}}<br/>
+    {{theuser.about}}<br/>
 {% endif %}
 
 {% endblock %}
