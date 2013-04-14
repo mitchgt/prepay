@@ -215,8 +215,11 @@ def listing_detail(request, listing_id):
 	login_flag=login_check(request)
 	listing = get_object_or_404(Listing, pk=listing_id)
 	buyer = False
+	goalreached = True
 	if Buyer.objects.filter(username = request.user.username):
 		buyer = True
+	if listing.numBidders<listing.maxGoal:
+		goalreached = False
 	if request.method =='POST':
 		form = ListingCommentForm(request.POST,request.FILES)
 		if form.is_valid():
@@ -233,7 +236,8 @@ def listing_detail(request, listing_id):
 		'listing':listing,
 		'form':form,
 		'login_flag':login_flag,
-		'isBuyer':buyer
+		'isBuyer':buyer,
+		'goalreached':goalreached
 	})
 	return render(request, 'prepay/detail.html',context)
 
@@ -254,6 +258,7 @@ def checkout(request, listing_id):
 	
 	listing = Listing.objects.get(pk = listing_id)
 	error = False ###
+	exceed = False
 	if listing.status != "Open for bidding" or not Buyer.objects.filter(username = request.user.username):
 		return HttpResponseRedirect(reverse('prepay.views.listing_detail', args=(listing_id)))
 	form = CheckoutForm()
@@ -264,16 +269,16 @@ def checkout(request, listing_id):
 		if form.is_valid() and address_formset.is_valid():
 			if 'quantity' in request.POST:
 				quantity = int(request.POST.get('quantity'))
+				a = listing.numBidders + quantity
 				buyer=Buyer.objects.get(username = request.user.username)
 				total = quantity * listing.price 
 				ba = BankAccount.objects.get(user = request.user)
-				if ba.balance>=total:
+				if ba.balance>=total and listing.maxGoal>=a:
 					seller=listing.product.seller
 					address=address_formset.save()
 					for i in range(quantity):
 						neworder = Order.objects.create(seller=seller, buyer=buyer, listing=listing)
 						neworder.shipping_address = address
-					a = listing.numBidders + quantity
 					listing.numBidders = a
 					listing.save()
 					ba.balance = ba.balance - total
@@ -282,7 +287,9 @@ def checkout(request, listing_id):
 					e.balance = e.balance + total
 					e.save()
 					return HttpResponseRedirect(reverse("prepay.views.confirmed"))
+				elif ba.balance>=total and listing.maxGoal<a:
+					exceed = listing.maxGoal - listing.numBidders
 				else:
 					error = True
 
-	return render_to_response('prepay/checkout.html',{'a_formset':address_formset, 'form':form, 'login_flag':login_flag, 'listing':listing, 'error':error }, context_instance=RequestContext(request))
+	return render_to_response('prepay/checkout.html',{'a_formset':address_formset, 'form':form, 'login_flag':login_flag, 'listing':listing, 'error':error, 'exceed':exceed }, context_instance=RequestContext(request))
