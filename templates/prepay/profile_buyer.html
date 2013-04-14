@@ -11,7 +11,8 @@
 
 
 {% if theuser.photo %}
-  <img src="{{theuser.photo}}"><br/>
+    <img src="{{ user.get_picture_url }}" width="150" align="left" style="border:none; padding-right:8px;">
+    <br/>
 {% endif %}
 Name:
 {% if theuser.last_name or theuser.first_name %}
