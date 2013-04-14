@@ -729,6 +729,10 @@ table#change-history tbody th {
 }
 
 #header {
+	padding-top: 12px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 10px;
     width: 100%;
 }
 

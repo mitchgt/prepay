@@ -1,0 +1,71 @@
+{% extends "prepay/base.html" %}
+
+{% load url from future %}
+
+{% block content %}
+
+<h2>Seller Profile</h2>
+{% if mine %}
+<p><a href = "{% url 'edit_profile' user.username %}">Edit?</a><p>
+{% endif %}
+
+
+{% if user.photo %}
+    <img src="{{ user.get_picture_url }}" width="150" align="left" style="border:none; padding-right:8px;">
+    <br/>
+{% endif %}
+Name:
+{% if user.last_name or user.first_name %}
+{{user.title}} {{user.first_name}} {{user.middle_name}} {{user.last_name}} {{user.suffix}}
+{% endif %}<br/>
+{% if user.nickname %}
+Nickname: {{user.nickname}}<br/>
+{% endif %}
+Rating: {{user.rating}}<br/>
+Username: {{user.username}}<br/>
+{% if mine %}
+Password: <a href= "{% url 'admin:password_change' %}">Change password?</a><br/>
+{% endif %}
+Email: {{user.email}}<br/>
+{% if user.phone_number.all %}
+Phone number:
+{% for item in user.phone_number.all %}
+    {{item}}<br/>
+{% endfor %}{% endif %}
+{% if user.street_address.all %}
+Street Address:
+{% for item in user.street_address.all %}
+    {{item}}<br/>
+{% endfor %}{% endif %}
+{% if user.instant_messenger.all %}
+Instant messenger:
+{% for item in user.instant_messenger.all %}
+    {{item}}<br/>
+{% endfor %}{% endif %}
+{% if user.web_site.all %}
+Website:
+{% for item in user.web_site.all %}
+    {{item}}<br/>
+{% endfor %}{% endif %}
+Products: 
+{% for l in listings %}
+    <a href = "{% url 'listing_detail' l.id %}">{{ l.product.name }}</a>,
+{% empty %}
+    No products!
+{% endfor %}
+<br/>
+{% if mine %}
+<!-- http://mitchgt.com/prepay/admin/prepay/listing/add/ -->
+<a href = "{% url 'admin:prepay_product_add' %}">Add a new product and listing?</a><br/>
+{% endif %}
+<!--Listings: {{listings}}<br/>-->
+{% comment %}
+<!--<a href = "{% url 'admin:prepay_listing_add' %}">Create a new listing?</a><br/>-->
+{% endcomment %}
+
+{% if user.about %}
+About me:
+    {{user.about}}<br/>
+{% endif %}
+
+{% endblock %}

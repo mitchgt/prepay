@@ -11,17 +11,18 @@
 	
 <div id="header">
 	{% block header %}
-		PrePay&trade;
+		<b>PrePay&trade;</b>
 	{% endblock %}
+	<div id="login">
+		{% if login_flag %}
+		Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a>.
+		<a href="{% url 'admin:password_change' %}">Change password</a> / <a href="{% url 'auth_logout' %}">Log out</a>
+		{% endif %}
+	</div>
 	
 </div>
 
-<div id="login">
-	{% if login_flag %}
-	Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a>.
-	<a href="{% url 'admin:password_change' %}">Change password</a> / <a href="{% url 'auth_logout' %}">Log out</a>
-	{% endif %}
-</div>
+
 <br clear="all"/>
 <div id="nav">
 	{% block nav %}

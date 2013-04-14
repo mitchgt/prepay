@@ -13,8 +13,8 @@ a:active {color:#6699FF; text-decoration: none;}
 	float: left;
 	position: relative;
 	padding: 10px;
-	font-weight: bold;
 	font-size: 36px;
+	width: 100%;
 }
 
 #nav {
@@ -27,7 +27,10 @@ a:active {color:#6699FF; text-decoration: none;}
 #login {
 	float: right;
 	position: relative;
-	padding: 10px;
+	padding-left: 10px;
+	padding-right: 8px;
+	padding-top: 0px;
+	padding-bottom:10px;
 	font-size: 14px;
 }
 
