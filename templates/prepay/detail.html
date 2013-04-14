@@ -19,7 +19,7 @@
 				<b>Categories:</b> {% for c in listing.product.categories.all %} {{ c.name }}, {% endfor %}<br/>
 				<b>Created Date:</b> {{listing.created_at}}<br/>
 				<b>Price:</b> ${{listing.price}}<br/>
-				{% if listing.status == 'Open for bidding' and isBuyer %}
+				{% if listing.status == 'Open for bidding' and isBuyer and not goalreached %}
 				<form action = "{% url 'checkout' listing.id %}" method = "get">
 				{% csrf_token %}
 				<input class = "button" type = "submit" value = "Pre-order"/>
