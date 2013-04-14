@@ -6,7 +6,6 @@
 
 <h2>Browse Listings</h2>
 
-<!-- form action="/browse_listings/search/" method="post" -->
 <form action="{% url 'browse_listings' %}search/" method="post">
 		{% csrf_token %}
         {{form.as_table}}
@@ -27,13 +26,13 @@ Sort by:
 
 {% if all_listings %}
 	{% for listing in all_listings %}
-	<table bgcolor="white" width="100%">
+	<table width="100%" style="background-color:white; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
 		<tr>
-			<td width="170" valign="top">
+			<td width="150" valign="top" style="padding:10px;">
 				<a href="{% url 'listing_detail' listing.pk %}">
-					<img src="{{ listing.product.get_picture_url }}" width="150" align="left" hspace="10px" vspace="10px" style="border:none; padding-right:8px;"></a>
+					<img src="{{ listing.product.get_picture_url }}" width="150" align="left" style="border:none; padding-right:8px;"></a>
 			</td>
-			<td>
+			<td style="padding-top:10px;padding-bottom:10px;font-size:14px;">
 				<a href="{% url 'listing_detail' listing.pk %}">{{ listing.name }}</a><br/>
 				{{ listing.description|truncatewords:40 }}<br/>
 				<b>Product:</b> {{ listing.product.name }}<br/>
@@ -53,7 +52,6 @@ Sort by:
 {% else %}
 	<p>No Listings are available.</p>
 {% endif %}
-
 
 {% endblock %}
 

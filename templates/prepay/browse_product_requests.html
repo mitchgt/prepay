@@ -8,15 +8,18 @@
 
 {% if all_product_requests %}
 	{% for pr in all_product_requests %}
-	<p>
-		<b>Idea:</b> {{ pr.name }}</a><br/>
-		<b>Pitch:</b> {{ pr.description}}<br/>
-		<b>Categories:</b> 
-		{% for c in pr.categories.all %} 
-			<a href="{% url 'browse_category' c.pk %}">{{ c.name }}</a>, 
-		{% endfor %}<br/>
-	</p>
-	<br clear="all"/>
+	<table width="100%" style="background-color:white; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
+		<tr>
+			<td style="padding:10px;font-size:14px;">
+				<b>Idea:</b> {{ pr.name }}</a><br/>
+				<b>Pitch:</b> {{ pr.description}}<br/>
+				<b>Categories:</b> 
+				{% for c in pr.categories.all %} 
+					<a href="{% url 'browse_category' c.pk %}">{{ c.name }}</a>, 
+				{% endfor %}<br/>
+			</td>
+		</tr>
+	</table>
 	
 	{% endfor %}
 {% else %}

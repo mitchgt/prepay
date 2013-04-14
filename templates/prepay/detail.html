@@ -4,16 +4,15 @@
 
 {% block content %}
 
-<h2>Detailed view of a listing</h2>
+<h2>{{ listing.name }}</h2>
 
 {% if listing %}
-	<table>
+	<table width="100%" style="background-color:white; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px; font-size:14px;">
 		<tr>
-			<td valign="top">
-				<img src="{{ listing.product.get_picture_url }}" width="200" style="border:none; padding-right:8px; float:left;">
+			<td valign="top" width="200">
+				<img src="{{ listing.product.get_picture_url }}" width="200" style="border:none; padding-right:8px; padding-top:10px; padding-left:10px; float:left;">
 			</td>
-			<td>
-				<b>Listing Name:</b> {{ listing.name }}</span><br/>
+			<td style="padding:10px;font-size:14px;">
 				<b>Listing Description:</b> {{ listing.description }}<br/>
 				<b>Product Description:</b> {{ listing.product.description }}<br/>
 				<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{ listing.product.seller.username }}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>
@@ -35,27 +34,30 @@
 			</td>
 		</tr>
 	</table>	
-
-
+	<br clear="all"/>
 	{% if listing.listing_comment_set.all %}
 		{% for co in listing.listing_comment_set.all %}
-			Commenter: {{co.commenter.username}}<br/>
-			Date: {{co.date}}<br/>
-			Rating: {{co.rating}}/5<br/>
-			Comment: {{co.comment}}<br/>
-			
-			{% if co.image %}
-				<img src="{{MEDIA_URL}}{{co.image}}">
-			{% endif %}
-			<hr>
-		<br/>
+		<table width="100%" style="border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
+			<tr>
+				<td style="padding:10px;font-size:14px;">
+					{{co.comment}}<br/>
+					{% if co.image %}
+						<img src="{{MEDIA_URL}}{{co.image}}" width="200" style="border:none;padding-top:5px;"><br/>
+					{% endif %}	
+				
+				<br/><i>&mdash; {{co.commenter.username}}, {{co.date}}</i><br/>
+				</td>
+
+			</tr>
+		</table>
+		<br clear="all" />
 		{% endfor %}
 	{% else %}
 		<p> No comments available. </p>
 	{% endif %}
 
 	{% if login_flag %}
-	<p>Leave a comment!</p>
+	<p><b>Leave a comment!</b></p>
 	<form enctype="multipart/form-data" action = "" method = "post">
 		{% csrf_token %}
 		{{form.as_p}}
