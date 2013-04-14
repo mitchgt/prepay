@@ -10,6 +10,7 @@ a:hover {color:#6699FF; text-decoration: underline;}
 a:active {color:#6699FF; text-decoration: none;}
 
 #header {
+	float: left;
 	position: relative;
 	padding: 10px;
 	font-weight: bold;
@@ -17,6 +18,14 @@ a:active {color:#6699FF; text-decoration: none;}
 }
 
 #nav {
+	float: left;
+	position: relative;
+	padding: 10px;
+	font-size: 14px;
+}
+
+#login {
+	float: right;
 	position: relative;
 	padding: 10px;
 	font-size: 14px;

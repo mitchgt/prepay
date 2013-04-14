@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {% trans 'Prepay site admin' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">{% trans 'PrePay&trade;' %}</h1>
+
+<div id="nav">
+		<a href="#">Browse Listings</a> &#149; 
+		<a href="#">Request Product</a> &#149; 
+		<a href="#">Browse Product Requests</a> &#149; 
+		<a href="#">Register as Buyer or Seller</a> &#149; 
+		<a href="#">Admin</a> &#149; 
+		<a href="#">About</a> 
+</div>
+
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
