@@ -9,12 +9,12 @@
 <!-- form action="/browse_listings/search/" method="post" -->
 <form action="{% url 'browse_listings' %}search/" method="post">
 		{% csrf_token %}
-        {{form.as_p}}
+        {{form.as_table}}
         <input type="submit" value="Search">
  </form>
 
-Sort by:
 <form action="" method="get">
+Sort by:
 	<select name = 'sort' onChange = "this.form.submit();">
 		<option value="" selected="selected">---------</option>
 		<option value="1">Date created</option>
@@ -27,22 +27,28 @@ Sort by:
 
 {% if all_listings %}
 	{% for listing in all_listings %}
-	<p>
-		<a href="{% url 'listing_detail' listing.pk %}"><img src="{{ listing.product.get_picture_url }}" width="150" align="left" style="border:none; padding-right:8px;"></a>
-		<a href="{% url 'listing_detail' listing.pk %}">{{ listing.name }}</a><br/>
-		{{ listing.description|truncatewords:40 }}<br/>
-		<b>Product:</b> {{ listing.product.name }}<br/>
-		<b>Price:</b> ${{listing.price}}<br/>
-		<b>Status:</b> {{listing.status}} <br/>
-		<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{listing.product.seller.username}}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>
-		<b>Categories:</b> 
-		{% for c in listing.product.categories.all %} 
-			<a href="{% url 'browse_category' c.pk %}">{{ c.name }}</a>, 
-		{% endfor %}<br/>
-		<a href="{% url 'listing_detail' listing.pk %}">Listing Detail</a>
-	</p>
+	<table bgcolor="white" width="100%">
+		<tr>
+			<td width="170" valign="top">
+				<a href="{% url 'listing_detail' listing.pk %}">
+					<img src="{{ listing.product.get_picture_url }}" width="150" align="left" hspace="10px" vspace="10px" style="border:none; padding-right:8px;"></a>
+			</td>
+			<td>
+				<a href="{% url 'listing_detail' listing.pk %}">{{ listing.name }}</a><br/>
+				{{ listing.description|truncatewords:40 }}<br/>
+				<b>Product:</b> {{ listing.product.name }}<br/>
+				<b>Price:</b> ${{listing.price}}<br/>
+				<b>Status:</b> {{listing.status}} <br/>
+				<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{listing.product.seller.username}}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>
+				<b>Categories:</b> 
+				{% for c in listing.product.categories.all %} 
+					<a href="{% url 'browse_category' c.pk %}">{{ c.name }}</a>, 
+				{% endfor %}<br/>
+				<a href="{% url 'listing_detail' listing.pk %}">Listing Detail</a>
+			</td>
+		</tr>
+	</table>
 	<br clear="all"/>
-	
 	{% endfor %}
 {% else %}
 	<p>No Listings are available.</p>

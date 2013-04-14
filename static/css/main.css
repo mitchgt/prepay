@@ -2,6 +2,7 @@ body {
 	background-color: #cce6ff;
 	margin: 10px;
 	font-family: Arial, Helvetica, sans-serif;
+	font-size:14px;
 }
 
 a:link {color:#6699FF; text-decoration: none;}
@@ -45,6 +46,7 @@ a:active {color:#6699FF; text-decoration: none;}
 	border-width: 1px;
 	border-color: #ccc;
 	border-radius: 5px;
+	font-size:14px;
 }
 
 #footer {
