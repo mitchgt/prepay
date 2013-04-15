@@ -251,7 +251,8 @@ def login_check(request):
 
 def confirmed(request):
 	login_flag=login_check(request)
-	return render(request, 'prepay/confirmed.html',{'login_flag':login_flag,})
+	total = request.session['total']
+	return render(request, 'prepay/confirmed.html',{'login_flag':login_flag, 'total':total})
 
 def checkout(request, listing_id):
 	login_flag=login_check(request)
@@ -286,6 +287,7 @@ def checkout(request, listing_id):
 					e = Escrow.objects.get(listing=listing)
 					e.balance = e.balance + total
 					e.save()
+					request.session['total']=total
 					return HttpResponseRedirect(reverse("prepay.views.confirmed"))
 				elif ba.balance>=total and listing.maxGoal<a:
 					exceed = listing.maxGoal - listing.numBidders
