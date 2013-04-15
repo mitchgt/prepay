@@ -5,7 +5,8 @@
 {% block content %}
 
 <h2>Order confirmed</h2>
-Thank you for ordering!
+Thank you for ordering!<br/>
+A total of ${{total}} has been deducted from your account.
 <p><a href = "{% url 'profile' user %}">Go to profile</a><p>
 
 {% endblock %}
