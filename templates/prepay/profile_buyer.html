@@ -66,6 +66,7 @@ About me:
 Orders: <br/>
 {% for order in theuser.order_set.all %}
 	Product: {{order.listing.name}}<br/>
+	Price: {{order.listing.price}}<br/>
 	Seller: {{order.listing.product.seller}}<br/>
 	Status: {{order.status}}<br/>
 	Date ordered: {{order.date_added}}<br/>
