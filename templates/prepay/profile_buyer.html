@@ -74,7 +74,7 @@ Orders: <br/>
 	{% for ship in order.shipping_address.all %}
 	{{ship}}
 	{% endfor %}<br/>
-	{% if order.status == "Ongoing" %}
+	{% if mine and order.status == "Ongoing" %}
 	<form action = "{% url 'withdraw' order.id %}" method = "get">
 	{% csrf_token %}
 	<input class = "button" type = "submit" value = "Withdraw"/>
