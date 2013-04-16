@@ -173,6 +173,8 @@ def browse_listings(request):
 				all_listings = all_listings.order_by('-price')
 			elif request.GET['sort']=="5":
 				all_listings = all_listings.order_by('-status')
+			elif request.GET['sort']=="6":
+				all_listings = all_listings.order_by('-deadlineBid').reverse()
 			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag }, 
                                       context_instance=RequestContext(request))
 	all_listings = Listing.objects.all().order_by('-created_at')
