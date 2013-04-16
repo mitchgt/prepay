@@ -298,3 +298,32 @@ def checkout(request, listing_id):
 					error = True
 
 	return render_to_response('prepay/checkout.html',{'a_formset':address_formset, 'form':form, 'login_flag':login_flag, 'listing':listing, 'error':error, 'exceed':exceed }, context_instance=RequestContext(request))
+
+def withdraw(request, order_id):
+	login_flag=login_check(request)
+	order = Order.objects.get(pk=order_id)
+	if order.status == "Aborted" or order.status =="Closed":
+		notongoing = True
+		return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'notongoing':notongoing})
+	date = timezone.now()
+	if order.buyer.username != request.user.username:
+		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
+	if date>=order.listing.deadlineBid:
+		cannot = True
+		return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'cannot':cannot})
+	else:
+		if request.method=='POST':
+			order.listing.numBidders = order.listing.numBidders-1
+			order.listing.save()
+			e = Escrow.objects.get(listing=order.listing)
+			e.balance = e.balance - order.listing.price
+			e.save()
+			ba = BankAccount.objects.get(user = request.user)
+			ba.balance = ba.balance + order.listing.price
+			ba.save()
+			order.status = "Aborted"
+			order.save()
+			confirm = True
+			points = order.listing.price
+			return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order, 'confirm':confirm, 'points':points})
+	return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order})
