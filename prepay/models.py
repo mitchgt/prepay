@@ -203,6 +203,9 @@ class Order(models.Model):
     def __unicode__(self):
         return self.listing.name
 
+    class Meta:
+        ordering = ["-date_added"]
+
 #Lara start2
 PHONE_LOCATION_CHOICES = (
     ('work', _('Work')),
