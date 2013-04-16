@@ -166,15 +166,15 @@ def browse_listings(request):
 			if request.GET['sort']=="Date posted":
 				all_listings = all_listings.order_by('-created_at')
 			elif request.GET['sort']=="Seller":
-				all_listings = all_listings.order_by('-product__seller__username')
+				all_listings = all_listings.order_by('product__seller__username')
 			elif request.GET['sort']=="Price - lowest to highest":
-				all_listings = all_listings.order_by('-price').reverse()
+				all_listings = all_listings.order_by('price')
 			elif request.GET['sort']=="Price - highest to lowest":
 				all_listings = all_listings.order_by('-price')
 			elif request.GET['sort']=="Status":
 				all_listings = all_listings.order_by('-status')
 			elif request.GET['sort']=="Deadline for bidding":
-				all_listings = all_listings.order_by('-deadlineBid').reverse()
+				all_listings = all_listings.order_by('deadlineBid')
 			selected = request.GET['sort']
 			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'selected':selected }, 
                                       context_instance=RequestContext(request))
