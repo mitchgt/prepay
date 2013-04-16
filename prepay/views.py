@@ -163,19 +163,20 @@ def browse_listings(request):
 			all_listings = request.session.get('last_listings')
 			keywords = request.session.get('oldq')
 			form = SearchForm(initial = {'q':keywords})	
-			if request.GET['sort']=="1":
+			if request.GET['sort']=="Date posted":
 				all_listings = all_listings.order_by('-created_at')
-			elif request.GET['sort']=="2":
+			elif request.GET['sort']=="Seller":
 				all_listings = all_listings.order_by('-product__seller__username')
-			elif request.GET['sort']=="3":
+			elif request.GET['sort']=="Price - lowest to highest":
 				all_listings = all_listings.order_by('-price').reverse()
-			elif request.GET['sort']=="4":
+			elif request.GET['sort']=="Price - highest to lowest":
 				all_listings = all_listings.order_by('-price')
-			elif request.GET['sort']=="5":
+			elif request.GET['sort']=="Status":
 				all_listings = all_listings.order_by('-status')
-			elif request.GET['sort']=="6":
+			elif request.GET['sort']=="Deadline for bidding":
 				all_listings = all_listings.order_by('-deadlineBid').reverse()
-			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag }, 
+			selected = request.GET['sort']
+			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'selected':selected }, 
                                       context_instance=RequestContext(request))
 	all_listings = Listing.objects.all().order_by('-created_at')
 	form = SearchForm()	
