@@ -63,6 +63,9 @@ class UserProfile    (User): ####Jennifer
     def __str__(self):  
           return self.username
 
+    def get_account_type(self):
+        return
+
     @permalink
     def get_absolute_url(self):
         return ('contacts_person_detail', None, {
@@ -103,6 +106,9 @@ class Seller(UserProfile):
         verbose_name = 'seller'
         verbose_name_plural = 'sellers'
 
+    def get_account_type(self):
+        return 'seller'
+
 #####Jennifer from here
 class Buyer(UserProfile):
     #account = models.OneToOneField(UserProfile)
@@ -114,6 +120,9 @@ class Buyer(UserProfile):
         verbose_name = 'buyer'
         verbose_name_plural = 'buyers'
 #Lara end1
+
+    def get_account_type(self):
+        return 'buyer'
 
 class Product(models.Model):
     name = models.CharField(max_length=200)

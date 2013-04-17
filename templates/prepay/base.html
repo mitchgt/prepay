@@ -26,12 +26,19 @@
 <br clear="all"/>
 <div id="nav">
 	{% block nav %}
-		<a href="{% url 'browse_listings' %}">Browse Listings</a> &#149; 
-		<a href="{% url 'admin:prepay_productrequest_add' %}">Request Product</a> &#149; 
-		<a href="{% url 'browse_product_requests' %}">Browse Product Requests</a> &#149; 
-		<a href="{% url 'register' %}">Register as Buyer or Seller</a> &#149; 
-		<a href="{% url 'admin:index' %}">Admin</a> &#149; 
-		<a href="{% url 'about' %}">About</a> 
+		{% if user.is_authenticated %}
+            <a href="/browse_listings/">Browse Listings</a> &#149;
+            <a href="/browse_product_requests">Browse Product Requests</a> &#149;
+        {% endif %}
+
+        {% if user.get_account_type == 'buyer' %}
+            <a href="/admin/prepay/productrequest/add/">Request Product</a> &#149;
+        {% endif %}
+        {% if not user.is_authenticated %}
+            <a href="/register">Register as Buyer or Seller</a> &#149; 
+        {% endif %}
+        <a href="/admin/">Admin</a> &#149;
+        <a href="/about">About</a>
 	{% endblock %}
 </div>
 
