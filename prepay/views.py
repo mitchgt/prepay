@@ -163,19 +163,20 @@ def browse_listings(request):
 			all_listings = request.session.get('last_listings')
 			keywords = request.session.get('oldq')
 			form = SearchForm(initial = {'q':keywords})	
-			if request.GET['sort']=="1":
+			if request.GET['sort']=="Date posted":
 				all_listings = all_listings.order_by('-created_at')
-			elif request.GET['sort']=="2":
-				all_listings = all_listings.order_by('-product__seller__username')
-			elif request.GET['sort']=="3":
-				all_listings = all_listings.order_by('-price').reverse()
-			elif request.GET['sort']=="4":
+			elif request.GET['sort']=="Seller":
+				all_listings = all_listings.order_by('product__seller__username')
+			elif request.GET['sort']=="Price - lowest to highest":
+				all_listings = all_listings.order_by('price')
+			elif request.GET['sort']=="Price - highest to lowest":
 				all_listings = all_listings.order_by('-price')
-			elif request.GET['sort']=="5":
+			elif request.GET['sort']=="Status":
 				all_listings = all_listings.order_by('-status')
-			elif request.GET['sort']=="6":
-				all_listings = all_listings.order_by('-deadlineBid').reverse()
-			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag }, 
+			elif request.GET['sort']=="Deadline for bidding":
+				all_listings = all_listings.order_by('deadlineBid')
+			selected = request.GET['sort']
+			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'selected':selected }, 
                                       context_instance=RequestContext(request))
 	all_listings = Listing.objects.all().order_by('-created_at')
 	form = SearchForm()	
@@ -297,3 +298,32 @@ def checkout(request, listing_id):
 					error = True
 
 	return render_to_response('prepay/checkout.html',{'a_formset':address_formset, 'form':form, 'login_flag':login_flag, 'listing':listing, 'error':error, 'exceed':exceed }, context_instance=RequestContext(request))
+
+def withdraw(request, order_id):
+	login_flag=login_check(request)
+	order = Order.objects.get(pk=order_id)
+	if order.status == "Aborted" or order.status =="Closed":
+		notongoing = True
+		return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'notongoing':notongoing})
+	date = timezone.now()
+	if order.buyer.username != request.user.username:
+		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
+	if date>=order.listing.deadlineBid:
+		cannot = True
+		return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'cannot':cannot})
+	else:
+		if request.method=='POST':
+			order.listing.numBidders = order.listing.numBidders-1
+			order.listing.save()
+			e = Escrow.objects.get(listing=order.listing)
+			e.balance = e.balance - order.listing.price
+			e.save()
+			ba = BankAccount.objects.get(user = request.user)
+			ba.balance = ba.balance + order.listing.price
+			ba.save()
+			order.status = "Aborted"
+			order.save()
+			confirm = True
+			points = order.listing.price
+			return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order, 'confirm':confirm, 'points':points})
+	return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order})

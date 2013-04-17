@@ -43,4 +43,12 @@ a:active {color:#6699FF; text-decoration: none;}
 	text-decoration: italic;
 }
 
+#login {
+	position: relative;
+	font-weight: normal;
+	float: right;
+	padding-top: 3px;
+	font-size: 14px;
+	text-decoration: italic;
+}
 

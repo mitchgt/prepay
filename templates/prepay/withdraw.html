@@ -1,0 +1,40 @@
+{% extends "prepay/base.html" %}
+
+{% load url from future %}
+
+{% block content %}
+
+<h2>Withdrawal</h2>
+
+{% if confirm %}
+Your withdrawal was successful. ${{points}} has been refunded to your account.<br/>
+<p><a href = "{% url 'profile' user %}">Go to profile</a><p>
+{% else %}
+
+{% if notongoing %}
+This order has either already been withdrawn or is complete. You can no longer withdraw it.
+{% else %}
+
+{% if cannot %}
+Oops, it is too late to withdraw! The product is already in production.
+{% else %}
+
+Order details:<br/>
+Product: {{order.listing.name}}<br/>
+Price: ${{order.listing.price}}<br/>
+Seller: {{order.listing.product.seller.username}}<br/>
+Deadline for bidding and withdrawal: {{order.listing.deadlineBid}}<br/>
+<br/>
+You can still withdraw - you will be refunded ${{order.listing.price}}.<br/>
+
+	<form action = "{% url 'withdraw' order.id %}" method = "post">
+	{% csrf_token %}
+	<input class = "button" type = "submit" value = "Confirm withdrawal"/>
+	</form>
+
+{% endif %}
+{% endif %}
+<p><a href = "{% url 'profile' user %}">Back to profile</a><p>
+{% endif %}
+
+{% endblock %}
