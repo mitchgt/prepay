@@ -44,7 +44,7 @@ class UserProfile    (User): ####Jennifer
     slug = models.SlugField(_('slug'), max_length=50, blank=True, null=True)
     title = models.CharField(_('title'), max_length=200, blank=True)
     about = models.TextField(_('about'), blank=True)
-    photo = models.ImageField(_('photo'), upload_to='contacts/person/', blank=True)
+    photo = models.ImageField(_('photo'), upload_to='%Y/%m/%d', blank=True)
 
     user = models.OneToOneField(User)
 
@@ -84,8 +84,8 @@ class UserProfile    (User): ####Jennifer
         'slug': self.slug,
     })
 
-	def get_picture_url(self):
-		return str(self.photo.url) 
+    def get_picture_url(self):
+        return str(self.photo.url) 
 
 class Seller(UserProfile):
     #account = models.OneToOneField(UserProfile)   #####Jennifer
