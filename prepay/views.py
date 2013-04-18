@@ -98,6 +98,8 @@ def register(request):
                 u.slug = username1 
                 u.save()
                 u.bankaccount_set.create(name = u.username, user = u, balance = 0)
+                user = authenticate(username=new_data['username'], password=new_data['password'])
+                login(request, user)
                 return HttpResponseRedirect(reverse('browse_listings'))
             else:
                 return render_to_response('prepay/register.html', {'form':form,'error':True, 'login_flag': login_flag}, context_instance=RequestContext(request))
