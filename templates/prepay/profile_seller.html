@@ -4,72 +4,78 @@
 
 {% block content %}
 
-<h2>Seller Profile</h2>
+
+
+<h2>Seller Profile </h2>
+
 {% if mine %}
-<p><a href = "{% url 'edit_profile' user.username %}">Edit?</a><p>
+<div style="font-size: 13px; background-color:white; width:200px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
+<a href= "{% url 'admin:password_change' %}">Change your password?</a><br/>
+<a href = "{% url 'edit_profile' user.username %}">Edit your profile?</a><br/>
+<a href = "{% url 'admin:prepay_product_add' %}">Add a new product and listing?</a><br/>
+</div>
+<br clear="all"/>
+
 {% endif %}
 
 {% if theuser.photo %}
-    <img src="{{ theuser.get_picture_url }}" width="150" align="left" style="border:none; padding-right:8px;">
-    <br/>
+    <img src="{{ theuser.get_picture_url }}" width="150" style="float:left; border:none; padding-right:8px;">
 {% endif %}
-Name:
+
+<b>Name:</b>
 {% if theuser.last_name or theuser.first_name %}
 {{theuser.title}} {{theuser.first_name}} {{theuser.middle_name}} {{theuser.last_name}} {{theuser.suffix}}
 {% endif %}<br/>
 {% if theuser.nickname %}
-Nickname: {{theuser.nickname}}<br/>
+<b>Nickname:</b> {{theuser.nickname}}<br/>
 {% endif %}
-Rating: {{theuser.rating}}<br/>
-Username: {{theuser.username}}<br/>
+<b>Rating:</b> {{theuser.rating}}<br/>
+<b>Username:</b> {{theuser.username}}<br/>
 {% if mine %}
-Password: <a href= "{% url 'admin:password_change' %}">Change password?</a><br/>
-Balance: 
+<b>Balance:</b> 
 {% for ba in theuser.bankaccount_set.all %}
-{{ba.balance}}
+${{ba.balance}} 
 {% endfor %}<br/>
 {% endif %}
-Email: {{theuser.email}}<br/>
+<b>Email</b> {{theuser.email}}<br/>
 {% if theuser.phone_number.all %}
-Phone number:
+<b>Phone number:</b>
 {% for item in theuser.phone_number.all %}
     {{item}}<br/>
 {% endfor %}{% endif %}
 {% if theuser.street_address.all %}
-Street Address:
+<b>Street Address:</b>
 {% for item in theuser.street_address.all %}
     {{item}}<br/>
 {% endfor %}{% endif %}
 {% if theuser.instant_messenger.all %}
-Instant messenger:
+<b>Instant messenger:</b>
 {% for item in theuser.instant_messenger.all %}
     {{item}}<br/>
 {% endfor %}{% endif %}
 {% if theuser.web_site.all %}
-Website:
+<b>Website:</b>
 {% for item in theuser.web_site.all %}
     {{item}}<br/>
 {% endfor %}{% endif %}
-Products: 
+<b>Products:</b> 
 {% for l in listings %}
     <a href = "{% url 'listing_detail' l.id %}">{{ l.product.name }}</a>,
 {% empty %}
     No products!
-{% endfor %}
-<br/>
-{% if mine %}
-<!-- http://mitchgt.com/prepay/admin/prepay/listing/add/ -->
-<a href = "{% url 'admin:prepay_product_add' %}">Add a new product and listing?</a><br/>
-{% endif %}
+{% endfor %}<br/>
+{% if theuser.about %}
+<b>About me:</b>
+    {{theuser.about}}<br/>
+{% endif %}<br/>
+
+
 
 <!--Listings: {{listings}}<br/>-->
 {% comment %}
 <!--<a href = "{% url 'admin:prepay_listing_add' %}">Create a new listing?</a><br/>-->
 {% endcomment %}
 
-{% if theuser.about %}
-About me:
-    {{theuser.about}}<br/>
-{% endif %}
+
 
 {% endblock %}

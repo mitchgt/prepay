@@ -5,72 +5,70 @@
 {% block content %}
 
 <h2>Buyer Profile</h2>
-{% if mine %}
-<p><a href = "{% url 'edit_profile' user.username %}">Edit?</a><p>
-{% endif %}
 
+{% if mine %}
+<div style="font-size: 13px; background-color:white; width:200px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
+<a href= "{% url 'admin:password_change' %}">Change your password?</a><br/>
+<a href = "{% url 'edit_profile' user.username %}">Edit your profile?</a><br/>
+</div>
+<br clear="all"/>
+{% endif %}
 
 {% if theuser.photo %}
   <img src="{{theuser.photo}}"><br/>
 {% endif %}
-Name:
+<b>Name:</b>
 {% if theuser.last_name or theuser.first_name %}
 {{theuser.title}} {{theuser.first_name}} {{theuser.middle_name}} {{theuser.last_name}} {{theuser.suffix}}
 {% endif %}<br/>
 {% if theuser.nickname %}
-Nickname: {{theuser.nickname}}<br/>
+<b>Nickname:</b> {{theuser.nickname}}<br/>
 {% endif %}
-Rating: {{theuser.rating}}<br/>
-Username: {{theuser.username}}<br/>
+<b>Rating:</b> {{theuser.rating}}<br/>
+<b>Username:</b> {{theuser.username}}<br/>
 {% if mine %}
-Password: <a href= "{% url 'admin:password_change' %}">Change password?</a><br/>
-Balance: 
+<b>Balance:</b> 
 {% for ba in theuser.bankaccount_set.all %}
-{{ba.balance}}
+${{ba.balance}}
 {% endfor %}<br/>
 {% endif %}
-Email: {{theuser.email}}<br/>
+<b>Email:</b> {{theuser.email}}<br/>
 {% if theuser.phone_number.all %}
-Phone number:
+<b>Phone number:</b>
 {% for item in theuser.phone_number.all %}
   {{item}}<br/>
 {% endfor %}{% endif %}
 {% if theuser.street_address.all %}
-Street Address:
+<b>Street Address:</b>
 {% for item in theuser.street_address.all %}
   {{item}}<br/>
 {% endfor %}{% endif %}
 {% if theuser.instant_messenger.all %}
-Instant messenger:
+<b>Instant messenger:</b>
 {% for item in theuser.instant_messenger.all %}
   {{item}}<br/>
 {% endfor %}{% endif %}
 {% if theuser.web_site.all %}
-Website:
+<b>Website:</b>
 {% for item in theuser.web_site.all %}
   {{item}}<br/>
 {% endfor %}{% endif %}
 
-{% if mine %}
-Requests: <br/>
-<!-- a href = "/admin/prepay/productrequest/add/">Add a new request?</a><br/ -->
-<a href = "{% url 'admin:prepay_productrequest_add' %}">Add a new request?</a><br/>
-{% endif %}
 {% if theuser.about %}
-About me:
+<b>About me:</b>
   {{theuser.about}}<br/>
 {% endif %}
 
-
 <br/>
-Orders: <br/>
+<b>Orders:</b> 
+<br/><br/>
 {% for order in theuser.order_set.all %}
-	Product: {{order.listing.name}}<br/>
-	Price: {{order.listing.price}}<br/>
-	Seller: {{order.listing.product.seller}}<br/>
-	Status: {{order.status}}<br/>
-	Date ordered: {{order.date_added}}<br/>
-	Shipping address: 
+	<b>Product:</b> {{order.listing.name}}<br/>
+	<b>Price:</b> {{order.listing.price}}<br/>
+	<b>Seller:</b> {{order.listing.product.seller}}<br/>
+	<b>Status:</b> {{order.status}}<br/>
+	<b>Date ordered:</b> {{order.date_added}}<br/>
+	<b>Shipping address:</b> 
 	{% for ship in order.shipping_address.all %}
 	{{ship}}
 	{% endfor %}<br/>
@@ -80,7 +78,9 @@ Orders: <br/>
 	<input class = "button" type = "submit" value = "Withdraw"/>
 	</form>
 	{% endif %}
-*****************************<br/>
 {% endfor %}
+
+
+
 
 {% endblock %}
