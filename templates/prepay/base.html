@@ -29,7 +29,7 @@
             <a href="/browse_product_requests">Browse Product Requests</a> &#149;
         {% endif %}
 
-        {% if user.get_account_type == 'buyer' %}
+        {% if account_type == 'buyer' %}
             <a href="/admin/prepay/productrequest/add/">Request Product</a> &#149;
         {% endif %}
         {% if not user.is_authenticated %}
@@ -37,6 +37,7 @@
         {% endif %}
         <a href="/admin/">Admin</a> &#149;
         <a href="/about">About</a>
+        
 	{% endblock %}
 </div>
 

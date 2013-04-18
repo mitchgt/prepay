@@ -143,7 +143,8 @@ def about(request):
 
 @login_required
 def browse_listings(request):
-	login_flag=login_check(request)	
+	login_flag=login_check(request)
+	account_type = user_account_type(request)
 	if request.method =='POST':
 		form = SearchForm(request.POST)
 		if form.is_valid:
@@ -156,8 +157,7 @@ def browse_listings(request):
 			all_listings = Listing.objects.all().filter(query).order_by('-created_at')
 			request.session['last_listings']=all_listings
 			request.session['oldq']=keywords
-			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag }, 
-                                      context_instance=RequestContext(request)) 
+			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type }, context_instance=RequestContext(request)) 
 	elif request.method == 'GET':    	
 		if 'sort' in request.GET and request.GET['sort']:
 			all_listings = request.session.get('last_listings')
@@ -176,14 +176,13 @@ def browse_listings(request):
 			elif request.GET['sort']=="Deadline for bidding":
 				all_listings = all_listings.order_by('deadlineBid')
 			selected = request.GET['sort']
-			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'selected':selected }, 
-                                      context_instance=RequestContext(request))
+			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'selected':selected }, context_instance=RequestContext(request))
 	all_listings = Listing.objects.all().order_by('-created_at')
 	form = SearchForm()	
 	request.session['last_listings']=all_listings
 	request.session['oldq']=None
 	context = Context({
-        'all_listings': all_listings, 'form':form, 'login_flag':login_flag 
+        'all_listings': all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type
 	})
 	return render(request, 'prepay/browse_listings.html', context)
 
@@ -251,6 +250,14 @@ def login_check(request):
 		login_flag=0
 	return login_flag
 
+def user_account_type(request):
+    if request.user.is_authenticated():
+        if Seller.objects.filter(username=request.user.username):
+            return 'seller'
+        elif Buyer.objects.filter(username=request.user.username):
+            return 'buyer'
+    else:
+        return 
 
 def confirmed(request):
 	login_flag=login_check(request)

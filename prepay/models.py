@@ -107,7 +107,7 @@ class Seller(UserProfile):
         verbose_name_plural = 'sellers'
 
     def get_account_type(self):
-        return 'seller'
+        return str('seller')
 
 #####Jennifer from here
 class Buyer(UserProfile):
@@ -122,7 +122,7 @@ class Buyer(UserProfile):
 #Lara end1
 
     def get_account_type(self):
-        return 'buyer'
+        return str('buyer')
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
