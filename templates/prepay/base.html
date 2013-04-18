@@ -10,13 +10,13 @@
 <body>
 	
 	
+<div id="header">
 <div id="login">
 	{% if login_flag %}
 	Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a>.
 	<a href="{% url 'admin:password_change' %}">Change password</a> / <a href="{% url 'auth_logout' %}">Log out</a>
 	{% endif %}
 </div>
-<div id="header">
 	{% block header %}
 		<b>PrePay.</b>
 	{% endblock %}	
@@ -24,19 +24,17 @@
 
 <div id="nav">
 	{% block nav %}
-		{% if user.is_authenticated %}
-            <a href="/browse_listings/">Browse Listings</a> &#149;
-            <a href="/browse_product_requests">Browse Product Requests</a> &#149;
-        {% endif %}
+        <a href="{% url 'browse_listings' %}">Browse Listings</a> &#149;
+        <a href="{% url 'browse_product_requests' %}">Browse Product Requests</a> &#149;
 
         {% if account_type == 'buyer' %}
-            <a href="/admin/prepay/productrequest/add/">Request Product</a> &#149;
+            <a href="{% url 'admin:prepay_productrequest_add' %}">Request Product</a> &#149;
         {% endif %}
         {% if not user.is_authenticated %}
-            <a href="/register">Register as Buyer or Seller</a> &#149; 
+            <a href="{% url 'register' %}">Register as Buyer or Seller</a> &#149; 
         {% endif %}
-        <a href="/admin/">Admin</a> &#149;
-        <a href="/about">About</a>
+        <a href="{% url 'admin:index' %}">Admin</a> &#149;
+        <a href="{% url 'about' %}">About</a>
         
 	{% endblock %}
 </div>
