@@ -15,6 +15,8 @@
 	{% if login_flag %}
 	Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a>.
 	<a href="{% url 'admin:password_change' %}">Change password</a> / <a href="{% url 'auth_logout' %}">Log out</a>
+	{% else %}
+	<a href="/prepay/register">Register as Buyer or Seller</a> 
 	{% endif %}
 </div>
 	{% block header %}
@@ -27,12 +29,11 @@
         <a href="{% url 'browse_listings' %}">Browse Listings</a> &#149;
         <a href="{% url 'browse_product_requests' %}">Browse Product Requests</a> &#149;
 
-        {% if account_type == 'buyer' %}
+        {# if account_type == 'buyer' #}
+        	<!-- shouldn't seller's also be aloud to request products? -->
             <a href="{% url 'admin:prepay_productrequest_add' %}">Request Product</a> &#149;
-        {% endif %}
-        {% if not user.is_authenticated %}
-            <a href="{% url 'register' %}">Register as Buyer or Seller</a> &#149; 
-        {% endif %}
+        {# endif #}
+
         <a href="{% url 'admin:index' %}">Admin</a> &#149;
         <a href="{% url 'about' %}">About</a>
         
