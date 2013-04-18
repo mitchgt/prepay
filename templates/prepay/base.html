@@ -16,7 +16,7 @@
 	Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a>.
 	<a href="{% url 'admin:password_change' %}">Change password</a> / <a href="{% url 'auth_logout' %}">Log out</a>
 	{% else %}
-	<a href="/prepay/register">Register as Buyer or Seller</a> 
+	<a href="{% url 'index' %}">Login</a> / <a href="{% url 'register' %}">Register</a> 
 	{% endif %}
 </div>
 	{% block header %}
