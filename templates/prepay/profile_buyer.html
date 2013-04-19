@@ -77,6 +77,10 @@ ${{ba.balance}}
 	{% csrf_token %}
 	<input class = "button" type = "submit" value = "Withdraw"/>
 	</form>
+	<form action = "{% url 'confirmreceipt' order.id %}" method = "get">
+	{% csrf_token %}
+	<input class = "button" type = "submit" value = "Confirm receipt"/>
+	</form>
 	{% endif %}
 {% endfor %}
 
