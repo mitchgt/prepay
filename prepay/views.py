@@ -336,3 +336,25 @@ def withdraw(request, order_id):
 			points = order.listing.price
 			return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order, 'confirm':confirm, 'points':points})
 	return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order})
+
+def confirmreceipt(request, order_id):
+	login_flag=login_check(request)
+	order = Order.objects.get(pk=order_id)
+	if order.status == "Aborted" or order.status =="Closed":
+		notongoing = True
+		return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'notongoing':notongoing})
+	if order.buyer.username != request.user.username:
+		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
+	else:
+		if request.method=='POST':
+			e = Escrow.objects.get(listing=order.listing)
+			e.balance = e.balance - order.listing.price
+			e.save()
+			ba = BankAccount.objects.get(user = order.listing.product.seller)
+			ba.balance = ba.balance + order.listing.price
+			ba.save()
+			order.status = "Closed"
+			order.save()
+			confirm = True
+			return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'order':order, 'confirm':confirm})
+	return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'order':order})
