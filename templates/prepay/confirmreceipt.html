@@ -1,0 +1,35 @@
+{% extends "prepay/base.html" %}
+
+{% load url from future %}
+
+{% block content %}
+
+<h2>Confirm receipt of order</h2>
+
+{% if confirm %}
+Your confirmation was successful. This order is now completed and closed.<br/>
+<p><a href = "{% url 'profile' user %}">Go to profile</a><p>
+{% else %}
+
+{% if notongoing %}
+This order has either been withdrawn or has already been confirmed.
+{% else %}
+
+Order details:<br/>
+Product: {{order.listing.name}}<br/>
+Price: ${{order.listing.price}}<br/>
+Seller: {{order.listing.product.seller.username}}<br/>
+<br/>
+Are you sure you have received the product and want to confirm receipt? Once you confirm, the money you deposited will be paid to the seller.<br/>
+
+	<form action = "{% url 'confirmreceipt' order.id %}" method = "post">
+	{% csrf_token %}
+	<input class = "button" type = "submit" value = "Confirm receipt"/>
+	</form>
+
+
+{% endif %}
+<p><a href = "{% url 'profile' user %}">Back to profile</a><p>
+{% endif %}
+
+{% endblock %}
