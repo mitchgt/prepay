@@ -72,7 +72,7 @@ ${{ba.balance}}
 	{% for ship in order.shipping_address.all %}
 	{{ship}}
 	{% endfor %}<br/>
-	{% if order.status = "Closed" %}
+	{% if order.status = "Closed" or order.status = "Rated" %}
 	<b>Date delivered/confirmed:</b> {{order.date_delivered}}<br/>
 	{% endif %}
 	{% if mine and order.status == "Ongoing" %}
