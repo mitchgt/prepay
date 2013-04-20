@@ -20,7 +20,7 @@ Product: {{order.listing.name}}<br/>
 Price: ${{order.listing.price}}<br/>
 Seller: {{order.listing.product.seller.username}}<br/>
 <br/>
-Are you sure you have received the product and want to confirm receipt? Once you confirm, the money you deposited will be paid to the seller.<br/>
+Are you sure you have received the product and want to confirm receipt? Once you confirm, 50% of the money you deposited will be paid to the seller.<br/>
 
 	<form action = "{% url 'confirmreceipt' order.id %}" method = "post">
 	{% csrf_token %}
