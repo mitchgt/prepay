@@ -2,13 +2,13 @@ from django.http import HttpResponse
 from django.template import Context, loader
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User, Group  ####Jennifer
-from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm, EditProfileForm, PhoneNumberFormSet, InstantMessengerFormSet, WebSiteFormSet, StreetAddressFormSet, SearchForm, CheckoutForm #####Jennifer
+from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm, EditProfileForm, PhoneNumberFormSet, InstantMessengerFormSet, WebSiteFormSet, StreetAddressFormSet, SearchForm, CheckoutForm, ReviewForm #####Jennifer
 from django.shortcuts import render_to_response  # ##Jennifer
 from django.http import HttpResponseRedirect  ####Jennifer
 from django.template import RequestContext  # ##Jennifer
 from django.db import models  # ##Jennifer
 
-from prepay.models import Listing, Category, UserProfile, Seller, Buyer, ProductRequest,Listing_Comment, PhoneNumber, StreetAddress, WebSite, InstantMessenger, Product, Order, BankAccount, Escrow  # ##Jennifer edited
+from prepay.models import Listing, Category, UserProfile, Seller, Buyer, ProductRequest,Listing_Comment, PhoneNumber, StreetAddress, WebSite, InstantMessenger, Product, Order, BankAccount, Escrow, Review  # ##Jennifer edited
 from django.contrib.auth import authenticate, login, logout##Lara
 from django.contrib.auth.decorators import login_required##Lara
 from django.core.urlresolvers import reverse##Lara
@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.shortcuts import redirect 
 from django.db.models import Q
 from django.core.urlresolvers import reverse 
+import math
 
 '''
 ####Jennifer new
@@ -74,10 +75,26 @@ def profile(request, user_username):
         return render(request, 'prepay/profile_seller.html', {'theuser':user, 'products':products, 'listings':listings, 'mine':mine, 'login_flag': login_flag})
     else:
         user = get_object_or_404(Buyer, username=user_username)
+        form = ReviewForm()
         if request.user.username == user_username:
-			mine = True
-        return render(request, 'prepay/profile_buyer.html', {'theuser':user, 'mine':mine, 'login_flag': login_flag})
+            mine = True
+        return render(request, 'prepay/profile_buyer.html', {'theuser':user, 'mine':mine, 'login_flag': login_flag, 'form': form})
 
+def review(request, order_id):
+	login_flag=login_check(request)
+	order = get_object_or_404(Order,pk=order_id)
+	if request.method == "POST":
+		form = ReviewForm(request.POST)
+		if form.is_valid():
+			seller = order.listing.product.seller
+			buyer = Buyer.objects.get(username = request.user.username)
+			review = request.POST.get('review')
+			rating = request.POST.get('rating')
+			Review.objects.create(seller = seller, buyer = buyer, review = review, rating = rating, order = order)
+			order.status = "Rated"
+			order.save()
+			return render(request, 'prepay/reviewed.html',{'login_flag':login_flag,})
+	return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
         
 ####Jennifer
 def register(request):
@@ -269,7 +286,7 @@ def confirmed(request):
 def checkout(request, listing_id):
 	login_flag=login_check(request)
 	
-	listing = Listing.objects.get(pk = listing_id)
+	listing = get_object_or_404(Listing,pk = listing_id)
 	error = False ###
 	exceed = False
 	if listing.status != "Open for bidding" or not Buyer.objects.filter(username = request.user.username):
@@ -310,7 +327,7 @@ def checkout(request, listing_id):
 
 def withdraw(request, order_id):
 	login_flag=login_check(request)
-	order = Order.objects.get(pk=order_id)
+	order = get_object_or_404(Order,pk=order_id)
 	if order.status == "Aborted" or order.status =="Closed":
 		notongoing = True
 		return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'notongoing':notongoing})
@@ -339,21 +356,24 @@ def withdraw(request, order_id):
 
 def confirmreceipt(request, order_id):
 	login_flag=login_check(request)
-	order = Order.objects.get(pk=order_id)
+	order = get_object_or_404(Order,pk=order_id)
 	if order.status == "Aborted" or order.status =="Closed":
 		notongoing = True
 		return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'notongoing':notongoing})
 	if order.buyer.username != request.user.username:
 		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
 	else:
+		date = timezone.now()
 		if request.method=='POST':
 			e = Escrow.objects.get(listing=order.listing)
-			e.balance = e.balance - order.listing.price
+			amount = order.listing.price/2
+			e.balance = e.balance - amount
 			e.save()
 			ba = BankAccount.objects.get(user = order.listing.product.seller)
-			ba.balance = ba.balance + order.listing.price
+			ba.balance = ba.balance + amount
 			ba.save()
 			order.status = "Closed"
+			order.date_delivered = date
 			order.save()
 			confirm = True
 			return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'order':order, 'confirm':confirm})
