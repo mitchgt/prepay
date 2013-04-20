@@ -4,9 +4,14 @@
 
 {% block content %}
 
+{% if error %}
+Sorry, please go back to your profile and fill out your review again.
+{% elif direct %}
+You can write reviews for your orders on your profile page.
+{% else %}
 <h2>Review saved</h2>
 Thank you for reviewing your order!<br/>
-
+{% endif %}
 <p><a href = "{% url 'profile' user %}">Go to profile</a><p>
 
 {% endblock %}
