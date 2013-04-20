@@ -94,7 +94,11 @@ def review(request, order_id):
 			order.status = "Rated"
 			order.save()
 			return render(request, 'prepay/reviewed.html',{'login_flag':login_flag,})
-	return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
+		else:
+			error = True
+			return render(request, 'prepay/reviewed.html',{'login_flag':login_flag, 'error':error})
+	direct = True
+	return render(request, 'prepay/reviewed.html',{'login_flag':login_flag, 'direct':direct})
         
 ####Jennifer
 def register(request):
