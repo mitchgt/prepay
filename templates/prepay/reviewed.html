@@ -1,0 +1,12 @@
+{% extends "prepay/base.html" %}
+
+{% load url from future %}
+
+{% block content %}
+
+<h2>Review saved</h2>
+Thank you for reviewing your order!<br/>
+
+<p><a href = "{% url 'profile' user %}">Go to profile</a><p>
+
+{% endblock %}
