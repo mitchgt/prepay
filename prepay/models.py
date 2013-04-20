@@ -142,7 +142,7 @@ class Product(models.Model):
         
 class Listing(models.Model):
     name = models.CharField(max_length=50)
-    CHOICES = (('Open for bidding', 'Open for bidding'), ('In Production', 'In Production'), ('Closed', 'Closed'))
+    CHOICES = (('Open for bidding', 'Open for bidding'),('Maximum reached', 'Maximum reached'), ('In Production', 'In Production'), ('Closed', 'Closed'))
     status = models.CharField(max_length=30, choices=CHOICES, default = 'Open for bidding') 
     price = models.DecimalField(max_digits=8, decimal_places=2)
     numBidders = models.IntegerField(default = 0)
@@ -200,7 +200,7 @@ class Escrow(models.Model):
         return self.name
 
 class Order(models.Model):
-    CHOICES = (('Ongoing', 'Ongoing'), ('Closed', 'Closed'), ('Aborted', 'Aborted'))
+    CHOICES = (('Ongoing', 'Ongoing'), ('Closed', 'Closed'), ('Aborted', 'Aborted'), ('Rated', 'Rated'))
     status = models.CharField(max_length=30, choices=CHOICES, default = 'Ongoing') 
     buyer = models.ForeignKey(Buyer)
     seller = models.ForeignKey(Seller)
@@ -214,6 +214,22 @@ class Order(models.Model):
 
     class Meta:
         ordering = ["-date_added"]
+
+class Review(models.Model):
+    order = models.ForeignKey(Order)
+    seller = models.ForeignKey(Seller)
+    buyer = models.ForeignKey(Buyer)
+    review = models.CharField(max_length=1000)
+    rating = models.IntegerField(
+        default=1,
+        validators=[
+            MaxValueValidator(5),
+            MinValueValidator(0)
+        ]
+    )
+    date_added = models.DateTimeField(_('date added'), auto_now_add=True)
+    def __unicode__(self):
+        return u'%s %d' % (self.review, self.rating)
 
 #Lara start2
 PHONE_LOCATION_CHOICES = (
