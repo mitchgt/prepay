@@ -70,6 +70,17 @@ ${{ba.balance}}
 {% endif %}<br/>
 
 
+<br/>
+<b>Reviews:</b> 
+<br/><br/>
+{% for review in theuser.review_set.all %}
+	<b>Product:</b> {{review.order.listing.name}}<br/>
+	<b>Buyer:</b> {{review.buyer}}<br/>
+	<b>Review:</b> {{review.review}}<br/>
+	<b>Rating:</b> {{review.rating}}<br/>
+	<b>Date reviewed:</b> {{review.date_added}}<br/>
+------------------------------------------------------<br/>
+{% endfor %}
 
 <!--Listings: {{listings}}<br/>-->
 {% comment %}
