@@ -72,6 +72,9 @@ ${{ba.balance}}
 	{% for ship in order.shipping_address.all %}
 	{{ship}}
 	{% endfor %}<br/>
+	{% if order.status = "Closed" %}
+	<b>Date delivered/confirmed:</b> {{order.date_delivered}}<br/>
+	{% endif %}
 	{% if mine and order.status == "Ongoing" %}
 	<form action = "{% url 'withdraw' order.id %}" method = "get">
 	{% csrf_token %}
@@ -82,6 +85,14 @@ ${{ba.balance}}
 	<input class = "button" type = "submit" value = "Confirm receipt"/>
 	</form>
 	{% endif %}
+	{% if mine and order.status == "Closed" %}
+	<form action = "{% url 'review' order.id %}" method = "post">
+	{% csrf_token %}
+	{{form.as_table}}
+	<input class = "button" type = "submit" value = "Confirm receipt"/>
+	</form>
+	{% endif %}
+	--------------------------------------------------------------------<br/>
 {% endfor %}
 
 
