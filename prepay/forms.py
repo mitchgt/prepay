@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from prepay.models import UserProfile, PhoneNumber, WebSite, StreetAddress, InstantMessenger, Order
+from prepay.models import UserProfile, PhoneNumber, WebSite, StreetAddress, InstantMessenger, Order, Review
 from django.forms import ModelForm
 from django.contrib.contenttypes.generic import generic_inlineformset_factory 
 from prepay import settings
@@ -31,6 +31,12 @@ class ListingCommentForm(forms.Form):
 			if (file_type not in settings.TASK_UPLOAD_FILE_TYPES):
 				raise forms.ValidationError('File type is not supported')
 		return image
+
+class ReviewForm(forms.Form):
+	review = forms.CharField(max_length=1000, widget=forms.Textarea(attrs={'rows':'10', 'cols': '100'}))
+	rating = forms.ChoiceField(
+		choices=[(x,x) for x in range(0,6)]
+	)
 	
 class EditProfileForm(ModelForm):
 
