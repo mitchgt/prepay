@@ -1,0 +1,33 @@
+{% extends "prepay/base.html" %}
+
+{% load url from future %}
+
+{% block content %}
+
+<h2>Orders for {{listing.name}}</h2>
+
+{% if mine %}
+{% if orders %}
+{% for order in orders %}
+Buyer: <a href = "{% url 'profile' order.buyer.username %}">{{order.buyer}}</a><br/>
+Date ordered: {{order.date_added}}<br/>
+Status: {{order.status}}<br/>
+Shipping address:
+	{% for ship in order.shipping_address.all %}
+	{{ship}}
+	{% endfor %}<br/>
+{% if order.status = "Closed" or order.status = "Rated" %}
+Buyer confirmed receipt on: {{order.date_delivered}}<br/>
+{% endif %}
+<br/>
+{% endfor %}
+{% else %}
+No orders yet!
+{% endif %}
+{% else %}
+Sorry, you do not have permission to view the orders.<br/>
+{% endif %}
+<p><a href = "{% url 'listing_detail' listing.id %}">Go to listing</a><p>
+
+{% endblock %}
+
