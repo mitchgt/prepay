@@ -60,7 +60,11 @@ ${{ba.balance}}
 {% endfor %}{% endif %}
 <b>Products:</b> 
 {% for l in listings %}
-    <a href = "{% url 'listing_detail' l.id %}">{{ l.product.name }}</a>,
+    <a href = "{% url 'listing_detail' l.id %}">{{ l.product.name }}</a>
+	{% if mine %}
+	<a href = "{% url 'orders' l.id %}">(view orders)</a>
+	{% endif %}
+	,
 {% empty %}
     No products!
 {% endfor %}<br/>
