@@ -29,6 +29,9 @@
 				<b>Minimum goal:</b> {{listing.minGoal}}<br/>
 				<b>Maximum goal:</b> {{listing.maxGoal}}<br/>
 				<b>Current number of bidders:</b> {{listing.numBidders}}<br/>
+				{% if listing.product.seller.username = user.username %}
+					<a href = "{% url 'orders' listing.id %}">View current orders</a><br/>
+				{% endif %}
 				<b>Deadline for bidding:</b> {{listing.deadlineBid}}<br/>
 				<b>Deadline for delivery:</b> {{listing.deadlineDeliver}}<br/>
 			</td>
