@@ -32,12 +32,13 @@ class ListingInline(admin.TabularInline):
 
 class PLAdmin(admin.ModelAdmin): 
     inlines = [ListingInline,]
+    exclude = ('seller',)
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'seller':
-            if not request.user.is_superuser:
-                kwargs["queryset"] = Seller.objects.filter(user = request.user)
-        return super(PLAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    #sets product seller to be current logged in user
+    def save_model(self, request, Product, form, change):
+        Product.seller = Seller.objects.get(user = request.user)
+        Product.save()
+
 
 admin.site.register(Product, PLAdmin)
 admin.site.register(Category)
