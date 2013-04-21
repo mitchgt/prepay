@@ -68,10 +68,12 @@ ${{ba.balance}}
 	<b>Seller:</b> {{order.listing.product.seller}}<br/>
 	<b>Status:</b> {{order.status}}<br/>
 	<b>Date ordered:</b> {{order.date_added}}<br/>
+	{% if mine %}
 	<b>Shipping address:</b> 
 	{% for ship in order.shipping_address.all %}
 	{{ship}}
 	{% endfor %}<br/>
+	{% endif %}
 	{% if order.status = "Closed" or order.status = "Rated" %}
 	<b>Date delivered/confirmed:</b> {{order.date_delivered}}<br/>
 	{% endif %}
