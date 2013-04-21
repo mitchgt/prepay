@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     #url(r'^user/(?P<user_username>.*)$', views.profile, name = 'user'),  ####Jennifer new
     url(r'^profile/(?P<user_username>.*)$', views.profile, name = 'profile'), 
     url(r'^listings/(?P<listing_id>.*)$', views.listing_detail, name='listing_detail'),
+    url(r'^orders/(?P<listing_id>.*)$', views.orders, name='orders'),
     url(r'^checkout/(?P<listing_id>.*)$', views.checkout, name='checkout'),
     url(r'^confirmed$', views.confirmed, name='confirmed'),
     url(r'^withdraw/(?P<order_id>.*)$', views.withdraw, name='withdraw'),
