@@ -384,12 +384,13 @@ def confirmreceipt(request, order_id):
 	return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'order':order})
 
 def orders(request, listing_id):
-	login_flag=login_check(request)
-	listing = get_object_or_404(Listing, pk=listing_id)
-	mine = False
-	if request.user.username == listing.product.seller.username:
-		mine = True
-	orders = Order.objects.filter(listing = listing)
-	return render_to_response('prepay/orders.html',{'listing':listing, 'orders':orders, 'mine':mine, 'login_flag': login_flag})
+    login_flag=login_check(request)
+    listing = get_object_or_404(Listing, pk=listing_id)
+    mine = False
+    if request.user.username == listing.product.seller.username:
+        mine = True
+    orders = Order.objects.filter(listing = listing)
+	#return render_to_response('prepay/orders.html',{'listing':listing, 'orders':orders, 'mine':mine, 'login_flag': login_flag})
+    return render(request, 'prepay/orders.html',{'listing':listing, 'orders':orders, 'mine':mine, 'login_flag': login_flag})
 
 
