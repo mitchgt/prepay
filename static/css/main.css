@@ -55,11 +55,11 @@ h5 {
 	font-size: 36px;
 	width: 100%;
 }
-#header a { color: #000;}
-#header a:link {color:#000; text-decoration: none;}
-#header a:visited {color:#000; text-decoration: none;}
-#header a:hover {color:#000; text-decoration: none;}
-#header a:active {color:#000; text-decoration: none;}
+#header .title a { color: #000;}
+#header .title a:link {color:#000; text-decoration: none;}
+#header .title a:visited {color:#000; text-decoration: none;}
+#header .title a:hover {color:#000; text-decoration: none;}
+#header .title a:active {color:#000; text-decoration: none;}
 
 
 #nav {
