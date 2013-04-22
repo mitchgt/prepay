@@ -1,5 +1,6 @@
 {% extends "admin/base.html" %}
 {% load i18n %}
+{% load url from future %}
 
 {% block title %}{{ title }} | {% trans 'Prepay site admin' %}{% endblock %}
 
@@ -7,17 +8,13 @@
 <h1 id="site-name">{% trans 'PrePay.' %}</h1>
 
 <div id="nav">
-
-    {% block nav %}
-
-		<a href="/prepay/browse_listings/">Browse Listings</a> &#149;
-		<a href="/prepay/browse_product_requests">Browse Product Requests</a> &#149;
-		<a href="/prepay/admin/prepay/productrequest/add/">Request Product</a> &#149;
-		<a href="/prepay/admin/">Admin</a> &#149;
-		<a href="/prepay/about">About</a>
-
+    {% block nav %}		
+		<a href="{% url 'browse_listings' %}">Browse Listings</a> &#149;
+        <a href="{% url 'browse_product_requests' %}">Browse Product Requests</a> &#149;
+		<a href="{% url 'admin:prepay_productrequest_add' %}">Request Product</a> &#149;
+        <a href="{% url 'admin:index' %}">Admin</a> &#149;
+        <a href="{% url 'about' %}">About</a>
 	{% endblock %}
-
 </div>
 
 {% endblock %}
