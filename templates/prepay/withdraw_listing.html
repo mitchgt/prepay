@@ -1,0 +1,35 @@
+{% extends "prepay/base.html" %}
+
+{% load url from future %}
+
+{% block content %}
+
+<h2>Withdraw listing</h2>
+
+{% if confirm %}
+Your listing has been withdrawn. All buyers who had pre-ordered have been refunded.
+{% elif notongoing %}
+This listing is already closed, aborted, or withdrawn.
+{% else %}
+Listing: {{listing.name}}<br/>
+Date posted: {{listing.created_at}}<br/>
+Status: {{listing.status}}<br/>
+Deadline for bidding: {{listing.deadlineBid}}<br/>
+{% if withdraw or terminate %}
+{% if withdraw %}
+Are you sure you want to withdraw the listing? Your rating will be reduced by ...<br/>
+{% elif terminate %}
+Deadline for delivery: {{listing.deadlineDeliver}}
+Are you sure you want to withdraw the listing? Your rating will be reduced by ...<br/>
+{% endif %}
+	<form action = "{% url 'withdrawListing' listing.id %}" method = "post">
+	{% csrf_token %}
+	<input class = "button" type = "submit" value = "Withdraw"/>
+	</form>
+
+{% endif %}
+{% endif %}
+<p><a href = "{% url 'listing_detail' listing.id %}">Back to listing</a><p>
+
+
+{% endblock %}
