@@ -332,12 +332,12 @@ def checkout(request, listing_id):
 def withdraw(request, order_id):
 	login_flag=login_check(request)
 	order = get_object_or_404(Order,pk=order_id)
-	if order.status == "Aborted" or order.status =="Closed":
+	if order.buyer.username != request.user.username:
+		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
+	if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn":
 		notongoing = True
 		return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'notongoing':notongoing})
 	date = timezone.now()
-	if order.buyer.username != request.user.username:
-		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
 	if date>=order.listing.deadlineBid:
 		cannot = True
 		return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'cannot':cannot})
@@ -351,7 +351,8 @@ def withdraw(request, order_id):
 			ba = BankAccount.objects.get(user = request.user)
 			ba.balance = ba.balance + order.listing.price
 			ba.save()
-			order.status = "Aborted"
+			order.status = "Withdrawn"
+			order.date_withdrawn = date
 			order.save()
 			confirm = True
 			points = order.listing.price
@@ -361,11 +362,11 @@ def withdraw(request, order_id):
 def confirmreceipt(request, order_id):
 	login_flag=login_check(request)
 	order = get_object_or_404(Order,pk=order_id)
-	if order.status == "Aborted" or order.status =="Closed":
-		notongoing = True
-		return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'notongoing':notongoing})
 	if order.buyer.username != request.user.username:
 		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
+	if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn":
+		notongoing = True
+		return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'notongoing':notongoing})
 	else:
 		date = timezone.now()
 		if request.method=='POST':
@@ -393,4 +394,38 @@ def orders(request, listing_id):
 	#return render_to_response('prepay/orders.html',{'listing':listing, 'orders':orders, 'mine':mine, 'login_flag': login_flag})
     return render(request, 'prepay/orders.html',{'listing':listing, 'orders':orders, 'mine':mine, 'login_flag': login_flag})
 
+def withdrawListing(request, listing_id):
+    login_flag=login_check(request)
+    listing = get_object_or_404(Listing, pk=listing_id)
+    date = timezone.now()
+    if listing.product.seller.username != request.user.username:
+        return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
+    if listing.status == "Aborted" or listing.status =="Closed" or listing.status == "Withdrawn":
+        notongoing = True
+        return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'login_flag':login_flag, 'notongoing':notongoing})
+    if date <= listing.deadlineBid and request.method!="POST":
+        withdraw = True
+        return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'withdraw':withdraw, 'login_flag': login_flag})
+    if date <= listing.deadlineDeliver and request.method!="POST":
+        terminate = True
+        return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'terminate':terminate, 'login_flag': login_flag})
+    else:
+        if request.method == "POST":
+            orders = Order.objects.filter(status = "Ongoing")
+            e = Escrow.objects.get(listing=listing)
+            for order in orders:
+                ba = BankAccount.objects.get(user = order.buyer)
+                ba.balance = ba.balance + listing.price
+                ba.save()
+                e.balance = e.balance - listing.price
+                e.save()
+                order.status = "Aborted by seller"
+                order.date_aborted = date
+                order.save()
+            listing.status = "Withdrawn"
+            listing.date_withdrawn = date
+            listing.save()         
+            confirm = True
+            return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'confirm':confirm, 'login_flag': login_flag})   
+    return render(request, 'prepay/withdrawListing.html',{'listing':listing, 'login_flag': login_flag})
 
