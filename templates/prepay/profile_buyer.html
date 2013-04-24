@@ -68,6 +68,11 @@ ${{ba.balance}}
 	<b>Seller:</b> {{order.listing.product.seller}}<br/>
 	<b>Status:</b> {{order.status}}<br/>
 	<b>Date ordered:</b> {{order.date_added}}<br/>
+	{% if order.status = "Withdrawn" %}
+	<b>Date withdrawn:</b> {{order.date_withdrawn}}<br/>
+	{% elif order.status = "Aborted by seller" %}
+	<b>Date aborted:</b> {{order.date_aborted}}<br/>
+	{% endif %}
 	{% if mine %}
 	<b>Shipping address:</b> 
 	{% for ship in order.shipping_address.all %}
