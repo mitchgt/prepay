@@ -142,7 +142,7 @@ class Product(models.Model):
         
 class Listing(models.Model):
     name = models.CharField(max_length=50)
-    CHOICES = (('Open for bidding', 'Open for bidding'),('Maximum reached', 'Maximum reached'), ('In Production', 'In Production'), ('Closed', 'Closed'))
+    CHOICES = (('Open for bidding', 'Open for bidding'),('Maximum reached', 'Maximum reached'), ('In Production', 'In Production'), ('Closed', 'Closed'), ('Aborted', 'Aborted'), ('Withdrawn', 'Withdrawn'))
     status = models.CharField(max_length=30, choices=CHOICES, default = 'Open for bidding') 
     price = models.DecimalField(max_digits=8, decimal_places=2)
     numBidders = models.IntegerField(default = 0)
@@ -157,6 +157,9 @@ class Listing(models.Model):
     #price_per = CurrencyField()
     
     created_at = models.DateTimeField(auto_now_add=True)
+    date_closed = models.DateTimeField(_('date closed'),null=True, blank=True)
+    date_withdrawn = models.DateTimeField(_('date withdrawn'),null=True, blank=True)
+    date_aborted = models.DateTimeField(_('date aborted'),null=True, blank=True)
     
     def offer(self):
         return str("offered!")
@@ -200,13 +203,15 @@ class Escrow(models.Model):
         return self.name
 
 class Order(models.Model):
-    CHOICES = (('Ongoing', 'Ongoing'), ('Closed', 'Closed'), ('Aborted', 'Aborted'), ('Rated', 'Rated'))
+    CHOICES = (('Ongoing', 'Ongoing'), ('Closed', 'Closed'), ('Aborted by seller', 'Aborted by seller'), ('Rated', 'Rated'), ('Withdrawn', 'Withdrawn'))
     status = models.CharField(max_length=30, choices=CHOICES, default = 'Ongoing') 
     buyer = models.ForeignKey(Buyer)
     seller = models.ForeignKey(Seller)
     listing = models.ForeignKey(Listing)
     date_added = models.DateTimeField(_('date added'), auto_now_add=True)
     date_delivered = models.DateTimeField(_('date delivered'),null=True, blank=True)
+    date_withdrawn = models.DateTimeField(_('date withdrawn'),null=True, blank=True)
+    date_aborted= models.DateTimeField(_('date aborted'),null=True, blank=True)
     shipping_address = GenericRelation('StreetAddress')
 
     def __unicode__(self):
