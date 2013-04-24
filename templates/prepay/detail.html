@@ -13,6 +13,14 @@
 				<img src="{{ listing.product.get_picture_url }}" width="200" style="border:none; padding-right:8px; padding-top:10px; padding-left:10px; float:left;">
 			</td>
 			<td style="padding:10px;font-size:14px;">
+				{% if user.username = listing.product.seller.username %}
+				{% if listing.status = "Open for bidding" or listing.status = "Maximum reached" or listing.status = "In Production" %}
+					<form action = "{% url 'withdrawListing' listing.id %}" method = "get">
+					{% csrf_token %}
+					<input class = "button" type = "submit" value = "Withdraw listing"/>
+					</form>
+				{% endif %}
+				{% endif %}
 				<b>Listing Description:</b> {{ listing.description }}<br/>
 				<b>Product Description:</b> {{ listing.product.description }}<br/>
 				<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{ listing.product.seller.username }}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>
