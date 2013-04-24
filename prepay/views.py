@@ -427,5 +427,5 @@ def withdrawListing(request, listing_id):
             listing.save()         
             confirm = True
             return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'confirm':confirm, 'login_flag': login_flag})   
-    return render(request, 'prepay/withdrawListing.html',{'listing':listing, 'login_flag': login_flag})
+    return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'login_flag': login_flag})
 
