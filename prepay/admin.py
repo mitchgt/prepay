@@ -27,7 +27,7 @@ class UserAdmin(admin.ModelAdmin):
     
 class ListingInline(admin.TabularInline):
     model = Listing
-    exclude = ('numBidders',)
+    exclude = ('numBidders','date_closed','date_withdrawn','date_aborted')
     extra = 1
 
 class PLAdmin(admin.ModelAdmin): 
