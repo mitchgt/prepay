@@ -16,7 +16,6 @@ from django.utils import timezone
 from django.shortcuts import redirect 
 from django.db.models import Q
 from django.core.urlresolvers import reverse 
-import math
 
 '''
 ####Jennifer new
@@ -93,6 +92,15 @@ def review(request, order_id):
 			Review.objects.create(seller = seller, buyer = buyer, review = review, rating = rating, order = order)
 			order.status = "Rated"
 			order.save()
+			count = Review.objects.filter(seller= seller).count()
+			if count == 0:
+				if seller.rating==None:
+					seller.rating = rating
+				else:
+					seller.rating = (seller.rating + rating)/2
+			else:
+				seller.rating = (seller.rating * count + int(rating))/(count+1)
+			seller.save()
 			return render(request, 'prepay/reviewed.html',{'login_flag':login_flag,})
 		else:
 			error = True
@@ -356,6 +364,11 @@ def withdraw(request, order_id):
 			order.save()
 			confirm = True
 			points = order.listing.price
+			if order.buyer.rating == None or order.buyer.rating == 0:
+				order.buyer.rating = 0
+			else:
+				order.buyer.rating = order.buyer.rating - 1
+			order.buyer.save()
 			return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order, 'confirm':confirm, 'points':points})
 	return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order})
 
@@ -381,6 +394,11 @@ def confirmreceipt(request, order_id):
 			order.date_delivered = date
 			order.save()
 			confirm = True
+			if order.buyer.rating == None:
+				order.buyer.rating = 5
+			elif order.buyer.rating<5:
+				order.buyer.rating = order.buyer.rating + 1
+			order.buyer.save()
 			return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'order':order, 'confirm':confirm})
 	return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'order':order})
 
@@ -426,6 +444,17 @@ def withdrawListing(request, listing_id):
             listing.date_withdrawn = date
             listing.save()         
             confirm = True
+            rating = listing.product.seller.rating
+            if rating == None or rating == 0:
+                listing.product.seller.rating = 0
+            elif date<= listing.deadlineBid:
+                listing.product.seller.rating = rating - 1
+            else:
+                if rating == 1:
+                    listing.product.seller.rating = 0
+                else:
+                    listing.product.seller.rating = rating - 2
+            listing.product.seller.save()
             return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'confirm':confirm, 'login_flag': login_flag})   
     return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'login_flag': login_flag})
 
