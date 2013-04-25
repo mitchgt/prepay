@@ -254,6 +254,14 @@ def listing_detail(request, listing_id):
 	if listing.numBidders<listing.maxGoal:
 		goalreached = False
 	if request.method =='POST':
+		if 'shipped' in request.POST:
+			listing.status = "Shipped"
+			listing.save()
+			orders = Order.objects.filter(listing = listing, status = "Ongoing")
+			for order in orders:
+				order.status = "Shipped"
+				order.save()
+			return HttpResponseRedirect(reverse("prepay.views.listing_detail", args=(listing.id,)))
 		form = ListingCommentForm(request.POST,request.FILES)
 		if form.is_valid():
 			comment = request.POST.get('comment')
