@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.shortcuts import redirect 
 from django.db.models import Q
 from django.core.urlresolvers import reverse 
+from datetime import timedelta
 
 '''
 ####Jennifer new
@@ -350,7 +351,7 @@ def withdraw(request, order_id):
 	order = get_object_or_404(Order,pk=order_id)
 	if order.buyer.username != request.user.username:
 		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
-	if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn":
+	if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn" or order.status == "Returned":
 		notongoing = True
 		return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'notongoing':notongoing})
 	date = timezone.now()
@@ -385,7 +386,7 @@ def confirmreceipt(request, order_id):
 	order = get_object_or_404(Order,pk=order_id)
 	if order.buyer.username != request.user.username:
 		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
-	if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn":
+	if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn" or order.status == "Returned":
 		notongoing = True
 		return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'notongoing':notongoing})
 	else:
@@ -437,7 +438,7 @@ def withdrawListing(request, listing_id):
         return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'terminate':terminate, 'login_flag': login_flag})
     else:
         if request.method == "POST":
-            orders = Order.objects.filter(status = "Ongoing")
+            orders = Order.objects.filter(status = "Ongoing", listing = listing)
             e = Escrow.objects.get(listing=listing)
             for order in orders:
                 ba = BankAccount.objects.get(user = order.buyer)
@@ -465,4 +466,104 @@ def withdrawListing(request, listing_id):
             listing.product.seller.save()
             return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'confirm':confirm, 'login_flag': login_flag})   
     return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'login_flag': login_flag})
+
+def returns(request, order_id):
+	login_flag=login_check(request)
+	date = timezone.now()
+	order = get_object_or_404(Order,pk=order_id)
+	if order.seller.username != request.user.username:
+		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
+	if date >= (order.listing.deadlineDeliver+timedelta(weeks = 4)):
+		return render(request, 'prepay/returns.html',{'login_flag':login_flag, 'over':True})
+	if order.status == "Aborted by seller" or order.status == "Withdrawn" or order.status == "Returned":
+		notongoing = True
+		return render(request, 'prepay/returns.html',{'login_flag':login_flag, 'notongoing':notongoing})
+	else:
+		date = timezone.now()
+		if request.method=='POST':
+			e = Escrow.objects.get(listing=order.listing)
+			amount = order.listing.price/2
+			e.balance = e.balance - amount
+			e.save()
+			ba = BankAccount.objects.get(user = order.buyer)
+			ba.balance = ba.balance + amount
+			ba.save()
+			order.status = "Returned"
+			order.save()
+			confirm = True
+			if order.buyer.rating == None:
+				order.buyer.rating = 5
+			elif order.buyer.rating<5:
+				order.buyer.rating = order.buyer.rating + 1
+			order.buyer.save()
+			return render(request, 'prepay/returns.html',{'login_flag':login_flag, 'order':order, 'confirm':confirm})
+	return render(request, 'prepay/returns.html',{'login_flag':login_flag, 'order':order})
+
+def autoconfirm():
+    listings = Listing.objects.filter(status = "Shipped")
+    date = timezone.now()
+    for listing in listings:
+        if date >= (listing.deadlineDeliver+timedelta(weeks = 4)):
+            orders = Order.objects.filter(status = "Shipped", listing = listing)
+            e = Escrow.objects.get(listing=listing)
+            for order in orders:
+                order.status = "Closed"
+                order.date_delivered = date
+                order.save()
+            amount = e.balance
+            e.balance = 0
+            e.save()
+            ba = BankAccount.objects.get(user = listing.product.seller)
+            ba.balance = ba.balance + amount
+            ba.save()
+            listing.status = "Closed"
+    return
+
+def updateStatus():
+    listings = Listing.objects.all()
+    date = timezone.now()
+    for listing in listings:
+        if listing.status =="Closed" or listing.status == "Withdrawn" or listing.status =="Aborted":
+            continue
+        if date < listing.deadlineBid:
+            if numBidders == maxGoal and listing.status == "Open for bidding":
+                listing.status = "Maximum reached"
+                listing.save()
+            elif numBidders<maxGoal and listing.status == "Maximum reached":
+                listing.status = "Open for bidding"
+                listing.save()
+        elif date >= listing.deadlineBid and (listing.status =="Open for bidding" or listing.status == "Maximum reached"):
+            if numBidders == maxGoal:
+                listing.status = "In Production"
+                listing.save()
+            else:
+                listing.status = "Aborted"
+                listing.date_aborted = date
+                refund(listing.id)
+        elif date >= listing.deadlineDeliver and listing.status!= "Shipped":
+            listing.status = "Aborted"
+            if listing.product.seller.rating ==None or listing.product.seller.rating <2:
+                listing.product.seller.rating ==0
+                listing.product.seller.save()
+            else:
+                listing.product.seller.rating = listing.product.seller.rating -2
+                listing.product.seller.save()
+            listing.date_aborted = date
+            refund(listing.id)
+    return
+
+def refund(listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id)
+    orders = Order.objects.filter(status = "Ongoing", listing = listing)
+    e = Escrow.objects.get(listing = listing)
+    for order in orders:
+        e.balance = e.balance - listing.price
+        e.save()
+        ba = BankAccount.objects.get(user = order.buyer)
+        ba.balance = ba.balance + listing.price
+        ba.save()
+    return
+
+
+
 
