@@ -193,7 +193,7 @@ class Escrow(models.Model):
         return self.name
 
 class Order(models.Model):
-    CHOICES = (('Ongoing', 'Ongoing'), ('Closed', 'Closed'), ('Aborted by seller', 'Aborted by seller'), ('Rated', 'Rated'), ('Withdrawn', 'Withdrawn'), ('Shipped','Shipped'))
+    CHOICES = (('Ongoing', 'Ongoing'), ('Closed', 'Closed'), ('Aborted by seller', 'Aborted by seller'), ('Rated', 'Rated'), ('Withdrawn', 'Withdrawn'), ('Shipped','Shipped'), ('Returned', 'Returned'))
     status = models.CharField(max_length=30, choices=CHOICES, default = 'Ongoing') 
     buyer = models.ForeignKey(Buyer)
     seller = models.ForeignKey(Seller)
