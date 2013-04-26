@@ -31,7 +31,14 @@
 				<b>Product Description:</b> {{ listing.product.description }}<br/>
 				<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{ listing.product.seller.username }}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>
 				<b>Categories:</b> {% for c in listing.product.categories.all %} {{ c.name }}, {% endfor %}<br/>
-				<b>Created Date:</b> {{listing.created_at}}<br/>
+				<b>Date Created:</b> {{listing.created_at}}<br/>
+				{% if listing.date_closed %}
+				<b>Date Closed:</b> {{listing.date_closed}}<br/>
+				{% elif listing.date_aborted %}
+				<b>Date Aborted:</b> {{listing.date_aborted}}<br/>
+				{% elif listing.date_withdrawn %}
+				<b>Date Withdrawn:</b> {{listing.date_withdrawn}}<br/>
+				{% endif %}
 				<b>Price:</b> ${{listing.price}}<br/>
 				{% if listing.status == 'Open for bidding' and isBuyer and not goalreached %}
 				<form action = "{% url 'checkout' listing.id %}" method = "get">
