@@ -91,16 +91,10 @@ class UserProfile    (User): ####Jennifer
         return str(self.photo.url) 
 
 class Seller(UserProfile):
-    #account = models.OneToOneField(UserProfile)   #####Jennifer
     objects = UserManager()
-    #products = models.ManyToManyField(Product) #todo: filter by owner
-    #products = models.ManyToManyField(Product, blank=True, null=True)
-    #products = product_set.all()
-    #bank_account = models.ForeignKey(BankAccount)
-    #we might want to check out https://github.com/dcramer/django-ratings
     CHOICES = [(i,i) for i in range(6)]
     rating = models.IntegerField(choices=CHOICES, null=True, blank=True) 
-###Jennifer edited
+
     class Meta:
         db_table = 'prepay_contacts_sellers'
         verbose_name = 'seller'
@@ -109,9 +103,8 @@ class Seller(UserProfile):
     def get_account_type(self):
         return str('seller')
 
-#####Jennifer from here
+
 class Buyer(UserProfile):
-    #account = models.OneToOneField(UserProfile)
     objects = UserManager()
     CHOICES = [(i,i) for i in range(6)]
     rating = models.IntegerField(choices=CHOICES, null=True, blank=True) 
@@ -119,7 +112,6 @@ class Buyer(UserProfile):
         db_table = 'prepay_contacts_buyers'
         verbose_name = 'buyer'
         verbose_name_plural = 'buyers'
-#Lara end1
 
     def get_account_type(self):
         return str('buyer')
@@ -150,11 +142,9 @@ class Listing(models.Model):
     maxGoal = models.IntegerField()
     deadlineBid = models.DateTimeField()
     deadlineDeliver = models.DateTimeField()
-    #seller = models.ForeignKey(Seller)
     product = models.ForeignKey(Product)
     description = models.TextField(max_length=1000)
-    #quantity = models.IntegerField()
-    #price_per = CurrencyField()
+
     
     created_at = models.DateTimeField(auto_now_add=True)
     date_closed = models.DateTimeField(_('date closed'),null=True, blank=True)
