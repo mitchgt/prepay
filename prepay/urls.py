@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from prepay import views, settings
+from prepay import startup
 
 admin.autodiscover()
 
@@ -28,3 +29,5 @@ urlpatterns = patterns('',
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
     url(r'^logout/$', 'django.contrib.auth.views.logout', name="auth_logout"),
 )
+
+startup.set_groups()
