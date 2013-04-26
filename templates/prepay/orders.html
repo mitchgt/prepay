@@ -20,6 +20,14 @@ Shipping address:
 Buyer confirmed receipt on: {{order.date_delivered}}<br/>
 {% endif %}
 <br/>
+{% if listing.status = "In Production" or listing.status = "Shipped" %}
+{% if order.status = "Closed" or order.status = "Rated" or order.status = "Ongoing" or order.status = "Shipped" %}
+<form action = "{% url 'returns' order.id %}" method = "get">
+	{% csrf_token %}
+	<input class = "button" type = "submit" value = "Return received"/>
+</form>
+{% endif %}
+{% endif %}
 {% endfor %}
 {% else %}
 No orders yet!
