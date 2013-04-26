@@ -82,7 +82,8 @@ ${{ba.balance}}
 	{% if order.status = "Closed" or order.status = "Rated" %}
 	<b>Date delivered/confirmed:</b> {{order.date_delivered}}<br/>
 	{% endif %}
-	{% if mine and order.status == "Ongoing" %}
+	{% if mine %}
+	{% if order.status == "Ongoing" %}
 	<form action = "{% url 'withdraw' order.id %}" method = "get">
 	{% csrf_token %}
 	<input class = "button" type = "submit" value = "Withdraw"/>
@@ -94,12 +95,13 @@ ${{ba.balance}}
 	<input class = "button" type = "submit" value = "Confirm receipt"/>
 	</form>
 	{% endif %}
-	{% if mine and order.status == "Closed" %}
+	{% if order.status == "Closed" %}
 	<form action = "{% url 'review' order.id %}" method = "post">
 	{% csrf_token %}
 	{{form.as_table}}
 	<input class = "button" type = "submit" value = "Review"/>
 	</form>
+	{% endif %}
 	{% endif %}
 	--------------------------------------------------------------------<br/>
 {% endfor %}
