@@ -1,0 +1,40 @@
+{% extends "prepay/base.html" %}
+
+{% load url from future %}
+
+{% block content %}
+
+<h2>Confirm receipt of return</h2>
+
+{% if over %}
+The deadline for returns has passed. The buyer can no longer be refunded.<br/>
+{% else %}
+
+{% if confirm %}
+Your confirmation was successful. The buyer has been refunded 50% of the price of the order.<br/>
+
+{% else %}
+
+{% if notongoing %}
+This order has already been returned, aborted or withdrawn.
+{% else %}
+
+Order details:<br/>
+Product: {{order.listing.name}}<br/>
+Price: ${{order.listing.price}}<br/>
+Buyer: {{order.buyer}}<br/>
+<br/>
+Once you confirm, the other 50% of the buyer's deposit will be returned to the buyer.<br/>
+
+	<form action = "{% url 'returns' order.id %}" method = "post">
+	{% csrf_token %}
+	<input class = "button" type = "submit" value = "Confirm"/>
+	</form>
+
+
+{% endif %}
+{% endif %}
+<p><a href = "{% url 'orders' order.listing.id %}">Back to list of orders</a><p>
+{% endif %}
+
+{% endblock %}
