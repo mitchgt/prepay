@@ -17,10 +17,10 @@ Status: {{listing.status}}<br/>
 Deadline for bidding: {{listing.deadlineBid}}<br/>
 {% if withdraw or terminate %}
 {% if withdraw %}
-Are you sure you want to withdraw the listing? Your rating will be reduced by ...
+Are you sure you want to withdraw the listing? Your rating will be reduced by 1.
 {% elif terminate %}
-Deadline for delivery: {{listing.deadlineDeliver}}
-Are you sure you want to withdraw the listing? Your rating will be reduced by ...
+Deadline for delivery: {{listing.deadlineDeliver}} <br/>
+Are you sure you want to withdraw the listing? Your rating will be reduced by 2.
 {% endif %}
 	<form action = "{% url 'withdrawListing' listing.id %}" method = "post">
 	{% csrf_token %}
