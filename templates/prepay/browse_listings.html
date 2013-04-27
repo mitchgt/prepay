@@ -12,14 +12,21 @@
         <input type="submit" value="Search">
  </form>
 
+ {% if filter = "all" %} <b>{% endif %} <a href="{% url 'filter' 'all' %}">All</a>  {% if filter = "all" %} </b> {% endif %}&#149;
+ {% if filter = "biddable" %} <b>{% endif %}  <a href="{% url 'filter' 'biddable' %}">Biddable</a>  {% if filter = "biddable" %} </b>{% endif %}&#149;
+ {% if filter = "bidclosed" %} <b>{% endif %} <a href="{% url 'filter' 'bidclosed' %}">Bidding closed</a>   {% if filter = "bidclosed" %} </b>{% endif %} &#149;
+ {% if filter = "over" %} <b>{% endif %} <a href="{% url 'filter' 'over' %}">Over</a> {% if filter = "over" %} </b>{% endif %}
+<br/>
+
+
 <form action="" method="get">
 Sort by:
 	<select name = 'sort' onChange = "this.form.submit();">
-		<option value="" selected={{selected}}>{{selected}}</option>
+		<option value="" selected={{selected}}>---{{selected}}---</option>
 		<option value="Date posted">Date posted</option>
 		<option value="Seller">Seller</option>
-		<option value="Price - lowest to highest">Price - lowest to highest</option>
-		<option value="Price - highest to lowest">Price - highest to lowest</option>
+		<option value="Price - low to high">Price - low to high</option>
+		<option value="Price - high to low">Price - high to low</option>
 		<option value="Status">Status</option>
 		<option value="Deadline for bidding">Deadline for bidding</option>
 	</select>
@@ -53,6 +60,11 @@ Sort by:
 {% else %}
 	<p>No Listings are available.</p>
 {% endif %}
+
+Categories:<br/>
+{% for c in categories %}
+<a href="{% url 'browse_category' c.id %}">{{c.name}}</a> <br/>
+{% endfor %}
 
 {% endblock %}
 
