@@ -13,12 +13,10 @@ def set_groups():
         #buyer_users.permissions = [can_add_category, can_add_listing_comment, can_add_product_request, can_add_review]
         buyer_users.permissions.add(
             existing_permissions.get(codename = 'add_category'),
-            existing_permissions.get(codename = 'add_listing_comment'),
             existing_permissions.get(codename = 'add_productrequest'),
             existing_permissions.get(codename = 'add_productrequest'),
             existing_permissions.get(codename = 'change_productrequest'),
             existing_permissions.get(codename = 'delete_productrequest'),
-            existing_permissions.get(codename = 'add_review'),
         )
         buyer_users.save()
         
@@ -28,7 +26,6 @@ def set_groups():
         #seller_users.permissions = [can_add_category, can_add_listing, can_add_listing_comment, can_add_product, can_add_product_request]
         seller_users.permissions.add(
             existing_permissions.get(codename = 'add_category'),
-            existing_permissions.get(codename = 'add_listing_comment'),
             existing_permissions.get(codename = 'add_listing'),
             existing_permissions.get(codename = 'change_listing'),
             existing_permissions.get(codename = 'delete_listing'),
