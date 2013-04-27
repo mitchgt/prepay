@@ -30,6 +30,7 @@ def profile(request, user_username):
 '''
 
 def edit_profile(request, user_username):
+	login_flag=login_check(request)
 	if not request.user.username == user_username:
 		return HttpResponseRedirect(reverse('prepay.views.profile', args=(user_username,)))
 	if (Seller.objects.filter(username = user_username).exists()):
@@ -57,9 +58,9 @@ def edit_profile(request, user_username):
 			address_formset.save()
 			return HttpResponseRedirect(reverse('prepay.views.profile', args=(user_username,)))
 		else:
-			return render_to_response('prepay/edit_profile.html',{'form':form, 'p_formset': phone_formset, 'i_formset': im_formset,'w_formset': website_formset, 's_formset': address_formset, 'Error': True, 'user':user},context_instance=RequestContext(request))
+			return render_to_response('prepay/edit_profile.html',{'form':form, 'p_formset': phone_formset, 'i_formset': im_formset,'w_formset': website_formset, 's_formset': address_formset, 'Error': True, 'user':user, 'login_flag': login_flag},context_instance=RequestContext(request))
 
-	return render_to_response('prepay/edit_profile.html',{'form':form, 'p_formset': phone_formset, 'i_formset': im_formset,'w_formset': website_formset, 's_formset': address_formset, 'user':user},context_instance=RequestContext(request))
+	return render_to_response('prepay/edit_profile.html',{'form':form, 'p_formset': phone_formset, 'i_formset': im_formset,'w_formset': website_formset, 's_formset': address_formset, 'user':user, 'login_flag': login_flag},context_instance=RequestContext(request))
 
 
 
@@ -174,9 +175,10 @@ def about(request):
     return render(request, 'prepay/about.html', {'login_flag':login_flag})
 
 @login_required
-def browse_listings(request):
+def browse_listings(request, fil = None):
 	login_flag=login_check(request)
 	account_type = user_account_type(request)
+	categories= Category.objects.all()
 	if request.method =='POST':
 		form = SearchForm(request.POST)
 		if form.is_valid:
@@ -189,32 +191,53 @@ def browse_listings(request):
 			all_listings = Listing.objects.all().filter(query).order_by('-created_at')
 			request.session['last_listings']=all_listings
 			request.session['oldq']=keywords
-			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type }, context_instance=RequestContext(request)) 
+			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'categories':categories }, context_instance=RequestContext(request)) 
 	elif request.method == 'GET':    	
 		if 'sort' in request.GET and request.GET['sort']:
 			all_listings = request.session.get('last_listings')
+			if fil =="biddable":
+				all_listings = all_listings.filter(Q(status = "Open for bidding") | Q(status = "Maximum reached"))
+			elif fil == "bidclosed":
+				all_listings = all_listings.filter(Q(status = "In Production") | Q(status = "Shipped"))
+			elif fil == "over":
+				all_listings = all_listings.filter(Q(status = "Closed") | Q(status = "Aborted") | Q(status = "Withdrawn"))	
 			keywords = request.session.get('oldq')
-			form = SearchForm(initial = {'q':keywords})	
+			form = SearchForm(initial = {'q':keywords})
 			if request.GET['sort']=="Date posted":
 				all_listings = all_listings.order_by('-created_at')
 			elif request.GET['sort']=="Seller":
 				all_listings = all_listings.order_by('product__seller__username')
-			elif request.GET['sort']=="Price - lowest to highest":
+			elif request.GET['sort']=="Price - low to high":
 				all_listings = all_listings.order_by('price')
-			elif request.GET['sort']=="Price - highest to lowest":
+			elif request.GET['sort']=="Price - high to low":
 				all_listings = all_listings.order_by('-price')
 			elif request.GET['sort']=="Status":
 				all_listings = all_listings.order_by('-status')
 			elif request.GET['sort']=="Deadline for bidding":
 				all_listings = all_listings.order_by('deadlineBid')
 			selected = request.GET['sort']
-			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'selected':selected }, context_instance=RequestContext(request))
+			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'selected':selected, 'filter':fil, 'categories':categories }, context_instance=RequestContext(request))
 	all_listings = Listing.objects.all().order_by('-created_at')
+	if fil!=None:
+		if request.session['oldq']!=None:
+			all_listings = request.session.get('last_listings')
+		if fil =="biddable":
+			all_listings = all_listings.filter(Q(status = "Open for bidding") | Q(status = "Maximum reached"))
+		elif fil == "bidclosed":
+			all_listings = all_listings.filter(Q(status = "In Production") | Q(status = "Shipped"))
+		elif fil == "over":
+			all_listings = all_listings.filter(Q(status = "Closed") | Q(status = "Aborted") | Q(status = "Withdrawn"))
+		keywords = request.session.get('oldq')
+		form = SearchForm(initial = {'q':keywords})	
+		context = Context({
+        	'all_listings': all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'filter':fil, 'categories':categories 
+		})
+		return render(request, 'prepay/browse_listings.html', context)
 	form = SearchForm()	
 	request.session['last_listings']=all_listings
 	request.session['oldq']=None
 	context = Context({
-        'all_listings': all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type
+        'all_listings': all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'filter':fil, 'categories':categories 
 	})
 	return render(request, 'prepay/browse_listings.html', context)
 
@@ -234,12 +257,14 @@ def browse_product_requests(request):
 @login_required
 def browse_category(request, category_id):
 	login_flag=login_check(request)
+	categories = Category.objects.all()
 	category = Category.objects.filter(pk=category_id)
 	listings_by_category = Listing.objects.filter(product__categories__exact=category_id)
 	context = Context({
 		'category': category[0],
 		'listings_by_category': listings_by_category,
-		'login_flag':login_flag
+		'login_flag':login_flag,
+		'categories':categories
 	})
 	return render(request, 'prepay/category.html', context)
 
