@@ -5,6 +5,10 @@
 
 <h2>Welcome to PrePay</h2>
 
+{% if error %}
+Invalid login - Please try again.<br/>
+{% endif %}
+
 <form enctype="multipart/form-data" action = "" method ="POST">
 {% csrf_token %}
 
