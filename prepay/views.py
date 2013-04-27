@@ -183,6 +183,14 @@ def browse_listings(request, fil = None):
 	login_flag=login_check(request)
 	account_type = user_account_type(request)
 	categories= Category.objects.all()
+	all_listings = Listing.objects.all().order_by('-created_at')
+	if fil!=None:
+		if fil =="biddable":
+			all_listings = all_listings.filter(Q(status = "Open for bidding") | Q(status = "Maximum reached"))
+		elif fil == "bidclosed":
+			all_listings = all_listings.filter(Q(status = "In Production") | Q(status = "Shipped"))
+		elif fil == "over":
+			all_listings = all_listings.filter(Q(status = "Closed") | Q(status = "Aborted") | Q(status = "Withdrawn"))
 	if request.method =='POST':
 		form = SearchForm(request.POST)
 		if form.is_valid:
@@ -192,10 +200,10 @@ def browse_listings(request, fil = None):
 			for term in keywords.split():
 				q = Q(name__icontains=term) | Q(description__icontains=term) | Q(product__name__icontains=term) | Q(product__description__icontains=term) | Q(product__seller__username__icontains=term)
 				query = query & q
-			all_listings = Listing.objects.all().filter(query).order_by('-created_at')
+			all_listings = all_listings.filter(query).order_by('-created_at')
 			request.session['last_listings']=all_listings
 			request.session['oldq']=keywords
-			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'categories':categories }, context_instance=RequestContext(request)) 
+			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'categories':categories, 'filter':fil }, context_instance=RequestContext(request)) 
 	elif request.method == 'GET':    	
 		if 'sort' in request.GET and request.GET['sort']:
 			all_listings = request.session.get('last_listings')
@@ -221,22 +229,7 @@ def browse_listings(request, fil = None):
 				all_listings = all_listings.order_by('deadlineBid')
 			selected = request.GET['sort']
 			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'selected':selected, 'filter':fil, 'categories':categories }, context_instance=RequestContext(request))
-	all_listings = Listing.objects.all().order_by('-created_at')
-	if fil!=None:
-		if request.session['oldq']!=None:
-			all_listings = request.session.get('last_listings')
-		if fil =="biddable":
-			all_listings = all_listings.filter(Q(status = "Open for bidding") | Q(status = "Maximum reached"))
-		elif fil == "bidclosed":
-			all_listings = all_listings.filter(Q(status = "In Production") | Q(status = "Shipped"))
-		elif fil == "over":
-			all_listings = all_listings.filter(Q(status = "Closed") | Q(status = "Aborted") | Q(status = "Withdrawn"))
-		keywords = request.session.get('oldq')
-		form = SearchForm(initial = {'q':keywords})	
-		context = Context({
-        	'all_listings': all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'filter':fil, 'categories':categories 
-		})
-		return render(request, 'prepay/browse_listings.html', context)
+	
 	form = SearchForm()	
 	request.session['last_listings']=all_listings
 	request.session['oldq']=None
