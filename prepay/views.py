@@ -166,7 +166,11 @@ def index(request):
 						return render(request, 'prepay/home.html', context)
 				else:
         	# Return an 'invalid login' error message.
-					return render(request, 'prepay/home.html', context)
+					error = True
+					return render(request, 'prepay/home.html', {'form':form, 'error':error})
+			else:
+				error = True
+				return render(request, 'prepay/home.html', {'form':form, 'error':error})
 		return render(request, 'prepay/home.html',context)
 
 
