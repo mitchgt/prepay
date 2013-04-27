@@ -6,20 +6,19 @@
 
 <h2>Browse Listings</h2>
 
-<form action="{% url 'browse_listings' %}search/" method="post">
-		{% csrf_token %} 
-        {{ form.as_table }} 
-        <input type="submit" value="Search">
- </form>
-
- {% if filter = "all" %} <b>{% endif %} <a href="{% url 'filter' 'all' %}">All</a>  {% if filter = "all" %} </b> {% endif %}&#149;
+{% if filter = "all" %} <b>{% endif %} <a href="{% url 'filter' 'all' %}">All</a>  {% if filter = "all" %} </b> {% endif %}&#149;
  {% if filter = "biddable" %} <b>{% endif %}  <a href="{% url 'filter' 'biddable' %}">Biddable</a>  {% if filter = "biddable" %} </b>{% endif %}&#149;
  {% if filter = "bidclosed" %} <b>{% endif %} <a href="{% url 'filter' 'bidclosed' %}">Bidding closed</a>   {% if filter = "bidclosed" %} </b>{% endif %} &#149;
  {% if filter = "over" %} <b>{% endif %} <a href="{% url 'filter' 'over' %}">Over</a> {% if filter = "over" %} </b>{% endif %}
 <br/>
 
+<form action="" method="post">
+		{% csrf_token %} 
+        {{ form.as_table }} 
+        <input type="submit" value="Search">
+ </form>
 
-<form action="" method="get">
+ <form action="" method="get">
 Sort by:
 	<select name = 'sort' onChange = "this.form.submit();">
 		<option value="" selected={{selected}}>---{{selected}}---</option>
