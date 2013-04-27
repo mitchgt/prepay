@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^$', views.browse_listings, name='index'),
     url(r'^about$', views.about, name='about'),
     url(r'^category/(?P<category_id>.*)$', views.browse_category, name='browse_category'),
+    url(r'^browse_listings/.*filter/(?P<fil>.*)$', views.browse_listings, name='filter'),
     url(r'^browse_listings/search/$', views.browse_listings, name='search'),
     url(r'^browse_listings/$', views.browse_listings, name='browse_listings'),
     url(r'^browse_product_requests$', views.browse_product_requests, name='browse_product_requests'),
@@ -31,4 +32,4 @@ urlpatterns = patterns('',
     url(r'^logout/$', 'django.contrib.auth.views.logout', name="auth_logout"),
 )
 
-startup.set_groups()
+#startup.set_groups()
