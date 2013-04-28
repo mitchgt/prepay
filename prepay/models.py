@@ -160,7 +160,7 @@ class Buyer(UserProfile):
     CHOICES = [(i,i) for i in range(6)]
     rating = models.IntegerField(choices=CHOICES, null=True, blank=True) 
     
-    cart = models.ForeignKey(Cart)
+    cart = models.ForeignKey(Cart, null=True, blank=True)
     
     class Meta:
         db_table = 'prepay_contacts_buyers'

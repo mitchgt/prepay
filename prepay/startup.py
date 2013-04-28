@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
-from prepay.models import Seller, Buyer
+from prepay.models import Seller, Buyer, Listing
 
 
 def set_groups():
@@ -70,4 +70,8 @@ def create_default_users():
         u.slug = u.username
         u.save()
         u.bankaccount_set.create(name = u.username, user = u, balance = 0)
+
+    
+    
+    
     
