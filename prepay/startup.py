@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
-from prepay.models import Seller, Buyer, Listing, Product
+from prepay.models import Seller, Buyer, Listing, Product, Cart
 import datetime
 
 def set_groups():
@@ -47,15 +47,6 @@ def create_default_users():
         acttype = 'Seller'
         #u = Seller.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
         u = Seller.objects.create_user('joeseller', 'joe@whitehouse.gov', 'joe')
-        '''
-        u = Seller.objects.create_user(
-                    username = 'joeseller',
-                    first_name = 'Joe',
-                    last_name = 'Seller',
-                    email = 'joe@whitehouse.gov',
-                    password = 'joe',
-        )
-        '''
         u.groups.add(Group.objects.get(name = acttype))
         u.is_staff = True
         u.slug = u.username
@@ -65,6 +56,7 @@ def create_default_users():
     if not existing_users.filter(username='joebuyer'):
         acttype = 'Buyer'
         u = Buyer.objects.create_user('joebuyer', 'joe@buyers.net', 'joe')
+        u.cart = Cart()
         u.groups.add(Group.objects.get(name = acttype))
         u.is_staff = True
         u.slug = u.username

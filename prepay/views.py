@@ -1,17 +1,20 @@
 from django.http import HttpResponse
 from django.template import Context, loader
 from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.models import User, Group  ####Jennifer
-from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm, EditProfileForm, PhoneNumberFormSet, InstantMessengerFormSet, WebSiteFormSet, StreetAddressFormSet, SearchForm, CheckoutForm, ReviewForm #####Jennifer
-from django.shortcuts import render_to_response  # ##Jennifer
-from django.http import HttpResponseRedirect  ####Jennifer
-from django.template import RequestContext  # ##Jennifer
-from django.db import models  # ##Jennifer
-
-from prepay.models import Listing, Category, UserProfile, Seller, Buyer, ProductRequest,Listing_Comment, PhoneNumber, StreetAddress, WebSite, InstantMessenger, Product, Order, BankAccount, Escrow, Review  # ##Jennifer edited
-from django.contrib.auth import authenticate, login, logout##Lara
-from django.contrib.auth.decorators import login_required##Lara
-from django.core.urlresolvers import reverse##Lara
+from django.contrib.auth.models import User, Group
+from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm, EditProfileForm
+from prepay.forms import PhoneNumberFormSet, InstantMessengerFormSet, WebSiteFormSet, StreetAddressFormSet
+from prepay.forms import SearchForm, CheckoutForm, ReviewForm
+from django.shortcuts import render_to_response 
+from django.http import HttpResponseRedirect
+from django.template import RequestContext
+from django.db import models
+from prepay.models import Listing, Category, UserProfile, Seller, Buyer, ProductRequest
+from prepay.models import Listing_Comment, PhoneNumber, StreetAddress, WebSite, InstantMessenger
+from prepay.models import Product, Order, BankAccount, Escrow, Review, Cart
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.shortcuts import redirect 
 from django.db.models import Q
@@ -139,8 +142,6 @@ def register(request):
     return render_to_response('prepay/register.html',{'form':form, 'login_flag': login_flag},context_instance=RequestContext(request))
 ####Jennifer
 
-
-
 def index(request):
     if request.user.is_authenticated():
 		#return HttpResponseRedirect('/browse_listings')
@@ -148,8 +149,8 @@ def index(request):
     else:
 		form = LoginForm()
 		context = Context({
-		'form':form
-	})
+		  'form':form
+	    })
 		
 		if request.method =='POST':
 			form = LoginForm(request.POST)
@@ -611,12 +612,22 @@ def addtocart(request, listing_id):
         buyer = True
     if listing.numBidders<listing.maxGoal:
         goalreached = False
+            
+    b = Buyer.objects.get(username = request.user.username)
+    if not b.cart:
+        b.cart = Cart()
+        
+    b.save()
+
+    
+    #b.cart.listings.add(listing)
     
     context = Context({
         'listing': listing,
         'login_flag': login_flag,
         'isBuyer': buyer,
-        'goalreached': goalreached
+        'goalreached': goalreached,
+        'buyer': b,
     })
     return render(request, 'prepay/cart.html', context)
 

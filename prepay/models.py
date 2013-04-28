@@ -150,28 +150,22 @@ class Listing(models.Model):
 
 
 class Cart(models.Model):
-    listings = models.ManyToManyField(Listing, null=True, blank=True)
+    listings = models.ManyToManyField(Listing)
     
-    def __unicode__(self):
-        return 'I am a cart'
-
 class Buyer(UserProfile):
     objects = UserManager()
     CHOICES = [(i,i) for i in range(6)]
     rating = models.IntegerField(choices=CHOICES, null=True, blank=True) 
     
-    cart = models.ForeignKey(Cart, null=True, blank=True)
+    cart = models.ForeignKey(Cart, null=True)
     
     class Meta:
         db_table = 'prepay_contacts_buyers'
         verbose_name = 'buyer'
         verbose_name_plural = 'buyers'
 
-
     def get_account_type(self):
         return str('buyer')
-
-
     
 class Listing_Comment(models.Model):
 	listing = models.ForeignKey(Listing)

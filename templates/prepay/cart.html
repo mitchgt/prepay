@@ -6,4 +6,9 @@
 
 <h2>Your shopping cart</h2>
 
+{% for listing in u.cart.listings %}
+	<a href="{% url 'listing_detail' listing.pk %}">{{ listing.name }}</a><br/>
+		
+{% endfor %}
+
 {% endblock %}
