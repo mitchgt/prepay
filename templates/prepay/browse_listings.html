@@ -6,7 +6,7 @@
 
 <h2>Browse Listings</h2>
 
-{% if filter = "all" %} <b>{% endif %} <a href="{% url 'filter' 'all' %}">All</a>  {% if filter = "all" %} </b> {% endif %}&#149;
+ {% if filter = "all" %} <b>{% endif %} <a href="{% url 'filter' 'all' %}">All</a>  {% if filter = "all" %} </b> {% endif %}&#149;
  {% if filter = "biddable" %} <b>{% endif %}  <a href="{% url 'filter' 'biddable' %}">Biddable</a>  {% if filter = "biddable" %} </b>{% endif %}&#149;
  {% if filter = "bidclosed" %} <b>{% endif %} <a href="{% url 'filter' 'bidclosed' %}">Bidding closed</a>   {% if filter = "bidclosed" %} </b>{% endif %} &#149;
  {% if filter = "over" %} <b>{% endif %} <a href="{% url 'filter' 'over' %}">Over</a> {% if filter = "over" %} </b>{% endif %}

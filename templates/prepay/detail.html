@@ -13,14 +13,14 @@
 				<img src="{{ listing.product.get_picture_url }}" width="200" style="border:none; padding-right:8px; padding-top:10px; padding-left:10px; float:left;">
 			</td>
 			<td style="padding:10px;font-size:14px;">
-				{% if user.username = listing.product.seller.username %}
-				{% if listing.status = "Open for bidding" or listing.status = "Maximum reached" or listing.status = "In Production" %}
+				{% if user.username == listing.product.seller.username %}
+				{% if listing.status == "Open for bidding" or listing.status == "Maximum reached" or listing.status == "In Production" %}
 					<form action = "{% url 'withdrawListing' listing.id %}" method = "get">
 					{% csrf_token %}
 					<input class = "button" type = "submit" value = "Withdraw listing"/>
 					</form>
 				{% endif %}
-				{% if listing.status = "In Production" %}
+				{% if listing.status == "In Production" %}
 					<form action = "" method = "post">
 					{% csrf_token %}
 					<input class = "button" type = "submit" name = "shipped" value = "Change status to 'Shipped'"/>
