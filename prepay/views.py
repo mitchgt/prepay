@@ -180,18 +180,23 @@ def about(request):
 
 @login_required
 def browse_listings(request, fil = None):
-	login_flag=login_check(request)
-	account_type = user_account_type(request)
-	categories= Category.objects.all()
-	all_listings = Listing.objects.all().order_by('-created_at')
-	if fil!=None:
+    login_flag=login_check(request)
+    account_type = user_account_type(request)
+    categories= Category.objects.all()
+    all_listings = Listing.objects.all().order_by('-created_at')
+    
+    buyer = False
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
+    
+    if fil!=None:
 		if fil =="biddable":
 			all_listings = all_listings.filter(Q(status = "Open for bidding") | Q(status = "Maximum reached"))
 		elif fil == "bidclosed":
 			all_listings = all_listings.filter(Q(status = "In Production") | Q(status = "Shipped"))
 		elif fil == "over":
 			all_listings = all_listings.filter(Q(status = "Closed") | Q(status = "Aborted") | Q(status = "Withdrawn"))
-	if request.method =='POST':
+    if request.method =='POST':
 		form = SearchForm(request.POST)
 		if form.is_valid:
 			keywords=request.POST.get('q')
@@ -203,8 +208,10 @@ def browse_listings(request, fil = None):
 			all_listings = all_listings.filter(query).order_by('-created_at')
 			request.session['last_listings']=all_listings
 			request.session['oldq']=keywords
-			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'categories':categories, 'filter':fil }, context_instance=RequestContext(request)) 
-	elif request.method == 'GET':    	
+			return render_to_response('prepay/browse_listings.html',
+                {'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'categories':categories, 'filter':fil }, 
+                context_instance=RequestContext(request)) 
+    elif request.method == 'GET':    	
 		if 'sort' in request.GET and request.GET['sort']:
 			all_listings = request.session.get('last_listings')
 			if fil =="biddable":
@@ -228,15 +235,23 @@ def browse_listings(request, fil = None):
 			elif request.GET['sort']=="Deadline for bidding":
 				all_listings = all_listings.order_by('deadlineBid')
 			selected = request.GET['sort']
-			return render_to_response('prepay/browse_listings.html',{'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'selected':selected, 'filter':fil, 'categories':categories }, context_instance=RequestContext(request))
+			return render_to_response('prepay/browse_listings.html',
+                    {'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'selected':selected, 'filter':fil, 'categories':categories }, 
+                    context_instance=RequestContext(request))
 	
-	form = SearchForm()	
-	request.session['last_listings']=all_listings
-	request.session['oldq']=None
-	context = Context({
-        'all_listings': all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'filter':fil, 'categories':categories 
+    form = SearchForm()	
+    request.session['last_listings']=all_listings
+    request.session['oldq']=None
+    context = Context({
+        'all_listings': all_listings, 
+        'form': form, 
+        'login_flag': login_flag, 
+        'account_type': account_type, 
+        'filter': fil, 
+        'categories': categories,
+        'isBuyer': buyer,
 	})
-	return render(request, 'prepay/browse_listings.html', context)
+    return render(request, 'prepay/browse_listings.html', context)
 
 
 
@@ -297,11 +312,11 @@ def listing_detail(request, listing_id):
 			return HttpResponseRedirect(reverse("prepay.views.listing_detail", args=(listing.id,)))
 	form = ListingCommentForm()
 	context = Context({
-		'listing':listing,
-		'form':form,
-		'login_flag':login_flag,
-		'isBuyer':buyer,
-		'goalreached':goalreached
+		'listing': listing,
+		'form': form,
+		'login_flag': login_flag,
+		'isBuyer': buyer,
+		'goalreached': goalreached
 	})
 	return render(request, 'prepay/detail.html',context)
 
@@ -586,6 +601,23 @@ def refund(listing_id):
         ba.save()
     return
 
-
+@login_required
+def addtocart(request, listing_id):
+    login_flag=login_check(request)
+    listing = get_object_or_404(Listing, pk=listing_id)
+    buyer = False
+    goalreached = True
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
+    if listing.numBidders<listing.maxGoal:
+        goalreached = False
+    
+    context = Context({
+        'listing': listing,
+        'login_flag': login_flag,
+        'isBuyer': buyer,
+        'goalreached': goalreached
+    })
+    return render(request, 'prepay/cart.html', context)
 
 

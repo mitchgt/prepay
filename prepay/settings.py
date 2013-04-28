@@ -110,6 +110,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    #'prepay.middleware.AddGroupsMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -170,5 +171,6 @@ LOGGING = {
 }
 
 
-LOGIN_URL='/'
-LOGOUT_URL='/'
+LOGIN_URL='/prepay'
+LOGOUT_URL='/prepay'
+TASK_UPLOAD_FILE_TYPES=['image',]

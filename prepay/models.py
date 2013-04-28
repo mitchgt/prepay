@@ -103,19 +103,6 @@ class Seller(UserProfile):
     def get_account_type(self):
         return str('seller')
 
-
-class Buyer(UserProfile):
-    objects = UserManager()
-    CHOICES = [(i,i) for i in range(6)]
-    rating = models.IntegerField(choices=CHOICES, null=True, blank=True) 
-    class Meta:
-        db_table = 'prepay_contacts_buyers'
-        verbose_name = 'buyer'
-        verbose_name_plural = 'buyers'
-
-    def get_account_type(self):
-        return str('buyer')
-
 class Product(models.Model):
     name = models.CharField(max_length=200)
     seller = models.ForeignKey(Seller)
@@ -131,7 +118,8 @@ class Product(models.Model):
 
     def __unicode__(self):
         return self.name
-        
+
+
 class Listing(models.Model):
     name = models.CharField(max_length=50)
     CHOICES = (('Open for bidding', 'Open for bidding'),('Maximum reached', 'Maximum reached'), ('In Production', 'In Production'), ('Closed', 'Closed'), ('Aborted', 'Aborted'), ('Withdrawn', 'Withdrawn'), ('Shipped', 'Shipped'))
@@ -160,6 +148,31 @@ class Listing(models.Model):
     def __unicode__(self):
         return self.name
 
+
+class Cart(models.Model):
+    listings = models.ManyToManyField(Listing)
+    
+    def __unicode__(self):
+        return 'I am a cart'
+
+class Buyer(UserProfile):
+    objects = UserManager()
+    CHOICES = [(i,i) for i in range(6)]
+    rating = models.IntegerField(choices=CHOICES, null=True, blank=True) 
+    
+    cart = models.ForeignKey(Cart)
+    
+    class Meta:
+        db_table = 'prepay_contacts_buyers'
+        verbose_name = 'buyer'
+        verbose_name_plural = 'buyers'
+
+
+    def get_account_type(self):
+        return str('buyer')
+
+
+    
 class Listing_Comment(models.Model):
 	listing = models.ForeignKey(Listing)
 	commenter=models.ForeignKey(UserProfile)

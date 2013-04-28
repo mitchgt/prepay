@@ -14,19 +14,20 @@
 			</td>
 			<td style="padding:10px;font-size:14px;">
 				{% if user.username == listing.product.seller.username %}
-				{% if listing.status == "Open for bidding" or listing.status == "Maximum reached" or listing.status == "In Production" %}
-					<form action = "{% url 'withdrawListing' listing.id %}" method = "get">
-					{% csrf_token %}
-					<input class = "button" type = "submit" value = "Withdraw listing"/>
-					</form>
+					{% if listing.status == "Open for bidding" or listing.status == "Maximum reached" or listing.status == "In Production" %}
+						<form action = "{% url 'withdrawListing' listing.id %}" method = "get">
+						{% csrf_token %}
+						<input class = "button" type = "submit" value = "Withdraw listing"/>
+						</form>
+					{% endif %}
+					{% if listing.status == "In Production" %}
+						<form action = "" method = "post">
+						{% csrf_token %}
+						<input class = "button" type = "submit" name = "shipped" value = "Change status to 'Shipped'"/>
+						</form>
+					{% endif %}
 				{% endif %}
-				{% if listing.status == "In Production" %}
-					<form action = "" method = "post">
-					{% csrf_token %}
-					<input class = "button" type = "submit" name = "shipped" value = "Change status to 'Shipped'"/>
-					</form>
-				{% endif %}
-				{% endif %}
+				
 				<b>Listing Description:</b> {{ listing.description }}<br/>
 				<b>Product Description:</b> {{ listing.product.description }}<br/>
 				<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{ listing.product.seller.username }}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>
@@ -40,12 +41,21 @@
 				<b>Date Withdrawn:</b> {{listing.date_withdrawn}}<br/>
 				{% endif %}
 				<b>Price:</b> ${{listing.price}}<br/>
+				
+				<table><tr><td>
 				{% if listing.status == 'Open for bidding' and isBuyer and not goalreached %}
-				<form action = "{% url 'checkout' listing.id %}" method = "get">
-				{% csrf_token %}
-				<input class = "button" type = "submit" value = "Pre-order"/>
-				</form>
+					<form action = "{% url 'checkout' listing.id %}" method = "get">
+						{% csrf_token %}
+						<input class = "button" type = "submit" value = "Pre-order"/>
+					</form>
+				</td><td>	
+					<form action = "{% url 'addtocart' listing.id %}" method = "get">
+						{% csrf_token %}
+						<input class = "button" type = "submit" value = "Add to cart"/>
+					</form>
 				{% endif %}
+				</td></tr></table>
+				
 				<b>Status:</b> {{listing.status}}<br/>
 				<b>Minimum goal:</b> {{listing.minGoal}}<br/>
 				<b>Maximum goal:</b> {{listing.maxGoal}}<br/>

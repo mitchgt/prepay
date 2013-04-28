@@ -1,5 +1,6 @@
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
+from prepay.models import Seller, Buyer
 
 
 def set_groups():
@@ -39,5 +40,26 @@ def set_groups():
         )        
         seller_users.save()
 
+def create_default_users():
+    existing_users = User.objects.all()
+    
+    if not existing_users.filter(username='joeseller'):
+        acttype = 'Seller'
+        #u = Seller.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
+        u = Seller.objects.create_user('joeseller', 'joe@whitehouse.gov', 'joe')
+        '''
+        u = Seller.objects.create_user(
+                    username = 'joeseller',
+                    first_name = 'Joe',
+                    last_name = 'Seller',
+                    email = 'joe@whitehouse.gov',
+                    password = 'joe',
+        )
+        '''
+        u.groups.add(Group.objects.get(name = acttype))
+        u.is_staff = True
+        u.slug = u.username
+        u.save()
+        u.bankaccount_set.create(name = u.username, user = u, balance = 0)
     
     

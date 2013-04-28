@@ -22,6 +22,9 @@ urlpatterns = patterns('',
     url(r'^orders/(?P<listing_id>.*)$', views.orders, name='orders'),
     url(r'^checkout/(?P<listing_id>.*)$', views.checkout, name='checkout'),
     url(r'^withdrawListing/(?P<listing_id>.*)$', views.withdrawListing, name='withdrawListing'),
+    
+    url(r'^addtocart/(?P<listing_id>.*)$', views.addtocart, name='addtocart'),
+    
     url(r'^confirmed$', views.confirmed, name='confirmed'),
     url(r'^withdraw/(?P<order_id>.*)$', views.withdraw, name='withdraw'),
     url(r'^confirmreceipt/(?P<order_id>.*)$', views.confirmreceipt, name='confirmreceipt'),
@@ -33,4 +36,5 @@ urlpatterns = patterns('',
     url(r'^logout/(?P<next_page>.*)/$', views.index, name='auth_logout_next'),
 )
 
-#startup.set_groups()
+startup.set_groups()
+startup.create_default_users()

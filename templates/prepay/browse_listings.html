@@ -51,6 +51,14 @@ Sort by:
 					<a href="{% url 'browse_category' c.pk %}">{{ c.name }}</a>, 
 				{% endfor %}<br/>
 				<a href="{% url 'listing_detail' listing.pk %}">Listing Detail</a>
+				<br/>
+				{% if listing.status == 'Open for bidding' and isBuyer and not goalreached %}
+					<form action = "{% url 'addtocart' listing.id %}" method = "get">
+						{% csrf_token %}
+						<input class = "button" type = "submit" value = "Add to cart"/>
+					</form>
+				{% endif %}
+				</td></tr></table>
 			</td>
 		</tr>
 	</table>
