@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
-from prepay.models import Seller, Buyer, Listing
-
+from prepay.models import Seller, Buyer, Listing, Product
+import datetime
 
 def set_groups():
        
@@ -71,6 +71,36 @@ def create_default_users():
         u.save()
         u.bankaccount_set.create(name = u.username, user = u, balance = 0)
 
+def create_default_listing():
+    existing_products = Product.objects.all()
+
+    if (not existing_products.filter(name='Stealth Trans Am')):
+    
+        product = Product(
+            name='Stealth Trans Am',
+            seller_id = '2',
+            picture = '2013/04/28/joe_biden_trans_am_3.jpg',
+            description = 'The best car ever just got better -- it will now be invisible to radar!',
+        )
+        product.save()
+        
+        listing = Listing(
+            name = 'Commission this smooth ride!',
+            status = 'Open for bidding',
+            price = 10000.00,
+            numBidders = 0,
+            minGoal = 1,
+            maxGoal = 4,
+            deadlineBid = datetime.datetime.now(),
+            deadlineDeliver = datetime.datetime.now(),
+            product_id = product.id,
+            description = "I couldn't get DARPA to work on this, so I'm doing it myself.  With your help!",                     
+        )
+        listing.save()
+
+        
+        
+        
     
     
     
