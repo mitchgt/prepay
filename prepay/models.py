@@ -150,7 +150,7 @@ class Listing(models.Model):
 
 
 class Cart(models.Model):
-    listings = models.ManyToManyField(Listing)
+    listings = models.ManyToManyField(Listing, null=True, blank=True)
     
     def __unicode__(self):
         return 'I am a cart'

@@ -62,4 +62,12 @@ def create_default_users():
         u.save()
         u.bankaccount_set.create(name = u.username, user = u, balance = 0)
     
+    if not existing_users.filter(username='joebuyer'):
+        acttype = 'Buyer'
+        u = Buyer.objects.create_user('joebuyer', 'joe@buyers.net', 'joe')
+        u.groups.add(Group.objects.get(name = acttype))
+        u.is_staff = True
+        u.slug = u.username
+        u.save()
+        u.bankaccount_set.create(name = u.username, user = u, balance = 0)
     
