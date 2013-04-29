@@ -1,6 +1,7 @@
 {% extends "prepay/base.html" %}
 
 {% load url from future %}
+{% load prepay_tags %}
 
 {% block content %}
 
@@ -42,21 +43,26 @@
 				{% endif %}
 				<b>Price:</b> ${{listing.price}}<br/>
 				
-				<table><tr><td>
-				{% if listing.status == 'Open for bidding' and isBuyer and not goalreached %}
-					<form action = "{% url 'checkout' listing.id %}" method = "get">
-						{% csrf_token %}
-						<input class = "button" type = "submit" value = "Pre-order"/>
-					</form>
-				</td><td>	
-					<form action = "{% url 'addtocart' listing.id %}" method = "get">
-						{% csrf_token %}
-						<input class = "button" type = "submit" value = "Add to cart"/>
-					</form>
-				{% endif %}
-				</td></tr></table>
+				<table>
+					<tr>
+						<td>
+						{% if listing.status == 'Open for bidding' and isBuyer and not goalreached and not listing|is_in_cart:cart %}
+							<form action = "{% url 'checkout' listing.id %}" method = "get">
+								{% csrf_token %}
+								<input class = "button" type = "submit" value = "Pre-order"/>
+							</form>
+						</td>
+						<td>	
+							<form action = "{% url 'addtocart' listing.id %}" method = "get">
+								{% csrf_token %}
+								<input class = "button" type = "submit" value = "Add to cart"/>
+							</form>
+						{% endif %}
+						</td>
+					</tr>
+				</table>
 				
-				<b>Status:</b> {{listing.status}}<br/>
+				<b>Status:</b> {{listing.status}} {% if listing|is_in_cart:cart %} | In your Shopping Cart {% endif %}<br/>
 				<b>Minimum goal:</b> {{listing.minGoal}}<br/>
 				<b>Maximum goal:</b> {{listing.maxGoal}}<br/>
 				<b>Current number of bidders:</b> {{listing.numBidders}}<br/>

@@ -309,12 +309,16 @@ def browse_category(request, category_id):
 @login_required
 def listing_detail(request, listing_id):
     # return HttpResponse("You're looking at the detailed view of listing %s." % listing_id)
-	login_flag=login_check(request)
-	listing = get_object_or_404(Listing, pk=listing_id)
-	buyer = False
-	goalreached = True
-	if Buyer.objects.filter(username = request.user.username):
-		buyer = True
+    login_flag=login_check(request)
+    listing = get_object_or_404(Listing, pk=listing_id)
+    buyer = False
+    b = None
+    cart = None
+    goalreached = True
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
+        b = Buyer.objects.get(username = request.user.username)
+        cart = b.cart
 	if listing.numBidders<listing.maxGoal:
 		goalreached = False
 	if request.method =='POST':
@@ -342,7 +346,8 @@ def listing_detail(request, listing_id):
 		'form': form,
 		'login_flag': login_flag,
 		'isBuyer': buyer,
-		'goalreached': goalreached
+		'goalreached': goalreached,
+        'cart': cart
 	})
 	return render(request, 'prepay/detail.html',context)
 
