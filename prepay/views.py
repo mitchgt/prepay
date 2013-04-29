@@ -21,17 +21,6 @@ from django.db.models import Q
 from django.core.urlresolvers import reverse 
 from datetime import timedelta
 
-'''
-####Jennifer new
-def profile(request, user_username):
-    user = get_object_or_404(User, username=user_username)
-    if(Seller.objects.filter(username = user_username).exists()):
-        return render(request, 'prepay/profile_seller.html', {'user':user})
-    else:
-        return render(request, 'prepay/profile_buyer.html', {'user':user})
-#####Jennifer new
-'''
-
 def edit_profile(request, user_username):
 	login_flag=login_check(request)
 	if not request.user.username == user_username:
@@ -177,6 +166,7 @@ def index(request):
 
 def about(request):
     login_flag=login_check(request)
+    buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
         
@@ -269,13 +259,15 @@ def browse_product_requests(request):
     buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
-	all_product_requests = ProductRequest.objects.all()
-	context = Context({
+        
+    all_product_requests = ProductRequest.objects.all()
+    context = Context({
 		'all_product_requests': all_product_requests,
 		'login_flag': login_flag,
         'isBuyer': buyer,
-	})
-	return render(request, 'prepay/browse_product_requests.html', context)
+    })
+    
+    return render(request, 'prepay/browse_product_requests.html', context)
 
 
 @login_required
