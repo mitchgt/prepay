@@ -66,8 +66,7 @@ def create_default_users():
 def create_default_listing():
     existing_products = Product.objects.all()
 
-    if (not existing_products.filter(name='Stealth Trans Am')):
-    
+    if (not existing_products.filter(name='Stealth Trans Am')):    
         product = Product(
             name='Stealth Trans Am',
             seller_id = '2',
@@ -90,10 +89,3 @@ def create_default_listing():
         )
         listing.save()
 
-        
-        
-        
-    
-    
-    
-    

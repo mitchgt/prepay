@@ -10,7 +10,7 @@
 	{% for listing in listings %}
 		<a href="{% url 'listing_detail' listing.pk %}">{{ listing.name }}</a><br/>
 		Quantity: xx<br/>
-		<a href="#">Delete</a><br/>
+		<a href="{% url 'removefromcart' listing.pk %}">Remove from cart</a><br/>
 		<br clear="all">
 			
 	{% endfor %}

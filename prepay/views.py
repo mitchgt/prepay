@@ -20,6 +20,7 @@ from django.shortcuts import redirect
 from django.db.models import Q
 from django.core.urlresolvers import reverse 
 from datetime import timedelta
+from django.core.exceptions import PermissionDenied
 
 def edit_profile(request, user_username):
 	login_flag=login_check(request)
@@ -197,11 +198,15 @@ def browse_listings(request, fil = None):
     account_type = user_account_type(request)
     categories= Category.objects.all()
     all_listings = Listing.objects.all().order_by('-created_at')
+    cart = None
+    b = None
     
     buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
-    
+        b = Buyer.objects.get(username = request.user.username)
+        cart = b.cart
+            
     if fil!=None:
 		if fil =="biddable":
 			all_listings = all_listings.filter(Q(status = "Open for bidding") | Q(status = "Maximum reached"))
@@ -263,6 +268,8 @@ def browse_listings(request, fil = None):
         'filter': fil, 
         'categories': categories,
         'isBuyer': buyer,
+        'cart': cart,
+        'buyer': b,
 	})
     return render(request, 'prepay/browse_listings.html', context)
 
@@ -650,8 +657,60 @@ def addtocart(request, listing_id):
     return render(request, 'prepay/cart.html', context)
 
 @login_required
+def addtocart(request, listing_id):
+    login_flag=login_check(request)
+    listing = get_object_or_404(Listing, pk=listing_id)
+    buyer = False
+    goalreached = True
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
+    if listing.numBidders<listing.maxGoal:
+        goalreached = False
+            
+    b = Buyer.objects.get(username = request.user.username)
+    
+    if not b.cart:
+        c = Cart(name=b.username + "'s cart")
+        c.save()
+        b.cart = c
+        b.save()
+    
+    b.cart.listings.add(listing)
+    b.save()
+    
+    context = Context({
+        'login_flag': login_flag,
+        'listings': b.cart.listings.all,
+        'isBuyer': buyer,
+    })
+    return render(request, 'prepay/cart.html', context)
+
+def removefromcart(request, listing_id):
+    login_flag=login_check(request)
+    listing = get_object_or_404(Listing, pk=listing_id)
+    buyer = False
+    goalreached = True
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
+    if listing.numBidders<listing.maxGoal:
+        goalreached = False
+            
+    b = Buyer.objects.get(username = request.user.username) 
+
+    b.cart.listings.remove(listing)
+    b.save()
+    
+    context = Context({
+        'login_flag': login_flag,
+        'listings': b.cart.listings.all,
+        'isBuyer': buyer,
+    })
+    return render(request, 'prepay/cart.html', context)
+
+@login_required
 def viewcart(request):
     login_flag=login_check(request)
+    
     buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True

@@ -1,6 +1,7 @@
 {% extends "prepay/base.html" %}
 
 {% load url from future %}
+{% load prepay_tags %}
 
 {% block content %}
 
@@ -52,7 +53,8 @@ Sort by:
 				{% endfor %}<br/>
 				<a href="{% url 'listing_detail' listing.pk %}">Listing Detail</a>
 				<br/>
-				{% if listing.status == 'Open for bidding' and isBuyer and not goalreached %}
+				In cart? {{ listing|is_in_cart:cart }}
+				{% if listing.status == 'Open for bidding' and not goalreached and isBuyer and not listing|is_in_cart:cart %}
 					<form action = "{% url 'addtocart' listing.id %}" method = "get">
 						{% csrf_token %}
 						<input class = "button" type = "submit" value = "Add to cart"/>
