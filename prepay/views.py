@@ -59,13 +59,28 @@ def edit_profile(request, user_username):
 def profile(request, user_username):
     login_flag=login_check(request)
     mine = False
+    
+    buyer = False
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
+        
     if(Seller.objects.filter(username = user_username).exists()):
         user = get_object_or_404(Seller, username=user_username)
         products = Product.objects.filter(seller = user)
         listings = Listing.objects.filter(product__seller = user)
         if request.user.username == user_username:
     		mine = True
-        return render(request, 'prepay/profile_seller.html', {'theuser':user, 'products':products, 'listings':listings, 'mine':mine, 'login_flag': login_flag})
+        
+        context = Context({
+            'isBuyer': buyer,
+            'theuser': user, 
+            'products': products, 
+            'listings': listings, 
+            'mine': mine, 
+            'login_flag': login_flag,
+        })
+
+        return render(request, 'prepay/profile_seller.html', context)
     else:
         user = get_object_or_404(Buyer, username=user_username)
         form = ReviewForm()
@@ -172,7 +187,7 @@ def about(request):
         
     context = Context({
         'isBuyer': buyer,
-        'login_flag':login_flag
+        'login_flag':login_flag,
     })
     return render(request, 'prepay/about.html', context)
 
