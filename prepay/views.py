@@ -311,17 +311,20 @@ def listing_detail(request, listing_id):
     # return HttpResponse("You're looking at the detailed view of listing %s." % listing_id)
     login_flag=login_check(request)
     listing = get_object_or_404(Listing, pk=listing_id)
+    
     buyer = False
     b = None
-    cart = None
-    goalreached = True
+    cart = None    
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
         b = Buyer.objects.get(username = request.user.username)
         cart = b.cart
-	if listing.numBidders<listing.maxGoal:
+	
+    goalreached = True
+    if listing.numBidders<listing.maxGoal:
 		goalreached = False
-	if request.method =='POST':
+	
+    if request.method =='POST':
 		if 'shipped' in request.POST:
 			listing.status = "Shipped"
 			listing.save()
@@ -338,10 +341,14 @@ def listing_detail(request, listing_id):
 			date = timezone.now()
 			username=request.user.username
 			User_Profile=get_object_or_404(UserProfile, username=username)
-			Listing_Comment.objects.create(listing=listing,commenter=User_Profile,comment=comment, rating = rating,  date=date, image=image)
-			return HttpResponseRedirect(reverse("prepay.views.listing_detail", args=(listing.id,)))
-	form = ListingCommentForm()
-	context = Context({
+			Listing_Comment.objects.create(listing=listing,commenter=User_Profile,comment=comment, 
+                                           rating = rating,  date=date, image=image)
+			return HttpResponseRedirect(reverse("prepay.views.listing_detail", 
+                    args=(listing.id,)))
+            
+    form = ListingCommentForm()
+    
+    context = Context({
 		'listing': listing,
 		'form': form,
 		'login_flag': login_flag,
@@ -349,7 +356,7 @@ def listing_detail(request, listing_id):
 		'goalreached': goalreached,
         'cart': cart
 	})
-	return render(request, 'prepay/detail.html',context)
+    return render(request, 'prepay/detail.html',context)
 
 def login_check(request):
 	if request.user.is_authenticated():
