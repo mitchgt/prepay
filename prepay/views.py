@@ -638,9 +638,13 @@ def viewcart(request):
     
     b = Buyer.objects.get(username = request.user.username)
     
+    listings = None
+    if b.cart is not None:
+        listings = b.cart.listings.all
+    
     context = Context({
         'login_flag': login_flag,
-        'listings': b.cart.listings.all,
+        'listings': listings,
     })
     return render(request, 'prepay/cart.html', context)
 
