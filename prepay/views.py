@@ -177,7 +177,14 @@ def index(request):
 
 def about(request):
     login_flag=login_check(request)
-    return render(request, 'prepay/about.html', {'login_flag':login_flag})
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
+        
+    context = Context({
+        'isBuyer': buyer,
+        'login_flag':login_flag
+    })
+    return render(request, 'prepay/about.html', context)
 
 @login_required
 def browse_listings(request, fil = None):
@@ -258,11 +265,15 @@ def browse_listings(request, fil = None):
 
 @login_required
 def browse_product_requests(request):
-	login_flag=login_check(request)
+    login_flag=login_check(request)
+    buyer = False
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
 	all_product_requests = ProductRequest.objects.all()
 	context = Context({
 		'all_product_requests': all_product_requests,
-		'login_flag':login_flag
+		'login_flag': login_flag,
+        'isBuyer': buyer,
 	})
 	return render(request, 'prepay/browse_product_requests.html', context)
 
