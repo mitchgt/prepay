@@ -119,11 +119,6 @@ class Product(models.Model):
     def __unicode__(self):
         return self.name
 
-
-class Cart(models.Model):
-    #listings = models.ManyToManyField(Listing)
-    name = models.TextField(max_length=50)
-
 class Listing(models.Model):
     name = models.CharField(max_length=50)
     CHOICES = (('Open for bidding', 'Open for bidding'),('Maximum reached', 'Maximum reached'), ('In Production', 'In Production'), ('Closed', 'Closed'), ('Aborted', 'Aborted'), ('Withdrawn', 'Withdrawn'), ('Shipped', 'Shipped'))
@@ -142,8 +137,6 @@ class Listing(models.Model):
     date_withdrawn = models.DateTimeField(_('date withdrawn'),null=True, blank=True)
     date_aborted = models.DateTimeField(_('date aborted'),null=True, blank=True)
     
-    cart = models.ForeignKey(Cart, null=True) #this seems really unnatural, but that's a oneToMany in django
-    
     def offer(self):
         return str("offered!")
     
@@ -152,6 +145,10 @@ class Listing(models.Model):
     
     def __unicode__(self):
         return self.name
+
+class Cart(models.Model):
+    name = models.TextField(max_length=50, null=True, blank=True)
+    listings = models.ManyToManyField(Listing)
 
 class Buyer(UserProfile):
     objects = UserManager()

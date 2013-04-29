@@ -28,6 +28,7 @@ urlpatterns = patterns('',
     url(r'^withdrawListing/(?P<listing_id>.*)$', views.withdrawListing, name='withdrawListing'),
     
     url(r'^addtocart/(?P<listing_id>.*)$', views.addtocart, name='addtocart'),
+    url(r'^viewcart$', views.viewcart, name='viewcart'),
     
     url(r'^confirmed$', views.confirmed, name='confirmed'),
     url(r'^withdraw/(?P<order_id>.*)$', views.withdraw, name='withdraw'),

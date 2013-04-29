@@ -614,21 +614,33 @@ def addtocart(request, listing_id):
         goalreached = False
             
     b = Buyer.objects.get(username = request.user.username)
-    if not b.cart:
-        b.cart = Cart()
-        
-    b.save()
-
     
-    #b.cart.listings.add(listing)
+    if not b.cart:
+        c = Cart(name=b.username + "'s cart")
+        c.save()
+        b.cart = c
+        b.save()
+    
+    b.cart.listings.add(listing)
     
     context = Context({
-        'listing': listing,
         'login_flag': login_flag,
-        'isBuyer': buyer,
-        'goalreached': goalreached,
-        'buyer': b,
+        'listings': b.cart.listings.all,
     })
     return render(request, 'prepay/cart.html', context)
 
+@login_required
+def viewcart(request):
+    login_flag=login_check(request)
+    buyer = False
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
+    
+    b = Buyer.objects.get(username = request.user.username)
+    
+    context = Context({
+        'login_flag': login_flag,
+        'listings': b.cart.listings.all,
+    })
+    return render(request, 'prepay/cart.html', context)
 
