@@ -14,11 +14,15 @@
 	<div id="login">
 		{% if login_flag %}
 		Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a> 
-		(<a href="{% url 'viewcart' %}">view cart</a> &#149;
+		(
+		{% if isBuyer %}
+		<a href="{% url 'viewcart' %}">view cart</a> &#149;
+		{% endif %}
 		<a href="{% url 'admin:password_change' %}">change password</a>  &#149;
-		<a href="{% url 'auth_logout' %}">logout</a>) &nbsp;&nbsp;
-		{% else %}
-		(<a href="{% url 'index' %}">Login</a> &#149; <a href="{% url 'register' %}">Register</a>)
+		<a href="{% url 'auth_logout' %}">logout</a>
+		) &nbsp;&nbsp;
+		{% else %} 
+		( <a href="{% url 'index' %}">Login</a> &#149; <a href="{% url 'register' %}">Register</a> )
 		{% endif %}
 	</div>
 	<div class="title">
