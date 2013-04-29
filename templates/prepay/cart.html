@@ -9,6 +9,9 @@
 {% if listings %}
 	{% for listing in listings %}
 		<a href="{% url 'listing_detail' listing.pk %}">{{ listing.name }}</a><br/>
+		Quantity: xx<br/>
+		<a href="#">Delete</a><br/>
+		<br clear="all">
 			
 	{% endfor %}
 {% else %}

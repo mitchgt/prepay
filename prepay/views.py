@@ -625,10 +625,12 @@ def addtocart(request, listing_id):
         b.save()
     
     b.cart.listings.add(listing)
+    b.save()
     
     context = Context({
         'login_flag': login_flag,
         'listings': b.cart.listings.all,
+        'isBuyer': buyer,
     })
     return render(request, 'prepay/cart.html', context)
 
@@ -647,6 +649,7 @@ def viewcart(request):
     
     context = Context({
         'login_flag': login_flag,
+        'isBuyer': buyer,
         'listings': listings,
     })
     return render(request, 'prepay/cart.html', context)
