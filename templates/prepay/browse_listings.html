@@ -45,7 +45,7 @@ Sort by:
 				{{ listing.description|truncatewords:40 }}<br/>
 				<b>Product:</b> {{ listing.product.name }}<br/>
 				<b>Price:</b> ${{listing.price}}<br/>
-				<b>Status:</b> {{listing.status}} <br/>
+				<b>Status:</b> {{listing.status}}<br/>
 				<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{listing.product.seller.username}}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>
 				<b>Categories:</b> 
 				{% for c in listing.product.categories.all %} 
@@ -53,12 +53,18 @@ Sort by:
 				{% endfor %}<br/>
 				<a href="{% url 'listing_detail' listing.pk %}">Listing Detail</a>
 				<br/>
-				In cart? {{ listing|is_in_cart:cart }}
-				{% if listing.status == 'Open for bidding' and not goalreached and isBuyer and not listing|is_in_cart:cart %}
+				{% if listing.status == 'Open for bidding' and not goalreached and isBuyer %}
+					{% if not listing|is_in_cart:cart %}
 					<form action = "{% url 'addtocart' listing.id %}" method = "get">
 						{% csrf_token %}
 						<input class = "button" type = "submit" value = "Add to cart"/>
 					</form>
+					{% else %}
+					<form action = "{% url 'removefromcart' listing.id %}" method = "get">
+						{% csrf_token %}
+						<input class = "button" type = "submit" value = "Remove from cart"/>
+					</form>	
+					{% endif %}		
 				{% endif %}
 				</td></tr></table>
 			</td>

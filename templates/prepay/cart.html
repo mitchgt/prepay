@@ -1,4 +1,5 @@
 {% extends "prepay/base.html" %}
+{% load prepay_tags %}
 
 {% load url from future %}
 
@@ -8,12 +9,30 @@
 
 {% if listings %}
 	{% for listing in listings %}
-		<a href="{% url 'listing_detail' listing.pk %}">{{ listing.name }}</a><br/>
-		Quantity: xx<br/>
-		<a href="{% url 'removefromcart' listing.pk %}">Remove from cart</a><br/>
-		<br clear="all">
-			
+		<a href="{% url 'listing_detail' listing.pk %}"><b>{{ listing.name }}</b></a><br/>
+		<b>Listing Description:</b> {{ listing.description }}<br/>
+		<b>Product Description:</b> {{ listing.product.description }}<br/>
+		<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{ listing.product.seller.username }}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>
+		<b>Bid Deadline:</b> {{listing.deadlineBid}}<br/>
+		<b>Price:</b> ${{listing.price}}<br/>
+		{% if not listing|is_in_cart:cart %}
+		<form action = "{% url 'addtocart' listing.id %}" method = "get">
+			{% csrf_token %}
+			<input class = "button" type = "submit" value = "Add to cart"/>
+		</form>
+		{% else %}
+		<form action = "{% url 'removefromcart' listing.id %}" method = "get">
+			{% csrf_token %}
+			<input class = "button" type = "submit" value = "Remove from cart"/>
+		</form>	
+		{% endif %}		
 	{% endfor %}
+	<br clear="all"/>
+	<form action = "javascript:alert('not implemented!')" method = "get">
+		{% csrf_token %}
+		<input class = "button" type = "submit" value = "Checkout"/>
+	</form>
+	
 {% else %}
 	Your cart is empty.  Please commission some stuff.
 {% endif %}

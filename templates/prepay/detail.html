@@ -46,17 +46,24 @@
 				<table>
 					<tr>
 						<td>
-						{% if listing.status == 'Open for bidding' and isBuyer and not goalreached and not listing|is_in_cart:cart %}
+						{% if listing.status == 'Open for bidding' and isBuyer and not goalreached %}
 							<form action = "{% url 'checkout' listing.id %}" method = "get">
 								{% csrf_token %}
 								<input class = "button" type = "submit" value = "Pre-order"/>
 							</form>
 						</td>
 						<td>	
+							{% if not listing|is_in_cart:cart %}
 							<form action = "{% url 'addtocart' listing.id %}" method = "get">
 								{% csrf_token %}
 								<input class = "button" type = "submit" value = "Add to cart"/>
 							</form>
+							{% else %}
+							<form action = "{% url 'removefromcart' listing.id %}" method = "get">
+								{% csrf_token %}
+								<input class = "button" type = "submit" value = "Remove from cart"/>
+							</form>	
+							{% endif %}
 						{% endif %}
 						</td>
 					</tr>
