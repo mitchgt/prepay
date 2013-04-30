@@ -2,14 +2,26 @@
 <html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
 <title>{% block title %}{% endblock %}</title>
-<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
+
 {% block extrastyle %}{% endblock %}
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
 
-<link href="{{STATIC_URL}}admin.css" rel="stylesheet" type="text/css" />
+
 
 <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
+<link href="{{STATIC_URL}}bootstrap.css" rel="stylesheet">
+<style>
+  body {
+    padding-bottom: 40px;
+  }
+</style>
+<link href="{{STATIC_URL}}bootstrap-responsive.css" rel="stylesheet">
+<link href="{{STATIC_URL}}docs.css" rel="stylesheet">
+<link href="{{STATIC_URL}}prettify.css" rel="stylesheet">
+<link href="{{STATIC_URL}}main.css" rel="stylesheet">
+<link href='http://fonts.googleapis.com/css?family=Averia+Sans+Libre:400,700' rel='stylesheet' type='text/css'>
 {% block extrahead %}{% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 </head>
@@ -29,16 +41,14 @@
         {% if user.is_active and user.is_staff %}
         <div id="user-tools">
             {% trans 'Welcome,' %}
-            <a href="{% url 'profile' user.username %}"><b>{% filter force_escape %}{% firstof user.first_name user.username %}{% endfilter %}</b></a> 
+            <a href="{% url 'profile' user.username %}">{% filter force_escape %}{% firstof user.first_name user.username %}{% endfilter %}</a>.
             {% block userlinks %}
                 {% url 'django-admindocs-docroot' as docsroot %}
-                (
                 {% if docsroot %}
-                    <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> &nbsp;
+                    <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
                 {% endif %}
-                <a href="{% url 'admin:password_change' %}">{% trans 'change password' %}</a> &#149; 
-                <a href="{% url 'admin:logout' %}">{% trans 'log out' %}</a>
-                )
+                <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+                <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
             {% endblock %}
         </div>
         {% endif %}
@@ -77,6 +87,25 @@
     {% block footer %}<div id="footer"></div>{% endblock %}
 </div>
 <!-- END Container -->
-
+<!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{{STATIC_URL}}jquery.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-transition.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-alert.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-modal.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-dropdown.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-scrollspy.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-tab.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-tooltip.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-popover.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-button.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-collapse.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-carousel.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-typeahead.js"></script>
+    	<script src="{{STATIC_URL}}bootstrap-affix.js"></script>
+    <script src="{{STATIC_URL}}holder.js"></script>
+    <script src="{{STATIC_URL}}prettify.js"></script>
+    <script src="{{STATIC_URL}}application.js"></script>
 </body>
 </html>
