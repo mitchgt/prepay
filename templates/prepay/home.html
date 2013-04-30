@@ -1,23 +1,29 @@
 {% extends "prepay/base.html" %}
-
+{% load url from future %}
 
 {% block content %}
 
-<h2>Welcome to PrePay</h2>
 
-{% if error %}
-Invalid login - Please try again.<br/>
-{% endif %}
-
-<form enctype="multipart/form-data" action = "" method ="POST">
-{% csrf_token %}
-
-	{{form.as_p}}
-<input type = "submit" value = "Login">
-</form>
-
+<div class="jumbotron masthead">
+  <div class="container">
+    <h1>Prepay</h1>
+    <p>An interactive marketplace where imagination forms, grows, and comes true.</p>
+    <p>
+      <a href="{% url 'browse_listings' %}" class="btn btn-primary btn-large" onclick="_gaq.push(['_trackEvent', 'Jumbotron actions', 'Download', 'Download 2.3.1']);">Imagine Now</a>
+    </p>
+    <ul class="masthead-links">
+      <li>
+        <a href="https://github.com/mitchgt/prepay" onclick="_gaq.push(['_trackEvent', 'Jumbotron actions', 'Jumbotron links', 'GitHub project']);">GitHub project</a>
+      </li>
+      
+      
+      <li>
+        Version 0.1.1
+      </li>
+    </ul>
+  </div>
+</div>
 {% endblock %}
-
 
 
 
