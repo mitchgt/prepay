@@ -380,46 +380,54 @@ def confirmed(request):
 	return render(request, 'prepay/confirmed.html',{'login_flag':login_flag, 'total':total})
 
 def checkout(request, listing_id):
-	login_flag=login_check(request)
+    login_flag=login_check(request)
 	
-	listing = get_object_or_404(Listing,pk = listing_id)
-	error = False ###
-	exceed = False
-	if listing.status != "Open for bidding" or not Buyer.objects.filter(username = request.user.username):
-		return HttpResponseRedirect(reverse('prepay.views.listing_detail', args=(listing_id)))
-	form = CheckoutForm()
-	address_formset = StreetAddressFormSet()
-	if request.method=='POST':
-		form=CheckoutForm(request.POST)
-		address_formset = StreetAddressFormSet(request.POST, instance = request.user)
-		if form.is_valid() and address_formset.is_valid():
-			if 'quantity' in request.POST:
-				quantity = int(request.POST.get('quantity'))
-				a = listing.numBidders + quantity
-				buyer=Buyer.objects.get(username = request.user.username)
-				total = quantity * listing.price 
-				ba = BankAccount.objects.get(user = request.user)
-				if ba.balance>=total and listing.maxGoal>=a:
-					seller=listing.product.seller
-					address=address_formset.save()
-					for i in range(quantity):
-						neworder = Order.objects.create(seller=seller, buyer=buyer, listing=listing)
-						neworder.shipping_address = address
-					listing.numBidders = a
-					listing.save()
-					ba.balance = ba.balance - total
-					ba.save()
-					e = Escrow.objects.get(listing=listing)
-					e.balance = e.balance + total
-					e.save()
-					request.session['total']=total
-					return HttpResponseRedirect(reverse("prepay.views.confirmed"))
-				elif ba.balance>=total and listing.maxGoal<a:
-					exceed = listing.maxGoal - listing.numBidders
-				else:
-					error = True
+    listing = get_object_or_404(Listing,pk = listing_id)
+    error = False ###
+    exceed = False
+    if listing.status != "Open for bidding" or not Buyer.objects.filter(username = request.user.username):
+        return HttpResponseRedirect(reverse('prepay.views.listing_detail', args=(listing_id)))
+    form = CheckoutForm()
+    address_formset = StreetAddressFormSet()
+    
+    b = Buyer.objects.get(username = request.user.username)
+    
+    if request.method=='POST':
+        form=CheckoutForm(request.POST)
+        address_formset = StreetAddressFormSet(request.POST, instance = request.user)
+        if form.is_valid() and address_formset.is_valid():
+	       if 'quantity' in request.POST:
+                quantity = int(request.POST.get('quantity'))
+                a = listing.numBidders + quantity
+                buyer=Buyer.objects.get(username = request.user.username)
+                total = quantity * listing.price 
+                ba = BankAccount.objects.get(user = request.user)
+                if ba.balance>=total and listing.maxGoal>=a:
+                    seller=listing.product.seller
+                    address=address_formset.save()
+                    for i in range(quantity):
+                        neworder = Order.objects.create(seller=seller, buyer=buyer, listing=listing)
+                        neworder.shipping_address = address
+                        #remove from cart
+                        b.cart.listings.remove(listing)
+                        b.save()
+                    listing.numBidders = a
+                    listing.save()
+                    ba.balance = ba.balance - total
+                    ba.save()
+                    e = Escrow.objects.get(listing=listing)
+                    e.balance = e.balance + total
+                    e.save()
+                    request.session['total']=total
+                    return HttpResponseRedirect(reverse("prepay.views.confirmed"))
+                elif ba.balance>=total and listing.maxGoal<a:
+                    exceed = listing.maxGoal - listing.numBidders
+                else:
+                    error = True
 
-	return render_to_response('prepay/checkout.html',{'a_formset':address_formset, 'form':form, 'login_flag':login_flag, 'listing':listing, 'error':error, 'exceed':exceed }, context_instance=RequestContext(request))
+    context = Context({'a_formset':address_formset, 'form':form, 'login_flag':login_flag, 'listing':listing, 'error':error, 'exceed':exceed })
+
+    return render(request, 'prepay/checkout.html', context)
 
 def withdraw(request, order_id):
 	login_flag=login_check(request)
