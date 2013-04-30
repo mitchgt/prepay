@@ -1,0 +1,19 @@
+{% extends "prepay/base.html" %}
+
+
+{% block content %}
+
+<h2>Welcome to PrePay</h2>
+
+{% if error %}
+<p class="errmsg">Invalid login - Please try again!</p>
+{% endif %}
+
+<form enctype="multipart/form-data" action = "" method ="POST">
+{% csrf_token %}
+
+{{form.as_p}}
+<input type = "submit" value = "Login">
+</form>
+
+{% endblock %}
