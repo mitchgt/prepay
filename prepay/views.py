@@ -87,9 +87,14 @@ def profile(request, user_username):
         form = ReviewForm()
         if request.user.username == user_username:
             mine = True
-        return render(request, 'prepay/profile_buyer.html', {'theuser':user, 'mine':mine, 'login_flag': login_flag, 'form': form})
+        return render(request, 'prepay/profile_buyer.html', {'isBuyer':buyer, 'theuser':user, 'mine':mine, 'login_flag': login_flag, 'form': form})
 
 def review(request, order_id):
+    
+    buyer = False
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
+    
 	login_flag=login_check(request)
 	order = get_object_or_404(Order,pk=order_id)
 	if request.method == "POST":
@@ -111,12 +116,12 @@ def review(request, order_id):
 			else:
 				seller.rating = (seller.rating * count + int(rating))/(count+1)
 			seller.save()
-			return render(request, 'prepay/reviewed.html',{'login_flag':login_flag,})
+			return render(request, 'prepay/reviewed.html',{'login_flag':login_flag, 'isBuyer': buyer})
 		else:
 			error = True
 			return render(request, 'prepay/reviewed.html',{'login_flag':login_flag, 'error':error})
 	direct = True
-	return render(request, 'prepay/reviewed.html',{'login_flag':login_flag, 'direct':direct})
+	return render(request, 'prepay/reviewed.html',{'login_flag':login_flag, 'direct':direct, 'isBuyer':buyer})
         
 ####Jennifer
 def register(request):
@@ -381,6 +386,10 @@ def confirmed(request):
 
 def checkout(request, listing_id):
     login_flag=login_check(request)
+    
+    buyer = False
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
 	
     listing = get_object_or_404(Listing,pk = listing_id)
     error = False ###
@@ -425,7 +434,14 @@ def checkout(request, listing_id):
                 else:
                     error = True
 
-    context = Context({'a_formset':address_formset, 'form':form, 'login_flag':login_flag, 'listing':listing, 'error':error, 'exceed':exceed })
+    context = Context({'a_formset':address_formset, 
+                       'form':form, 
+                       'login_flag':login_flag, 
+                       'listing':listing, 
+                       'error':error, 
+                       'exceed':exceed,
+                       'isBuyer':buyer,
+                       })
 
     return render(request, 'prepay/checkout.html', context)
 
