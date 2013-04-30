@@ -3,57 +3,113 @@
 
 <html>
 <head>
-	<link href="{{STATIC_URL}}main.css" rel="stylesheet" type="text/css" />
-	<script src="{{STATIC_URL}}jquery-1.9.1.min.js" type="text/javascript"></script>
-	<title> {% block title %} PrePay {% endblock %}</title>
+
+	<link href="{{STATIC_URL}}bootstrap.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+    <link href="{{STATIC_URL}}bootstrap-responsive.css" rel="stylesheet">
+		<link href="{{STATIC_URL}}docs.css" rel="stylesheet">
+    <link href="{{STATIC_URL}}prettify.css" rel="stylesheet">
+		<link href="{{STATIC_URL}}main.css" rel="stylesheet">
+		<link href='http://fonts.googleapis.com/css?family=Averia+Sans+Libre:400,700' rel='stylesheet' type='text/css'>
+	<title>{% block title %}PrePay{% endblock %}</title>
 </head>
 <body>
-	
-	
-<div id="header">
-	<div id="login">
-		{% if login_flag %}
-		Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a> 
-		(
-		{% if isBuyer %}
-		<a href="{% url 'viewcart' %}">view cart</a> &#149;
-		{% endif %}
-		<a href="{% url 'admin:password_change' %}">change password</a>  &#149;
-		<a href="{% url 'auth_logout' %}">logout</a>
-		) &nbsp;&nbsp;
-		{% else %} 
-		( <a href="{% url 'index' %}">Login</a> &#149; <a href="{% url 'register' %}">Register</a> )
-		{% endif %}
-	</div>
-	<div class="title">
-	{% block header %}
-		<b><a href = "{% url 'index' %}">PrePay</a></b> &nbsp;&nbsp;
-	{% endblock %}
-	</div>
-</div>
 
-<div id="nav">
-	{% block nav %}
-        <a href="{% url 'browse_listings' %}">Browse Listings</a> &#149;
-        <a href="{% url 'browse_product_requests' %}">Browse Product Requests</a> &#149;
-		<a href="{% url 'admin:prepay_productrequest_add' %}">Request Product</a> &#149;
-        <a href="{% url 'admin:index' %}">Admin</a> &#149;
-        <a href="{% url 'about' %}">About</a>
-        
-	{% endblock %}
-</div>
 
-<br clear="all"/>
 
-<div id="content">
+
+ <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          
+          <div class="nav-collapse collapse">
+					<a href="{% url 'index' %}" class="brand" >Prepay&#0153;</a>
+					<ul class="nav">
+          		<li class="dropdown">
+            			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Browse Listings<b class="caret"></b></a>
+                	<ul class="dropdown-menu">
+                  	<li><a href="{% url 'browse_listings' %}filter/biddable">Biddable</a></li>
+                  	<li><a href="{% url 'browse_listings' %}filter/bidclosed">In production</a></li>
+                  	<li><a href="{% url 'browse_listings' %}filter/over">Completed</a></li>
+                  	<li class="divider"></li>
+										<li><a href="{% url 'browse_listings' %}">All</a></li>
+                 	</ul>
+            	</li>					
+              <li><a href="{% url 'browse_product_requests' %}">Browse Product Requests</a></li>
+              <li><a href="{% url 'admin:prepay_productrequest_add' %}">Request Product</a></li>
+							<li><a href="{% url 'admin:index' %}">Admin</a></li>
+							<li><a href="{% url 'about' %}">About</a></li>
+            </ul>
+						<div class="text-right login-text">
+							{% if login_flag %}
+							Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a>.
+								{% if isBuyer %}
+									<a href="{% url 'viewcart' %}">view cart</a> &#149;
+								{% endif %}
+								<a href="{% url 'admin:password_change' %}">Change password</a> / <a href="{% url 'auth_logout' %}">Log out</a>
+							{% else %}
+								<a href="{% url 'index' %}">Login</a> / <a href="{% url 'register' %}">Register</a> 
+							{% endif %}
+
+						</div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+
+
+
+<div class="container-fluid .clearfix">
 	{% block content %}
 	{% endblock %}
-</div>
 
-<div id="footer">
-	{% block footer %}
-	Daniel Kim, Jennifer Lin, Lara Lu, Michael Mitchell, Abdul Zaheer
-	{% endblock %}
+<hr class="soften">
+
+<footer class="footer">
+      <div class="container">
+        <p>Designed and built with much imagination by Jennifer Lin, Lara Lu, Michael Mitchell, Daniel Kim and Abdul Zaheer</p>
+          <ul class="footer-links">
+          <li><a href="https://github.com/mitchgt/prepay">Source Code</a></li>
+          <li class="muted">&middot;</li>
+          <li><a href="#">Issues</a></li>
+          <li class="muted">&middot;</li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+</footer>
 </div>
+<!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{{STATIC_URL}}jquery.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-transition.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-alert.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-modal.js"></script>
+		<script src="{{STATIC_URL}}bootstrap-dropdown.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-scrollspy.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-tab.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-tooltip.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-popover.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-button.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-collapse.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-carousel.js"></script>
+    <script src="{{STATIC_URL}}bootstrap-typeahead.js"></script>
+		<script src="{{STATIC_URL}}bootstrap-affix.js"></script>
+    <script src="{{STATIC_URL}}holder.js"></script>
+    <script src="{{STATIC_URL}}prettify.js"></script>
+    <script src="{{STATIC_URL}}application.js"></script>
+
 
 </body>
+</html>
