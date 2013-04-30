@@ -5,12 +5,17 @@ from prepay import startup
 
 admin.autodiscover()
 
+startup.set_groups()
+startup.create_default_users()
+startup.create_default_listing()
+
 urlpatterns = patterns('',
     url(r'^$', views.index, name='index'),
     url(r'^$', views.browse_listings, name='index'),
     url(r'^about$', views.about, name='about'),
     url(r'^category/(?P<category_id>.*)$', views.browse_category, name='browse_category'),
-    url(r'^browse_listings/search/$', views.browse_listings, name='search'),
+    url(r'^browse_listings/.*filter/(?P<fil>.*)$', views.browse_listings, name='filter'),
+    #url(r'^browse_listings/search/$', views.browse_listings, name='search'),
     url(r'^browse_listings/$', views.browse_listings, name='browse_listings'),
     url(r'^browse_product_requests$', views.browse_product_requests, name='browse_product_requests'),
     url(r'^register$', views.register, name = 'register'), ###Jennifer
@@ -21,6 +26,11 @@ urlpatterns = patterns('',
     url(r'^orders/(?P<listing_id>.*)$', views.orders, name='orders'),
     url(r'^checkout/(?P<listing_id>.*)$', views.checkout, name='checkout'),
     url(r'^withdrawListing/(?P<listing_id>.*)$', views.withdrawListing, name='withdrawListing'),
+    
+    url(r'^addtocart/(?P<listing_id>.*)$', views.addtocart, name='addtocart'),
+    url(r'^removefromcart/(?P<listing_id>.*)$', views.removefromcart, name='removefromcart'),
+    url(r'^viewcart$', views.viewcart, name='viewcart'),
+    
     url(r'^confirmed$', views.confirmed, name='confirmed'),
     url(r'^withdraw/(?P<order_id>.*)$', views.withdraw, name='withdraw'),
     url(r'^confirmreceipt/(?P<order_id>.*)$', views.confirmreceipt, name='confirmreceipt'),
@@ -28,7 +38,12 @@ urlpatterns = patterns('',
     url(r'^returns/(?P<order_id>.*)$', views.returns, name='returns'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
-    url(r'^logout/$', 'django.contrib.auth.views.logout', name="auth_logout"),
+    url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': "/prepay"}, name="auth_logout"),
+    #url(r'^logout/$', 'django.contrib.auth.views.logout', views.index, name="auth_logout"),
+    url(r'^logout/(?P<next_page>.*)/$', views.index, name='auth_logout_next'),
 )
 
-startup.set_groups()
+
+
+
+

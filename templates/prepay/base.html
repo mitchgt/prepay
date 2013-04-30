@@ -13,15 +13,21 @@
 <div id="header">
 	<div id="login">
 		{% if login_flag %}
-		Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a>.
-		<a href="{% url 'admin:password_change' %}">Change password</a> / <a href="{% url 'auth_logout' %}">Log out</a>
-		{% else %}
-		<a href="{% url 'index' %}">Login</a> / <a href="{% url 'register' %}">Register</a> 
+		Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a> 
+		(
+		{% if isBuyer %}
+		<a href="{% url 'viewcart' %}">view cart</a> &#149;
+		{% endif %}
+		<a href="{% url 'admin:password_change' %}">change password</a>  &#149;
+		<a href="{% url 'auth_logout' %}">logout</a>
+		) &nbsp;&nbsp;
+		{% else %} 
+		( <a href="{% url 'index' %}">Login</a> &#149; <a href="{% url 'register' %}">Register</a> )
 		{% endif %}
 	</div>
 	<div class="title">
 	{% block header %}
-		<b><a href = "{% url 'index' %}">PrePay</a></b>
+		<b><a href = "{% url 'index' %}">PrePay</a></b> &nbsp;&nbsp;
 	{% endblock %}
 	</div>
 </div>
