@@ -13,7 +13,7 @@
 
 <h1>Edit your Profile!</h1>
 
-<form enctype="multipart/form-data" method="post" action="">
+<form class="editprofileform" enctype="multipart/form-data" method="post" action="">
 {% csrf_token %}
 {{form.as_p}}
 Addresses:<br/>
@@ -36,12 +36,11 @@ Websites:<br/>
 {% for field in w_formset %}
 	{{field.as_table}}<br/>	
 {% endfor %}<br/>
-<input type = "submit" value = "Save changes">
+<input  class="btn" type = "submit" value = "Save changes">
 </form>
 
 
 {% endblock %}
-
 
 
 
