@@ -4,7 +4,7 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 #ROOT_PATH='/home/mmitc3/cs370/prepay'
-ROOT_PATH='/Users/mike/emory/cs370/prepay'
+ROOT_PATH='/home/wdkim/prepay'
 
 ADMINS = (
     ('Daniel Kim', 'wdkim@emory.edu'),
@@ -18,13 +18,13 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         #'NAME': 'michael.mitchell',                      # Or path to database file if using sqlite3.
         #'USER': 'michael.mitchell',                      # Not used with sqlite3.
         #'PASSWORD': 'zxc3zxc',                  # Not used with sqlite3.
-        'NAME': 'prepay',                      # Or path to database file if using sqlite3.
-        'USER': 'prepay',                      # Not used with sqlite3.
-        'PASSWORD': 'prepayme',                  # Not used with sqlite3.
+        'NAME': '/home/wdkim/prepay/prepay.db',                      # Or path to database file if using sqlite3.
+        'USER': '',                      # Not used with sqlite3.
+        'PASSWORD': '',                  # Not used with sqlite3.
 
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
@@ -110,6 +110,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
