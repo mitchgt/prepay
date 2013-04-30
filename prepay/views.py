@@ -153,14 +153,22 @@ def register(request):
 ####Jennifer
 
 def index(request):
-    if request.user.is_authenticated():
+    login_flag=login_check(request)
+    buyer = False
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
+    context = Context({
+        'isBuyer': buyer,
+        'login_flag':login_flag,
+    })
+    if login_flag==1:
 		#return HttpResponseRedirect('/browse_listings')
-        return HttpResponseRedirect(reverse('browse_listings'))
+        return render(request, 'prepay/home.html', context)
     else:
 		form = LoginForm()
 		context = Context({
-		  'form':form
-	    })
+		'form':form
+	})
 		
 		if request.method =='POST':
 			form = LoginForm(request.POST)
@@ -171,18 +179,25 @@ def index(request):
 				if user is not None:
 					if user.is_active:
 						login(request, user)
-						return HttpResponseRedirect(reverse('browse_listings'))
+						login_flag=1
+						buyer = False
+						if Buyer.objects.filter(username = request.user.username):
+							buyer = True
+						context = Context({
+							'isBuyer': buyer,
+							'login_flag':login_flag,
+						})
+						return render(request, 'prepay/home.html', context)
 					else:
 		          # Return a 'disabled account' error message
-						return render(request, 'prepay/home.html', context)
+						return render(request, 'prepay/log-in.html', context)
 				else:
         	# Return an 'invalid login' error message.
 					error = True
-					return render(request, 'prepay/home.html', {'form':form, 'error':error})
+					return render(request, 'prepay/log-in.html', {'form':form, 'error':error})
 			else:
-				error = True
-				return render(request, 'prepay/home.html', {'form':form, 'error':error})
-		return render(request, 'prepay/home.html',context)
+				return render(request, 'prepay/log-in.html', {'form':form})
+		return render(request, 'prepay/log-in.html',context)
 
 
 def about(request):
@@ -763,4 +778,3 @@ def viewcart(request):
         'listings': listings,
     })
     return render(request, 'prepay/cart.html', context)
-
