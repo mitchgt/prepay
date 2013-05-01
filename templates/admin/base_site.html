@@ -1,22 +1,46 @@
 {% extends "admin/base.html" %}
 {% load i18n %}
-{% load url from future %}
 
 {% block title %}{{ title }} | {% trans 'Prepay site admin' %}{% endblock %}
 
 
 {% block branding %}
-<h1 id="site-name"><a href = "{% url 'index' %}">{% trans 'PrePay' %}</a></h1>
+{%load url from future%}
 
-<div id="nav">
-    {% block nav %}		
-		<a href="{% url 'browse_listings' %}">Browse Listings</a> &#149;
-        <a href="{% url 'browse_product_requests' %}">Browse Product Requests</a> &#149;
-		<a href="{% url 'admin:prepay_productrequest_add' %}">Request Product</a> &#149;
-        <a href="{% url 'admin:index' %}">Admin</a> &#149;
-        <a href="{% url 'about' %}">About</a>
-	{% endblock %}
-</div>
+ <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          
+          <div class="nav-collapse collapse">
+					<a href="{% url 'index' %}" class="brand" >Prepay&#0153;</a>
+					<ul class="nav">
+          		<li class="dropdown">
+            			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Browse Listings<b class="caret"></b></a>
+                	<ul class="dropdown-menu">
+                  	<li><a href="#">For sale</a></li>
+                  	<li><a href="#">In production</a></li>
+                  	<li><a href="#">Completed</a></li>
+                  	<li class="divider"></li>
+										<li><a href="{% url 'browse_listings' %}">All</a></li>
+                 	</ul>
+            	</li>
+								
+              <li><a href="{% url 'browse_product_requests' %}">Browse Product Requests</a></li>
+              <li><a href="{% url 'admin:prepay_productrequest_add' %}">Request Product</a></li>
+							<li><a href="{% url 'admin:index' %}">Admin</a></li>
+							<li><a href="{% url 'about' %}">About</a></li>
+            </ul>
+						
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
 
 {% endblock %}
 

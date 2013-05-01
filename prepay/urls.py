@@ -11,7 +11,7 @@ startup.create_default_listing()
 
 urlpatterns = patterns('',
     url(r'^$', views.index, name='index'),
-    url(r'^$', views.browse_listings, name='index'),
+    url(r'^$', views.browse_listings, name='browse_listings'),
     url(r'^about$', views.about, name='about'),
     url(r'^category/(?P<category_id>.*)$', views.browse_category, name='browse_category'),
     url(r'^browse_listings/.*filter/(?P<fil>.*)$', views.browse_listings, name='filter'),
@@ -38,11 +38,10 @@ urlpatterns = patterns('',
     url(r'^returns/(?P<order_id>.*)$', views.returns, name='returns'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
-    url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': "/prepay"}, name="auth_logout"),
+    url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': "/"}, name="auth_logout"),
     #url(r'^logout/$', 'django.contrib.auth.views.logout', views.index, name="auth_logout"),
     url(r'^logout/(?P<next_page>.*)/$', views.index, name='auth_logout_next'),
 )
-
 
 
 

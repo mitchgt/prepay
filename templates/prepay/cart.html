@@ -9,6 +9,9 @@
 
 {% if listings %}
 	{% for listing in listings %}
+		<div class="cartprodimg">
+				<img src="{{ listing.product.get_picture_url }}">
+		</div>	
 		<a href="{% url 'listing_detail' listing.pk %}"><b>{{ listing.name }}</b></a><br/>
 		<b>Listing Description:</b> {{ listing.description }}<br/>
 		<b>Product Description:</b> {{ listing.product.description }}<br/>

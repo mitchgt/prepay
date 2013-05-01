@@ -18,7 +18,7 @@ Buyer: {{user}}<br/>
 Seller: {{listing.product.seller}}<br/>
 Product: {{listing.name}}<br/>
 Price: ${{listing.price}}<br/>
-<form enctype="multipart/form-data" action = "" method = "post">
+<form enctype="multipart/form-data" class="editprofileform" action = "" method = "post">
 {% csrf_token %}
 {{form.as_p}}
 
@@ -28,10 +28,9 @@ Price: ${{listing.price}}<br/>
 {% endfor %}<br/>
 
 
-<input class = "button" type = "submit" value = "Confirm"/>
+<input class = "btn" type = "submit" value = "Confirm"/>
 </form>
 
 <p><a href = "{% url 'listing_detail' listing.id %}">Cancel</a><p>
 
 {% endblock %}
-

@@ -4,46 +4,29 @@
 {% load prepay_tags %}
 
 {% block content %}
-
-<h2>{{ listing.name }}</h2>
+<div class="container-fluid">
 
 {% if listing %}
-	<table width="100%" style="background-color:white; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px; font-size:14px;">
+<div class="row">
+
+	<table class="producttable">
 		<tr>
-			<td valign="top" width="200">
-				<img src="{{ listing.product.get_picture_url }}" width="200" style="border:none; padding-right:8px; padding-top:10px; padding-left:10px; float:left;">
+			
+			<td class="prodimgtd">
+				<img src="{{ listing.product.get_picture_url }}">
 			</td>
-			<td style="padding:10px;font-size:14px;">
-				{% if user.username == listing.product.seller.username %}
-					{% if listing.status == "Open for bidding" or listing.status == "Maximum reached" or listing.status == "In Production" %}
-						<form action = "{% url 'withdrawListing' listing.id %}" method = "get">
-						{% csrf_token %}
-						<input class = "button" type = "submit" value = "Withdraw listing"/>
-						</form>
-					{% endif %}
-					{% if listing.status == "In Production" %}
-						<form action = "" method = "post">
-						{% csrf_token %}
-						<input class = "button" type = "submit" name = "shipped" value = "Change status to 'Shipped'"/>
-						</form>
-					{% endif %}
-				{% endif %}
-				
-				<b>Listing Description:</b> {{ listing.description }}<br/>
-				<b>Product Description:</b> {{ listing.product.description }}<br/>
-				<b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{ listing.product.seller.username }}</a> (rating = {{ listing.product.seller.rating }}/5)<br/>
-				<b>Categories:</b> {% for c in listing.product.categories.all %} {{ c.name }}, {% endfor %}<br/>
-				<b>Date Created:</b> {{listing.created_at}}<br/>
-				{% if listing.date_closed %}
-				<b>Date Closed:</b> {{listing.date_closed}}<br/>
-				{% elif listing.date_aborted %}
-				<b>Date Aborted:</b> {{listing.date_aborted}}<br/>
-				{% elif listing.date_withdrawn %}
-				<b>Date Withdrawn:</b> {{listing.date_withdrawn}}<br/>
-				{% endif %}
-				<b>Price:</b> ${{listing.price}}<br/>
-				
-				<table>
+			<td class="proddetail">
+				<div class="listingTitle"><h2>{{ listing.name }}</h2></div>
+				<ul class="productinfo">
+					
+					<li><p><b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{ listing.product.seller.username }}</a> (rating = {{ listing.product.seller.rating }}/5)</p></li>
+					<li><p><b>Categories:</b> 
+									{% for c in listing.product.categories.all %} 
+										<a href="{% url 'browse_category' c.pk %}">{{ c.name }}</a>, 
+									{% endfor %}</p></li>
+					<li><p><b>Created Date:</b> {{listing.created_at}}</p></li>
+					<li><p><b>Price:</b> ${{listing.price}}</p></li>
+					<table>
 					<tr>
 						<td>
 						{% if listing.status == 'Open for bidding' and isBuyer and not goalreached %}
@@ -68,28 +51,33 @@
 						</td>
 					</tr>
 				</table>
+					<li><p><b>Status:</b> {{listing.status}}</p></li>
+					<li><p><b>Minimum goal:</b> {{listing.minGoal}}</p></li>
+					<li><p><b>Maximum goal:</b> {{listing.maxGoal}}</p></li>
+					<li><p><b>Current number of bidders:</b> {{listing.numBidders}}</p></li>
+					<li><p><b>Deadline for bidding:</b> {{listing.deadlineBid}}</p></li>
+					<li><p><b>Deadline for delivery:</b> {{listing.deadlineDeliver}}</p></li>
+					<li><p><b>Product Description:</b> {{ listing.product.description }}</p></li>
+					<li><p><b>How to produce:</b> {{ listing.description }}</p></li>
+				</ul>
 				
-				<b>Status:</b> {{listing.status}} {% if listing|is_in_cart:cart %} | In your Shopping Cart {% endif %}<br/>
-				<b>Minimum goal:</b> {{listing.minGoal}}<br/>
-				<b>Maximum goal:</b> {{listing.maxGoal}}<br/>
-				<b>Current number of bidders:</b> {{listing.numBidders}}<br/>
-				{% if listing.product.seller.username = user.username %}
-					<a href = "{% url 'orders' listing.id %}">View current orders</a><br/>
-				{% endif %}
-				<b>Deadline for bidding:</b> {{listing.deadlineBid}}<br/>
-				<b>Deadline for delivery:</b> {{listing.deadlineDeliver}}<br/>
 			</td>
+			
 		</tr>
+		
+		
 	</table>	
-	<h2>Comments</h2>
+</div>
+
+	<div class="comment"><h2>Comments</h2></div>
 	{% if listing.listing_comment_set.all %}
 		{% for co in listing.listing_comment_set.all %}
-		<table width="100%" style="border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
+		<table class="commenttable">
 			<tr>
-				<td style="padding:10px;font-size:14px;">
+				<td style="padding:0.8em;font-size:1em;">
 					{{co.comment}}<br/>
 					{% if co.image %}
-						<img src="{{MEDIA_URL}}{{co.image}}" width="200" style="border:none;padding-top:5px;"><br/>
+						<img class="commentimg" src="{{MEDIA_URL}}{{co.image}}" style="border:none;padding-top:5px;"><br/>
 					{% endif %}	
 				
 				<br/><i>&mdash; {{co.commenter.username}}, {{co.date}}</i><br/>
@@ -103,12 +91,13 @@
 		<p> No comments available. </p>
 	{% endif %}
 
+
 	{% if login_flag %}
-	<p><b>Leave a comment!</b></p>
-	<form enctype="multipart/form-data" action = "" method = "post">
+	<div class="comment"><h2>Leave a comment!</h2></div>
+	<form class="commentform" enctype="multipart/form-data" action = "" method = "post">
 		{% csrf_token %}
 		{{form.as_p}}
-		<input type = "submit" value = "Submit Comment">
+		<input class="btn" type = "submit" value = "Submit Comment">
 	</form>
 	{% else %}
 		<a href="{% url 'index' %}">Login to comment!</a>
@@ -117,7 +106,7 @@
 {% else %}
 	hmm... we seem not to find that listing
 {% endif %}
-
+	</div>
 
 {% endblock %}
 

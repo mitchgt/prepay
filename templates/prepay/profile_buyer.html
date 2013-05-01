@@ -93,14 +93,14 @@ ${{ba.balance}}
 	<form action = "{% url 'confirmreceipt' order.id %}" method = "get">
 	{% csrf_token %}
 	<input class = "button" type = "submit" value = "Confirm receipt"/>
-	</form>
+	<div></form>
 	{% endif %}
 	{% if order.status == "Closed" %}
-	<form action = "{% url 'review' order.id %}" method = "post">
+	<form class="reviewform" action = "{% url 'review' order.id %}" method = "post">
 	{% csrf_token %}
 	{{form.as_table}}
-	<input class = "button" type = "submit" value = "Review"/>
-	</form>
+	<input class = "btn" type = "submit" value = "Review"/>
+	</form></div>
 	{% endif %}
 	{% endif %}
 	--------------------------------------------------------------------<br/>
