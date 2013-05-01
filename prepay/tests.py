@@ -11,6 +11,10 @@ from django.contrib.auth.models import User, Group
 
 from prepay.models import Seller, Buyer, Product, Listing, Category
 
+
+
+
+
 def create_seller():
     return Seller.objects.create_user('seller_username', 'seller_email', 'seller_password')
 
@@ -46,23 +50,84 @@ class ModelMethodTests(TestCase):
         buyer = create_buyer()
         self.assertEqual(buyer.get_account_type(), 'buyer')
 
-class ViewsTestsBlankSite(TestCase):
-    def test_index_view_no_login(self):
+
+
+# Aux function to avoid code duplication
+def logged_in_index_template(self, response, username):
+    self.assertContains(response, username)
+    self.assertContains(response, "change password")
+    self.assertContains(response, "logout")
+    self.assertContains(response, "No Listings are available.")
+
+class TemplateTestsBlankSite(TestCase):
+    fixtures = ['blank_site_testdata.json']
+
+    # Test log in through POST
+    # All logins after this will be through TestCase.Client.login()
+    def test_login_fail(self):
+        response = self.client.post(reverse('index'), {'username': 'doesnotexist', 'password': 'doesnotexist'})
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, "Invalid login - Please try again.")
+
+    def test_login_success(self):
+        response = self.client.post(reverse('index'), {'username': 'testuser', 'password': 'testuser'}, follow=True)
+        self.assertEquals(response.status_code, 200)
+        logged_in_index_template(self, response, "testuser")
+
+    # Test registration with POST
+    def test_submit_seller_registration(self):
+        response = self.client.post(reverse('register'), {'username': 'test', 'email': 'test@email.com', 'password': 'test', 'account_type': 'Seller'}, follow=True)
+        self.assertEquals(response.status_code, 200)
+        logged_in_index_template(self, response, "test")
+
+    def test_submit_buyer_registration(self):
+        response = self.client.post(reverse('register'), {'username': 'test', 'email': 'test@email.com', 'password': 'test', 'account_type': 'Buyer'}, follow=True)
+        self.assertEquals(response.status_code, 200)
+        logged_in_index_template(self, response, "test")
+
+    # Test templates
+    def test_index_template_no_login(self):
         response = self.client.get(reverse('index'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Welcome to PrePay")
         self.assertContains(response, "Username")
         self.assertContains(response, "Password")
 
-    def test_browse_listings_view_no_login(self):
-        response = self.client.get(reverse('browse_listings'))
-        self.assertEqual(response.status_code, 302)
+    def test_index_template_logged_in(self):
+        self.assertTrue(self.client.login(username='testuser', password='testuser'))
+        response = self.client.get(reverse('index'), follow=True)
+        self.assertContains(response, "change password")
+        self.assertContains(response, "logout")
+        self.assertContains(response, "No Listings are available.")
 
-    def test_browse_product_requests_view_no_login(self):
-        response = self.client.get(reverse('browse_product_requests'))
-        self.assertEqual(response.status_code, 302)
+    def test_browse_listings_template_no_login(self):
+        response = self.client.get(reverse('browse_listings'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Welcome to PrePay")
+        self.assertContains(response, "Username")
+        self.assertContains(response, "Password")
 
-    def test_register_view(self):
+    def test_browse_listings_template_logged_in(self):
+        self.assertTrue(self.client.login(username='testuser', password='testuser'))
+        response = self.client.get(reverse('browse_listings'), follow=True)
+        self.assertContains(response, "change password")
+        self.assertContains(response, "logout")
+        self.assertContains(response, "No Listings are available.")
+
+    def test_browse_product_requests_template_no_login(self):
+        response = self.client.get(reverse('browse_product_requests'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Welcome to PrePay")
+        self.assertContains(response, "Username")
+        self.assertContains(response, "Password")
+
+    def test_browse_product_requests_template_logged_in(self):
+        self.assertTrue(self.client.login(username='testuser', password='testuser'))
+        response = self.client.get(reverse('browse_product_requests'), follow=True)
+        self.assertContains(response, "Browse Product Requests")
+        self.assertContains(response, "No Listings are available.")
+
+    def test_register_template(self):
         response = self.client.get(reverse('register'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Register now!")
@@ -70,7 +135,10 @@ class ViewsTestsBlankSite(TestCase):
         self.assertContains(response, "Password")
         self.assertContains(response, "Account type")
 
-    def test_submit_registration(self):
-        response = self.client.post('/register', {'username': 'test', 'email': 'test@email.com', 'password': 'test', 'account_type': 'Seller'})
-        self.assertEqual(response.status_code, 302)
+
+
+
+        # Test populating database through website
+
+        
 
