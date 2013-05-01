@@ -44,7 +44,7 @@
 							{% else %}
 							<form action = "{% url 'removefromcart' listing.id %}" method = "get">
 								{% csrf_token %}
-								<input class = "button" type = "submit" value = "Remove from cart"/>
+								<input class = "btn" type = "submit" value = "Remove from cart"/>
 							</form>	
 							{% endif %}
 						{% endif %}
