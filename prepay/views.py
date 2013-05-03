@@ -24,7 +24,10 @@ from datetime import timedelta
 from django.core.exceptions import PermissionDenied
 import random, string
 
-# Given user, will return the BankAccount balance as string
+
+
+
+# AUX function. Returns the BankAccount balance of user.
 # To be used in mostly all views to display balance next to username
 def get_user_balance(user):
     try:
@@ -33,8 +36,223 @@ def get_user_balance(user):
     except BankAccount.DoesNotExist:
         return ''
 
+# AUX method. Sends confirmation link to registering user
+def send_registration_confirmation(user):
+    #hostsite = 'http://mitchgt.com/prepay'
+    hostsite = 'NAME_OF_HOSTSITE'
+    p = UserProfile.objects.get(username=user.username)
+    title = "Prepay account confirmation"
+    content = "Here is your confirmation link for PrePay:\n\n" + hostsite + reverse('confirm_registration', args=(p.confirmation_code, user.username))
+    send_mail(title, content, 'no.reply.prepay@gmail.com', [user.email], fail_silently=False)
+    
+# AUX function. Returns 1 if logged in, 0 otherwise.
+def login_check(request):
+    if request.user.is_authenticated():
+        login_flag=1
+    else:
+        login_flag=0
+    return login_flag
+
+# AUX function. Returns True if current user is buyer account.
+def seller_account_type(request):
+    if request.user.is_authenticated():
+        if Seller.objects.filter(username=request.user.username):
+            return True
+    else:
+        return False
+        
+
+# AUX function. Returns True if current user is seller account.
+def buyer_account_type(request):
+    if request.user.is_authenticated():
+        if Buyer.objects.filter(username=request.user.username):
+            return True
+    else:
+        return False
+
+
+
+# Landing page.
+def index(request):
+    # If logged in, set preliminary context vars for template rendering and show home
+    login_flag=login_check(request)
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
+        context = {
+            'login_flag': login_flag,
+            'user_balance': user_balance,
+        }
+        return render(request, 'prepay/home.html', context)
+
+    # Else, show login form
+    else:
+        form = LoginForm()
+        context['form'] = form
+        
+        if request.method =='POST':
+            form = LoginForm(request.POST)
+            if form.is_valid():
+                username = request.POST['username']
+                password = request.POST['password']
+                user = authenticate(username=username, password=password)
+                if user is not None:
+                    if user.is_active:
+                        login(request, user)
+                        login_flag=1
+                        context = Context({
+                            'login_flag':login_flag,
+                        })
+                        return HttpResponseRedirect(reverse('index'))
+                    else:
+                  # Return a 'disabled account' error message
+                        return render(request, 'prepay/log-in.html', context)
+                else:
+            # Return an 'invalid login' error message.
+                    error = True
+                    return render(request, 'prepay/log-in.html', {'form':form, 'error':error})
+            else:
+                return render(request, 'prepay/log-in.html', {'form':form})
+        return render(request, 'prepay/log-in.html',context)
+
+
+
+
+# User registration. User becomes active after clicking confirmation link sent through email.
+def register(request):
+    login_flag=login_check(request)
+    if request.method =='POST':
+        form = RegistrationForm(request.POST)
+        new_data = request.POST.copy()
+        if form.is_valid():
+            username1 = request.POST.get('username')
+            if not User.objects.filter(username = username1).exists():
+                acttype = request.POST.get('account_type')
+                if acttype == 'Seller':
+                    u = Seller.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
+                elif acttype == 'Buyer':
+                    u = Buyer.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
+                u.groups.add(Group.objects.get(name = acttype))
+                u.is_staff = True
+                u.is_active = False # must confirm
+                u.slug = username1 
+                u.bankaccount_set.create(name = u.username, user = u, balance = 0)
+                u.save()
+                p = UserProfile.objects.get(username=username1)
+                # generate 33 character confirmation code
+                p.confirmation_code = ''.join(random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for x in range(33))
+                p.save()
+                # send confirmation code (aux method)
+                send_registration_confirmation(u)
+                return HttpResponseRedirect(reverse('confirmation_code_sent', args=(u.username,)))
+            else:
+                context = {
+                    'form':form,
+                    'error':True,
+                    'login_flag': login_flag
+                }
+                return render_to_response('prepay/register.html', {}, context_instance=RequestContext(request))
+    else:
+        form = RegistrationForm()
+    context = {
+        'form':form,
+        'login_flag': login_flag,
+    }
+    return render_to_response('prepay/register.html', context,context_instance=RequestContext(request))
+
+
+
+# Display to user after sending confirmation code
+def confirmation_code_sent(request, user_username):
+    context={}
+    try:
+        user = User.objects.get(username=user_username)
+        context['user'] = user
+        if not user.is_active:
+            context['not_active'] = 1
+    except User.DoesNotExist:
+        pass
+    context['user_username'] = user_username
+    return render_to_response('prepay/confirmation_code_sent.html', context)
+
+
+
+# Check if given confirmation_code and user's confirmation_code match
+# Redirect to login if match. Else, redirect to error page
+def confirm_registration(request, confirmation_code, user_username):
+    try:
+        user = User.objects.get(username=user_username)
+        profile = UserProfile.objects.get(username=user_username)
+        if profile.confirm_registration(confirmation_code):
+            return HttpResponseRedirect(reverse('index'))
+        else:
+            return HttpResponseRedirect(reverse('invalid_confirmation', args=(confirmation_code, user_username)))
+    except User.DoesNotExist or Profile.DoesNotExist:
+        return HttpResponseRedirect(reverse('invalid_confirmation', args=(confirmation_code, user_username)))
+
+
+# When given confirmation_code is incorrect for user, or if user does not exist.
+def invalid_confirmation_code(request, confirmation_code, user_username):
+    context = {
+        'confirmation_code':confirmation_code,
+        'user_username':user_username
+    }
+    return render_to_response('prepay/invalid_confirmation_code.html', context)
+    
+    
+
+# View profile. If user is seller, show user's listings.
+def profile(request, user_username):
+
+    # Preliminary context vars for template rendering
+    login_flag=login_check(request)
+    user_balance = ''
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
+        
+
+    mine = False
+    buyer = False
+    if buyer_account_type(request):
+        buyer = True
+        
+    if(Seller.objects.filter(username = user_username).exists()):
+        user = get_object_or_404(Seller, username=user_username)
+        products = Product.objects.filter(seller = user)
+        listings = Listing.objects.filter(product__seller = user)
+        if request.user.username == user_username:
+            mine = True
+        
+        context = Context({
+            'isBuyer': buyer,
+            'theuser': user, 
+            'products': products, 
+            'listings': listings, 
+            'mine': mine, 
+            'login_flag': login_flag,
+            'user_balance': user_balance
+        })
+
+        return render(request, 'prepay/profile_seller.html', context)
+    else:
+        user = get_object_or_404(Buyer, username=user_username)
+        form = ReviewForm()
+        if request.user.username == user_username:
+            mine = True
+        context = {
+            'isBuyer':buyer,
+            'theuser':user,
+            'mine':mine,
+            'login_flag': login_flag,
+            'form': form,
+            'user_balance': user_balance
+        }
+        return render(request, 'prepay/profile_buyer.html', context)
+
+
 # Edit user profile
 def edit_profile(request, user_username):
+
+    # Preliminary context vars for template rendering
     login_flag=login_check(request)
     user_balance = ''
     if login_flag==1:
@@ -87,258 +305,43 @@ def edit_profile(request, user_username):
     return render_to_response('prepay/edit_profile.html', context, context_instance=RequestContext(request))
 
 
-# View profile. If user is seller, show user's listings.
-def profile(request, user_username):
-    login_flag=login_check(request)
-    user_balance = ''
-    if login_flag==1:
-        user_balance = get_user_balance(request.user)
-    mine = False
-    
-    buyer = False
-    if Buyer.objects.filter(username = request.user.username):
-        buyer = True
-        
-    if(Seller.objects.filter(username = user_username).exists()):
-        user = get_object_or_404(Seller, username=user_username)
-        products = Product.objects.filter(seller = user)
-        listings = Listing.objects.filter(product__seller = user)
-        if request.user.username == user_username:
-            mine = True
-        
-        context = Context({
-            'isBuyer': buyer,
-            'theuser': user, 
-            'products': products, 
-            'listings': listings, 
-            'mine': mine, 
-            'login_flag': login_flag,
-            'user_balance': user_balance
-        })
 
-        return render(request, 'prepay/profile_seller.html', context)
-    else:
-        user = get_object_or_404(Buyer, username=user_username)
-        form = ReviewForm()
-        if request.user.username == user_username:
-            mine = True
-        context = {
-            'isBuyer':buyer,
-            'theuser':user,
-            'mine':mine,
-            'login_flag': login_flag,
-            'form': form,
-            'user_balance': user_balance
-        }
-        return render(request, 'prepay/profile_buyer.html', context)
-
-
-def review(request, order_id):
-    buyer = False
-    if Buyer.objects.filter(username = request.user.username):
-        buyer = True
-    
-    login_flag=login_check(request)
-    user_balance = ''
-    if login_flag==1:
-        user_balance = get_user_balance(request.user)
-
-    order = get_object_or_404(Order,pk=order_id)
-    if request.method == "POST":
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            seller = order.listing.product.seller
-            buyer = Buyer.objects.get(username = request.user.username)
-            review = request.POST.get('review')
-            rating = request.POST.get('rating')
-            Review.objects.create(seller = seller, buyer = buyer, review = review, rating = rating, order = order)
-            order.status = "Rated"
-            order.save()
-            count = Review.objects.filter(seller= seller).count()
-            if count == 0:
-                if seller.rating==None:
-                    seller.rating = rating
-                else:
-                    seller.rating = (seller.rating + rating)/2
-            else:
-                seller.rating = (seller.rating * count + int(rating))/(count+1)
-            seller.save()
-            context = {
-                'login_flag':login_flag,
-                'isBuyer': buyer,
-                'user_balance':user_balance
-            }
-            return render(request, 'prepay/reviewed.html', context)
-        else:
-            error = True
-            context = {
-                'login_flag':login_flag,
-                'error':error,
-                'user_balance':user_balance
-            }
-            return render(request, 'prepay/reviewed.html',context)
-    direct = True
-    context = {
-        'login_flag':login_flag,
-        'direct':direct,
-        'isBuyer':buyer,
-        'user_balance': user_balance
-    }
-    return render(request, 'prepay/reviewed.html', context)
-        
-
-def register(request):
-    login_flag=login_check(request)
-    if request.method =='POST':
-        form = RegistrationForm(request.POST)
-        new_data = request.POST.copy()
-        if form.is_valid():
-            username1 = request.POST.get('username')
-            if not User.objects.filter(username = username1).exists():
-                acttype = request.POST.get('account_type')
-                if acttype == 'Seller':
-                    u = Seller.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
-                elif acttype == 'Buyer':
-                    u = Buyer.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
-                u.groups.add(Group.objects.get(name = acttype))
-                u.is_staff = True
-                u.is_active = False # must confirm
-                u.slug = username1 
-                u.bankaccount_set.create(name = u.username, user = u, balance = 0)
-                u.save()
-                p = UserProfile.objects.get(username=username1)
-                p.confirmation_code = ''.join(random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for x in range(33))
-                p.save()
-                send_registration_confirmation(u)
-                return HttpResponseRedirect(reverse('confirmation_code_sent', args=(u.username,)))
-            else:
-                context = {
-                    'form':form,
-                    'error':True,
-                    'login_flag': login_flag
-                }
-                return render_to_response('prepay/register.html', {}, context_instance=RequestContext(request))
-    else:
-        form = RegistrationForm()
-    context = {
-        'form':form,
-        'login_flag': login_flag,
-    }
-    return render_to_response('prepay/register.html', context,context_instance=RequestContext(request))
-
-# Sends confirmation link to registering user
-def send_registration_confirmation(user):
-    #hostsite = 'http://mitchgt.com/prepay'
-    hostsite = 'NAME_OF_HOSTSITE'
-    p = UserProfile.objects.get(username=user.username)
-    title = "Prepay account confirmation"
-    content = "Here is your confirmation code for PrePay:\n\n" + hostsite + reverse('confirm_registration', args=(p.confirmation_code, user.username))
-    #content = "Here is your confirmation code for PrePay:\n\n" + "http://HOST/confirm_registration/" + p.confirmation_code + "/" + user.username
-    send_mail(title, content, 'no.reply.prepay@gmail.com', [user.email], fail_silently=False)
-
-def confirmation_code_sent(request, user_username):
-    context={}
-    try:
-        user = User.objects.get(username=user_username)
-        context['user'] = user
-        if not user.is_active:
-            context['not_active'] = 1
-    except User.DoesNotExist:
-        pass
-    context['user_username'] = user_username
-    return render_to_response('prepay/confirmation_code_sent.html', context)
-
-# Checks if confirmation_code and username match
-def confirm_registration(request, confirmation_code, user_username):
-    try:
-        user = User.objects.get(username=user_username)
-        profile = UserProfile.objects.get(username=user_username)
-        if profile.confirm_registration(confirmation_code):
-            return HttpResponseRedirect(reverse('index'))
-        else:
-            return HttpResponseRedirect(reverse('invalid_confirmation', args=(confirmation_code, user_username)))
-    except User.DoesNotExist or Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('invalid_confirmation', args=(confirmation_code, user_username)))
-
-def invalid_confirmation_code(request, confirmation_code, user_username):
-    context = {
-        'confirmation_code':confirmation_code,
-        'user_username':user_username
-    }
-    return render_to_response('prepay/invalid_confirmation_code.html', context)
-
-
-def index(request):
-    login_flag=login_check(request)
-    context = Context({
-        'login_flag':login_flag,
-    })
-    if login_flag==1:
-        context['user_balance'] = get_user_balance(request.user)
-        return render(request, 'prepay/home.html', context)
-    else:
-        form = LoginForm()
-        context = Context({
-        'form':form
-    })
-        
-        if request.method =='POST':
-            form = LoginForm(request.POST)
-            if form.is_valid():
-                username = request.POST['username']
-                password = request.POST['password']
-                user = authenticate(username=username, password=password)
-                if user is not None:
-                    if user.is_active:
-                        login(request, user)
-                        login_flag=1
-                        context = Context({
-                            'login_flag':login_flag,
-                        })
-                        return HttpResponseRedirect(reverse('index'))
-                    else:
-                  # Return a 'disabled account' error message
-                        return render(request, 'prepay/log-in.html', context)
-                else:
-            # Return an 'invalid login' error message.
-                    error = True
-                    return render(request, 'prepay/log-in.html', {'form':form, 'error':error})
-            else:
-                return render(request, 'prepay/log-in.html', {'form':form})
-        return render(request, 'prepay/log-in.html',context)
-
-
+# Our about page.
 def about(request):
+
+    # Preliminary context vars for template rendering
     login_flag=login_check(request)
     user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     buyer = False
-    if Buyer.objects.filter(username = request.user.username):
+    if buyer_account_type(request):
         buyer = True
-        
     context = Context({
         'isBuyer': buyer,
         'login_flag':login_flag,
         'user_balance': user_balance,
     })
+    
     return render(request, 'prepay/about.html', context)
 
+
+# Browse product listings with search and sort features
 @login_required
 def browse_listings(request, fil = None):
+    # Preliminary context vars for template rendering
     login_flag=login_check(request)
     user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
 
-    account_type = user_account_type(request)
     categories= Category.objects.all()
     all_listings = Listing.objects.all().order_by('-created_at')
     cart = None
     b = None
     
     buyer = False
-    if Buyer.objects.filter(username = request.user.username):
+    if buyer_account_type(request):
         buyer = True
         b = Buyer.objects.get(username = request.user.username)
         cart = b.cart
@@ -419,7 +422,6 @@ def browse_listings(request, fil = None):
         'all_listings': all_listings, 
         'form': form, 
         'login_flag': login_flag, 
-        'account_type': account_type, 
         'filter': fil, 
         'categories': categories,
         'isBuyer': buyer,
@@ -431,6 +433,7 @@ def browse_listings(request, fil = None):
 
 
 
+# Browse product requests
 @login_required
 def browse_product_requests(request):
     login_flag=login_check(request)
@@ -438,7 +441,7 @@ def browse_product_requests(request):
     if login_flag:
         user_balance = get_user_balance(request.user)
     buyer = False
-    if Buyer.objects.filter(username = request.user.username):
+    if buyer_account_type(request):
         buyer = True
         
     all_product_requests = ProductRequest.objects.all()
@@ -452,6 +455,7 @@ def browse_product_requests(request):
     return render(request, 'prepay/browse_product_requests.html', context)
 
 
+# Browse by category
 @login_required
 def browse_category(request, category_id):
     login_flag=login_check(request)
@@ -466,20 +470,25 @@ def browse_category(request, category_id):
     })
     return render(request, 'prepay/category.html', context)
 
+
+# Detailed view of listing
 @login_required
 def listing_detail(request, listing_id):
-    # return HttpResponse("You're looking at the detailed view of listing %s." % listing_id)
+
+    # Preliminary context vars for template rendering
     login_flag=login_check(request)
-    listing = get_object_or_404(Listing, pk=listing_id)
-    
+    user_balance = ''
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     buyer = False
     b = None
     cart = None    
-    if Buyer.objects.filter(username = request.user.username):
+    if buyer_account_type(request):
         buyer = True
         b = Buyer.objects.get(username = request.user.username)
         cart = b.cart
     
+    listing = get_object_or_404(Listing, pk=listing_id)
     goalreached = True
     if listing.numBidders<listing.maxGoal:
         goalreached = False
@@ -514,25 +523,71 @@ def listing_detail(request, listing_id):
         'login_flag': login_flag,
         'isBuyer': buyer,
         'goalreached': goalreached,
-        'cart': cart
+        'cart': cart,
+        'user_balance': user_balance,
     })
     return render(request, 'prepay/detail.html',context)
 
-def login_check(request):
-    if request.user.is_authenticated():
-        login_flag=1
-    else:
-        login_flag=0
-    return login_flag
 
-def user_account_type(request):
-    if request.user.is_authenticated():
-        if Seller.objects.filter(username=request.user.username):
-            return 'seller'
-        elif Buyer.objects.filter(username=request.user.username):
-            return 'buyer'
-    else:
-        return 
+
+
+# When user submits a review of product after receiving product
+def review(request, order_id):
+
+    # Preliminary context vars for template rendering
+    login_flag=login_check(request)
+    user_balance = ''
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
+
+
+    buyer = False
+    if buyer_account_type(request):
+        buyer = True
+
+    order = get_object_or_404(Order,pk=order_id)
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            seller = order.listing.product.seller
+            buyer = Buyer.objects.get(username = request.user.username)
+            review = request.POST.get('review')
+            rating = request.POST.get('rating')
+            Review.objects.create(seller = seller, buyer = buyer, review = review, rating = rating, order = order)
+            order.status = "Rated"
+            order.save()
+            count = Review.objects.filter(seller= seller).count()
+            if count == 0:
+                if seller.rating==None:
+                    seller.rating = rating
+                else:
+                    seller.rating = (seller.rating + rating)/2
+            else:
+                seller.rating = (seller.rating * count + int(rating))/(count+1)
+            seller.save()
+            context = {
+                'login_flag':login_flag,
+                'isBuyer': buyer,
+                'user_balance':user_balance
+            }
+            return render(request, 'prepay/reviewed.html', context)
+        else:
+            error = True
+            context = {
+                'login_flag':login_flag,
+                'error':error,
+                'user_balance':user_balance
+            }
+            return render(request, 'prepay/reviewed.html',context)
+    direct = True
+    context = {
+        'login_flag':login_flag,
+        'direct':direct,
+        'isBuyer':buyer,
+        'user_balance': user_balance
+    }
+    return render(request, 'prepay/reviewed.html', context)
+
 
 def confirmed(request):
     login_flag=login_check(request)

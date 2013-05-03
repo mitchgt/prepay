@@ -33,6 +33,7 @@ class ListingInline(admin.TabularInline):
     exclude = ('numBidders','date_closed','date_withdrawn','date_aborted')
     extra = 1
 
+# Product Listing Admin for when adding listing. Sets the listing seller as the current logged in seller.
 class PLAdmin(admin.ModelAdmin): 
     inlines = [ListingInline,]
     exclude = ('seller',)
@@ -42,6 +43,7 @@ class PLAdmin(admin.ModelAdmin):
         Product.seller = Seller.objects.get(user = request.user)
         Product.save()
 
+# For when adding ProductRequest. Sets user as current logged in user.
 class ProductRequestAdmin(admin.ModelAdmin):
     exclude = ('user',)
     def save_model(self, request, ProductRequest, form, change):

@@ -12,6 +12,8 @@ class LoginForm(forms.Form):
 	username=forms.CharField(max_length=15)
 	password=forms.CharField(max_length=15,widget=forms.PasswordInput)
 
+
+# Form for user registration. Checks to see both passwords match and len > 6
 class RegistrationForm(forms.Form):
 	username = forms.CharField(max_length=15)
 	email = forms.EmailField(max_length=70)
@@ -50,8 +52,8 @@ class ReviewForm(forms.Form):
 		choices=[(x,x) for x in range(0,6)]
 	)
 	
+# For editing profile information
 class EditProfileForm(ModelForm):
-
 	class Meta:
 		model = UserProfile
 		exclude = ('username', 'password', 'is_staff', 'is_active', 'is_superuser', 'last_login', 'date_joined', 'groups', 'user_permissions', 'user', 'confirmation_code')
