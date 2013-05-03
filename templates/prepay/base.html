@@ -51,7 +51,7 @@
             </ul>
 						<div class="text-right login-text">
 							{% if login_flag %}
-							Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a>.
+							Welcome, <a href="{% url 'profile' user.username %}"><b>{{user.username}}</b></a> (${{user_balance}}).
 								{% if isBuyer %}
 									<a href="{% url 'viewcart' %}">view cart</a> &#149;
 								{% endif %}

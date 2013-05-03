@@ -14,7 +14,7 @@ from prepay.models import Seller, Buyer, Product, Listing, Category
 
 
 
-
+# Model creation methods
 def create_seller():
     return Seller.objects.create_user('seller_username', 'seller_email', 'seller_password')
 
@@ -38,9 +38,7 @@ def create_listing():
 
 
 
-
-
-
+# Test model methods
 class ModelMethodTests(TestCase):
 
     def test_get_account_type(self):
@@ -52,18 +50,14 @@ class ModelMethodTests(TestCase):
 
 
 
-# Aux function to avoid code duplication
-def logged_in_index_template(self, response, username):
-    self.assertContains(response, username)
-    self.assertContains(response, "change password")
-    self.assertContains(response, "logout")
-    self.assertContains(response, "No Listings are available.")
 
-class TemplateTestsBlankSite(TestCase):
+
+# Test POST requests
+class PostTestsBlankSite(TestCase):
     fixtures = ['blank_site_testdata.json']
 
     # Test log in through POST
-    # All logins after this will be through TestCase.Client.login()
+    # All logins other than this will be through TestCase.Client.login()
     def test_login_fail(self):
         response = self.client.post(reverse('index'), {'username': 'doesnotexist', 'password': 'doesnotexist'})
         self.assertEquals(response.status_code, 200)
@@ -85,7 +79,25 @@ class TemplateTestsBlankSite(TestCase):
         self.assertEquals(response.status_code, 200)
         logged_in_index_template(self, response, "test")
 
-    # Test templates
+
+
+
+
+
+
+
+# Global aux function to avoid code duplication for templates testing
+def logged_in_index_template(self, response, username):
+    self.assertContains(response, username)
+    self.assertContains(response, "change password")
+    self.assertContains(response, "logout")
+    self.assertContains(response, "No Listings are available.")
+
+
+# Test templates
+class TemplateTestsBlankSite(TestCase):
+    fixtures = ['blank_site_testdata.json']
+
     def test_index_template_no_login(self):
         response = self.client.get(reverse('index'))
         self.assertEqual(response.status_code, 200)

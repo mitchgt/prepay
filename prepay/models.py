@@ -8,12 +8,17 @@ from django.contrib.contenttypes.generic import GenericRelation
 from django.utils.translation import ugettext as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models.signals import post_save
+import datetime
+from datetime import timedelta
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
     
     def __unicode__(self):
         return self.name    
+
+    class Meta:
+        verbose_name_plural = "categories"
 
 class ProductRequest(models.Model):
     name = models.CharField(max_length=200)
@@ -53,6 +58,7 @@ class UserProfile    (User): ####Jennifer
     instant_messenger = GenericRelation('InstantMessenger')
     web_site = GenericRelation('WebSite')
     street_address = GenericRelation('StreetAddress')
+    confirmation_code = models.CharField(max_length=33)
 
     class Meta:
         db_table = 'prepay_contacts_people'
@@ -88,7 +94,15 @@ class UserProfile    (User): ####Jennifer
     })
 
     def get_picture_url(self):
-        return str(self.photo.url) 
+        return str(self.photo.url)
+
+    def confirm_registration(self, confirmation_code):
+        joined = self.date_joined.replace(tzinfo=None)
+        if self.confirmation_code == confirmation_code and joined > (datetime.datetime.now()-datetime.timedelta(days=1)):
+            self.is_active = True
+            return True
+        else:
+            return False
 
 class Seller(UserProfile):
     objects = UserManager()

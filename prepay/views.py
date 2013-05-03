@@ -18,9 +18,12 @@ from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.shortcuts import redirect 
 from django.db.models import Q
-from django.core.urlresolvers import reverse 
+from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
 from datetime import timedelta
 from django.core.exceptions import PermissionDenied
+import random, string
+
 
 def edit_profile(request, user_username):
 	login_flag=login_check(request)
@@ -123,7 +126,7 @@ def review(request, order_id):
 	direct = True
 	return render(request, 'prepay/reviewed.html',{'login_flag':login_flag, 'direct':direct, 'isBuyer':buyer})
         
-####Jennifer
+
 def register(request):
     login_flag=login_check(request)
     if request.method =='POST':
@@ -139,30 +142,65 @@ def register(request):
                     u = Buyer.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
                 u.groups.add(Group.objects.get(name = acttype))
                 u.is_staff = True
+                #u.is_active = False # must confirm
+                u.is_active = True
                 u.slug = username1 
-                u.save()
                 u.bankaccount_set.create(name = u.username, user = u, balance = 0)
-                user = authenticate(username=new_data['username'], password=new_data['password'])
-                login(request, user)
-                return HttpResponseRedirect(reverse('browse_listings'))
+                u.save()
+                p = UserProfile.objects.get(username=username1)
+                p.confirmation_code = ''.join(random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for x in range(33))
+                p.save()
+                authenticate(username=new_data['username'], password=new_data['password'])
+                #send_registration_confirmation(u)
+                #return HttpResponseRedirect(reverse('confirmation_code_sent', args=(u.username,)))
+                return HttpResponseRedirect(reverse('index'))
             else:
                 return render_to_response('prepay/register.html', {'form':form,'error':True, 'login_flag': login_flag}, context_instance=RequestContext(request))
     else:
         form = RegistrationForm()
     return render_to_response('prepay/register.html',{'form':form, 'login_flag': login_flag},context_instance=RequestContext(request))
-####Jennifer
+
+# Sends confirmation link to registering user
+def send_registration_confirmation(user):
+    p = UserProfile.objects.get(username=user.username)
+    title = "Prepay account confirmation"
+    #content = "Here is your confirmation code for PrePay:\n\n" + reverse('confirm_registration', args=(p.confirmation_code, user.username))
+    content = "Here is your confirmation code for PrePay:\n\n" + "http://HOST/confirm_registration/" + p.confirmation_code + "/" + user.username
+    send_mail(title, content, 'no.reply.prepay@gmail.com', [user.email], fail_silently=False)
+
+def confirmation_code_sent(request, user_username):
+    user = get_object_or_404(User, username=user_username)
+    return HttpResponse("Confirmation sent to " + user.email)
+
+# Checks if confirmation_code and username match
+def confirm_registration(request, confirmation_code, user_username):
+    try:
+        user = User.objects.get(username=username)
+        profile = UserProfile.get(username=username)
+        if profile.confirm_registration(confirmation_code):
+            auth_login(request,user)
+            return HttpResponseRedirect(reverse('index'))
+        else:
+            return HttpResponseRedirect(reverse('invalid_confirmation', args=(confirmation_code, user_username)))
+    except:
+        return HttpResponseRedirect(reverse('invalid_confirmation', args=(confirmation_code, user_username)))
+
+def invalid_confirmation_code(request, confirmation_code, user_username):
+    user = get_object_or_404(User, username=user_username)
+    return HttpResponse("The given confirmation code (" + confirmation_code + ") was not the one sent to " + user_username)
+
 
 def index(request):
     login_flag=login_check(request)
-    buyer = False
-    if Buyer.objects.filter(username = request.user.username):
-        buyer = True
     context = Context({
-        'isBuyer': buyer,
         'login_flag':login_flag,
     })
     if login_flag==1:
-		#return HttpResponseRedirect('/browse_listings')
+        try:
+            bankaccount = BankAccount.objects.get(user = request.user)
+            context['user_balance'] = bankaccount.balance
+        except BankAccount.DoesNotExist:
+            context['user_balance'] = '[No bank account!]'
         return render(request, 'prepay/home.html', context)
     else:
 		form = LoginForm()
@@ -180,14 +218,10 @@ def index(request):
 					if user.is_active:
 						login(request, user)
 						login_flag=1
-						buyer = False
-						if Buyer.objects.filter(username = request.user.username):
-							buyer = True
 						context = Context({
-							'isBuyer': buyer,
 							'login_flag':login_flag,
 						})
-						return render(request, 'prepay/home.html', context)
+						return HttpResponseRedirect(reverse('index'))
 					else:
 		          # Return a 'disabled account' error message
 						return render(request, 'prepay/log-in.html', context)
@@ -397,7 +431,9 @@ def user_account_type(request):
 def confirmed(request):
 	login_flag=login_check(request)
 	total = request.session['total']
-	return render(request, 'prepay/confirmed.html',{'login_flag':login_flag, 'total':total})
+	prev_balance = request.session['prev_balance']
+	ba = BankAccount.objects.get(user = request.user)
+	return render(request, 'prepay/confirmed.html',{'login_flag':login_flag, 'total':total, 'prev_balance':prev_balance, 'ba':ba})
 
 def checkout(request, listing_id):
     login_flag=login_check(request)
@@ -437,11 +473,13 @@ def checkout(request, listing_id):
                         b.save()
                     listing.numBidders = a
                     listing.save()
+                    prev_balance = ba.balance
                     ba.balance = ba.balance - total
                     ba.save()
                     e = Escrow.objects.get(listing=listing)
                     e.balance = e.balance + total
                     e.save()
+                    request.session['prev_balance']=prev_balance
                     request.session['total']=total
                     return HttpResponseRedirect(reverse("prepay.views.confirmed"))
                 elif ba.balance>=total and listing.maxGoal<a:

@@ -7,6 +7,12 @@
 <h2>Order confirmed</h2>
 Thank you for ordering!<br/>
 A total of ${{total}} has been deducted from your account.
+<p>
+<br> ${{ prev_balance }}
+<br> - ${{ total }}
+<br> --------------
+<br> ${{ ba.balance }} (current balance)
+
 <p><a href = "{% url 'profile' user %}">Go to profile</a><p>
 
 {% endblock %}
