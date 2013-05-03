@@ -24,6 +24,7 @@ class ProductRequest(models.Model):
     name = models.CharField(max_length=200)
     categories = models.ManyToManyField(Category)
     description = models.TextField(max_length=1000)
+    user = models.ForeignKey(User)
 
     def __unicode__(self):
         return self.name
@@ -100,6 +101,7 @@ class UserProfile    (User): ####Jennifer
         joined = self.date_joined.replace(tzinfo=None)
         if self.confirmation_code == confirmation_code and joined > (datetime.datetime.now()-datetime.timedelta(days=1)):
             self.is_active = True
+            self.save()
             return True
         else:
             return False

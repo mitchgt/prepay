@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.models import User
 from prepay.models import Product, Category, Seller, Listing, Bank, Escrow, BankAccount
 from prepay.models import Buyer, ProductRequest, BankAccount, PhoneNumber, InstantMessenger
 from prepay.models import StreetAddress, WebSite, Order, Cart
@@ -41,7 +42,12 @@ class PLAdmin(admin.ModelAdmin):
         Product.seller = Seller.objects.get(user = request.user)
         Product.save()
 
-
+class ProductRequestAdmin(admin.ModelAdmin):
+    exclude = ('user',)
+    def save_model(self, request, ProductRequest, form, change):
+        ProductRequest.user = User.objects.get(username = request.user.username)
+        ProductRequest.save()
+        
 admin.site.register(Product, PLAdmin)
 admin.site.register(Category)
 admin.site.register(Seller, UserAdmin)
@@ -50,6 +56,6 @@ admin.site.register(Bank)
 admin.site.register(Escrow)
 admin.site.register(BankAccount)
 admin.site.register(Buyer, UserAdmin)
-admin.site.register(ProductRequest)
+admin.site.register(ProductRequest, ProductRequestAdmin)
 admin.site.register(Order)
 admin.site.register(Cart)

@@ -24,44 +24,75 @@ from datetime import timedelta
 from django.core.exceptions import PermissionDenied
 import random, string
 
+# Given user, will return the BankAccount balance as string
+# To be used in mostly all views to display balance next to username
+def get_user_balance(user):
+    try:
+        bankaccount = BankAccount.objects.get(user = user)
+        return str(bankaccount.balance)
+    except BankAccount.DoesNotExist:
+        return ''
 
+# Edit user profile
 def edit_profile(request, user_username):
-	login_flag=login_check(request)
-	if not request.user.username == user_username:
-		return HttpResponseRedirect(reverse('prepay.views.profile', args=(user_username,)))
-	if (Seller.objects.filter(username = user_username).exists()):
-		user = get_object_or_404(Seller, username=user_username)
-	else:
-		user = get_object_or_404(Buyer, username=user_username)
-	phone_formset = PhoneNumberFormSet(instance=user)
-	im_formset = InstantMessengerFormSet(instance=user)
-	website_formset = WebSiteFormSet(instance=user)
-	address_formset = StreetAddressFormSet(instance=user)
-	form = EditProfileForm(instance = user)
+    login_flag=login_check(request)
+    user_balance = ''
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
 
-	if request.method=='POST':
-		form = EditProfileForm(request.POST, request.FILES, instance=user)
-		phone_formset = PhoneNumberFormSet(request.POST, instance=user)
-		im_formset = InstantMessengerFormSet(request.POST, instance=user)
-		website_formset = WebSiteFormSet(request.POST, instance=user)
-		address_formset = StreetAddressFormSet(request.POST, instance=user)
+    # check current user is owner of profile
+    if not request.user.username == user_username:
+        return HttpResponseRedirect(reverse('prepay.views.profile', args=(user_username,)))
+    if (Seller.objects.filter(username = user_username).exists()):
+        user = get_object_or_404(Seller, username=user_username)
+    else:
+        user = get_object_or_404(Buyer, username=user_username)
 
-		if form.is_valid() and phone_formset.is_valid() and im_formset.is_valid() and website_formset.is_valid() and address_formset.is_valid():
-			form.save()
-			phone_formset.save()
-			im_formset.save()
-			website_formset.save()
-			address_formset.save()
-			return HttpResponseRedirect(reverse('prepay.views.profile', args=(user_username,)))
-		else:
-			return render_to_response('prepay/edit_profile.html',{'form':form, 'p_formset': phone_formset, 'i_formset': im_formset,'w_formset': website_formset, 's_formset': address_formset, 'Error': True, 'user':user, 'login_flag': login_flag},context_instance=RequestContext(request))
+    phone_formset = PhoneNumberFormSet(instance=user)
+    im_formset = InstantMessengerFormSet(instance=user)
+    website_formset = WebSiteFormSet(instance=user)
+    address_formset = StreetAddressFormSet(instance=user)
+    form = EditProfileForm(instance = user)
 
-	return render_to_response('prepay/edit_profile.html',{'form':form, 'p_formset': phone_formset, 'i_formset': im_formset,'w_formset': website_formset, 's_formset': address_formset, 'user':user, 'login_flag': login_flag},context_instance=RequestContext(request))
+    context = {
+        'form':form,
+        'p_formset': phone_formset,
+        'i_formset': im_formset,
+        'w_formset': website_formset,
+        's_formset': address_formset,
+        'Error': True, 'user':user,
+        'login_flag': login_flag,
+        'user_balance': user_balance,
+        }
+
+    if request.method=='POST':
+        form = EditProfileForm(request.POST, request.FILES, instance=user)
+        phone_formset = PhoneNumberFormSet(request.POST, instance=user)
+        im_formset = InstantMessengerFormSet(request.POST, instance=user)
+        website_formset = WebSiteFormSet(request.POST, instance=user)
+        address_formset = StreetAddressFormSet(request.POST, instance=user)
+
+        if form.is_valid() and phone_formset.is_valid() and im_formset.is_valid() and website_formset.is_valid() and address_formset.is_valid():
+            form.save()
+            phone_formset.save()
+            im_formset.save()
+            website_formset.save()
+            address_formset.save()
+            return HttpResponseRedirect(reverse('prepay.views.profile', args=(user_username,)))
+        else:
+            return render_to_response('prepay/edit_profile.html', context ,context_instance=RequestContext(request))
+
+    context['user'] = user
+    context['login_flag'] = login_flag
+    return render_to_response('prepay/edit_profile.html', context, context_instance=RequestContext(request))
 
 
-
+# View profile. If user is seller, show user's listings.
 def profile(request, user_username):
     login_flag=login_check(request)
+    user_balance = ''
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     mine = False
     
     buyer = False
@@ -73,7 +104,7 @@ def profile(request, user_username):
         products = Product.objects.filter(seller = user)
         listings = Listing.objects.filter(product__seller = user)
         if request.user.username == user_username:
-    		mine = True
+            mine = True
         
         context = Context({
             'isBuyer': buyer,
@@ -82,6 +113,7 @@ def profile(request, user_username):
             'listings': listings, 
             'mine': mine, 
             'login_flag': login_flag,
+            'user_balance': user_balance
         })
 
         return render(request, 'prepay/profile_seller.html', context)
@@ -90,41 +122,69 @@ def profile(request, user_username):
         form = ReviewForm()
         if request.user.username == user_username:
             mine = True
-        return render(request, 'prepay/profile_buyer.html', {'isBuyer':buyer, 'theuser':user, 'mine':mine, 'login_flag': login_flag, 'form': form})
+        context = {
+            'isBuyer':buyer,
+            'theuser':user,
+            'mine':mine,
+            'login_flag': login_flag,
+            'form': form,
+            'user_balance': user_balance
+        }
+        return render(request, 'prepay/profile_buyer.html', context)
+
 
 def review(request, order_id):
-    
     buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
     
-	login_flag=login_check(request)
-	order = get_object_or_404(Order,pk=order_id)
-	if request.method == "POST":
-		form = ReviewForm(request.POST)
-		if form.is_valid():
-			seller = order.listing.product.seller
-			buyer = Buyer.objects.get(username = request.user.username)
-			review = request.POST.get('review')
-			rating = request.POST.get('rating')
-			Review.objects.create(seller = seller, buyer = buyer, review = review, rating = rating, order = order)
-			order.status = "Rated"
-			order.save()
-			count = Review.objects.filter(seller= seller).count()
-			if count == 0:
-				if seller.rating==None:
-					seller.rating = rating
-				else:
-					seller.rating = (seller.rating + rating)/2
-			else:
-				seller.rating = (seller.rating * count + int(rating))/(count+1)
-			seller.save()
-			return render(request, 'prepay/reviewed.html',{'login_flag':login_flag, 'isBuyer': buyer})
-		else:
-			error = True
-			return render(request, 'prepay/reviewed.html',{'login_flag':login_flag, 'error':error})
-	direct = True
-	return render(request, 'prepay/reviewed.html',{'login_flag':login_flag, 'direct':direct, 'isBuyer':buyer})
+    login_flag=login_check(request)
+    user_balance = ''
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
+
+    order = get_object_or_404(Order,pk=order_id)
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            seller = order.listing.product.seller
+            buyer = Buyer.objects.get(username = request.user.username)
+            review = request.POST.get('review')
+            rating = request.POST.get('rating')
+            Review.objects.create(seller = seller, buyer = buyer, review = review, rating = rating, order = order)
+            order.status = "Rated"
+            order.save()
+            count = Review.objects.filter(seller= seller).count()
+            if count == 0:
+                if seller.rating==None:
+                    seller.rating = rating
+                else:
+                    seller.rating = (seller.rating + rating)/2
+            else:
+                seller.rating = (seller.rating * count + int(rating))/(count+1)
+            seller.save()
+            context = {
+                'login_flag':login_flag,
+                'isBuyer': buyer,
+                'user_balance':user_balance
+            }
+            return render(request, 'prepay/reviewed.html', context)
+        else:
+            error = True
+            context = {
+                'login_flag':login_flag,
+                'error':error,
+                'user_balance':user_balance
+            }
+            return render(request, 'prepay/reviewed.html',context)
+    direct = True
+    context = {
+        'login_flag':login_flag,
+        'direct':direct,
+        'isBuyer':buyer,
+        'user_balance': user_balance
+    }
+    return render(request, 'prepay/reviewed.html', context)
         
 
 def register(request):
@@ -142,52 +202,70 @@ def register(request):
                     u = Buyer.objects.create_user(new_data['username'], new_data['email'], new_data['password'])
                 u.groups.add(Group.objects.get(name = acttype))
                 u.is_staff = True
-                #u.is_active = False # must confirm
-                u.is_active = True
+                u.is_active = False # must confirm
                 u.slug = username1 
                 u.bankaccount_set.create(name = u.username, user = u, balance = 0)
                 u.save()
                 p = UserProfile.objects.get(username=username1)
                 p.confirmation_code = ''.join(random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for x in range(33))
                 p.save()
-                authenticate(username=new_data['username'], password=new_data['password'])
-                #send_registration_confirmation(u)
-                #return HttpResponseRedirect(reverse('confirmation_code_sent', args=(u.username,)))
-                return HttpResponseRedirect(reverse('index'))
+                send_registration_confirmation(u)
+                return HttpResponseRedirect(reverse('confirmation_code_sent', args=(u.username,)))
             else:
-                return render_to_response('prepay/register.html', {'form':form,'error':True, 'login_flag': login_flag}, context_instance=RequestContext(request))
+                context = {
+                    'form':form,
+                    'error':True,
+                    'login_flag': login_flag
+                }
+                return render_to_response('prepay/register.html', {}, context_instance=RequestContext(request))
     else:
         form = RegistrationForm()
-    return render_to_response('prepay/register.html',{'form':form, 'login_flag': login_flag},context_instance=RequestContext(request))
+    context = {
+        'form':form,
+        'login_flag': login_flag,
+    }
+    return render_to_response('prepay/register.html', context,context_instance=RequestContext(request))
 
 # Sends confirmation link to registering user
 def send_registration_confirmation(user):
+    #hostsite = 'http://mitchgt.com/prepay'
+    hostsite = 'NAME_OF_HOSTSITE'
     p = UserProfile.objects.get(username=user.username)
     title = "Prepay account confirmation"
-    #content = "Here is your confirmation code for PrePay:\n\n" + reverse('confirm_registration', args=(p.confirmation_code, user.username))
-    content = "Here is your confirmation code for PrePay:\n\n" + "http://HOST/confirm_registration/" + p.confirmation_code + "/" + user.username
+    content = "Here is your confirmation code for PrePay:\n\n" + hostsite + reverse('confirm_registration', args=(p.confirmation_code, user.username))
+    #content = "Here is your confirmation code for PrePay:\n\n" + "http://HOST/confirm_registration/" + p.confirmation_code + "/" + user.username
     send_mail(title, content, 'no.reply.prepay@gmail.com', [user.email], fail_silently=False)
 
 def confirmation_code_sent(request, user_username):
-    user = get_object_or_404(User, username=user_username)
-    return HttpResponse("Confirmation sent to " + user.email)
+    context={}
+    try:
+        user = User.objects.get(username=user_username)
+        context['user'] = user
+        if not user.is_active:
+            context['not_active'] = 1
+    except User.DoesNotExist:
+        pass
+    context['user_username'] = user_username
+    return render_to_response('prepay/confirmation_code_sent.html', context)
 
 # Checks if confirmation_code and username match
 def confirm_registration(request, confirmation_code, user_username):
     try:
-        user = User.objects.get(username=username)
-        profile = UserProfile.get(username=username)
+        user = User.objects.get(username=user_username)
+        profile = UserProfile.objects.get(username=user_username)
         if profile.confirm_registration(confirmation_code):
-            auth_login(request,user)
             return HttpResponseRedirect(reverse('index'))
         else:
             return HttpResponseRedirect(reverse('invalid_confirmation', args=(confirmation_code, user_username)))
-    except:
+    except User.DoesNotExist or Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('invalid_confirmation', args=(confirmation_code, user_username)))
 
 def invalid_confirmation_code(request, confirmation_code, user_username):
-    user = get_object_or_404(User, username=user_username)
-    return HttpResponse("The given confirmation code (" + confirmation_code + ") was not the one sent to " + user_username)
+    context = {
+        'confirmation_code':confirmation_code,
+        'user_username':user_username
+    }
+    return render_to_response('prepay/invalid_confirmation_code.html', context)
 
 
 def index(request):
@@ -196,46 +274,45 @@ def index(request):
         'login_flag':login_flag,
     })
     if login_flag==1:
-        try:
-            bankaccount = BankAccount.objects.get(user = request.user)
-            context['user_balance'] = bankaccount.balance
-        except BankAccount.DoesNotExist:
-            context['user_balance'] = '[No bank account!]'
+        context['user_balance'] = get_user_balance(request.user)
         return render(request, 'prepay/home.html', context)
     else:
-		form = LoginForm()
-		context = Context({
-		'form':form
-	})
-		
-		if request.method =='POST':
-			form = LoginForm(request.POST)
-			if form.is_valid():
-				username = request.POST['username']
-				password = request.POST['password']
-				user = authenticate(username=username, password=password)
-				if user is not None:
-					if user.is_active:
-						login(request, user)
-						login_flag=1
-						context = Context({
-							'login_flag':login_flag,
-						})
-						return HttpResponseRedirect(reverse('index'))
-					else:
-		          # Return a 'disabled account' error message
-						return render(request, 'prepay/log-in.html', context)
-				else:
-        	# Return an 'invalid login' error message.
-					error = True
-					return render(request, 'prepay/log-in.html', {'form':form, 'error':error})
-			else:
-				return render(request, 'prepay/log-in.html', {'form':form})
-		return render(request, 'prepay/log-in.html',context)
+        form = LoginForm()
+        context = Context({
+        'form':form
+    })
+        
+        if request.method =='POST':
+            form = LoginForm(request.POST)
+            if form.is_valid():
+                username = request.POST['username']
+                password = request.POST['password']
+                user = authenticate(username=username, password=password)
+                if user is not None:
+                    if user.is_active:
+                        login(request, user)
+                        login_flag=1
+                        context = Context({
+                            'login_flag':login_flag,
+                        })
+                        return HttpResponseRedirect(reverse('index'))
+                    else:
+                  # Return a 'disabled account' error message
+                        return render(request, 'prepay/log-in.html', context)
+                else:
+            # Return an 'invalid login' error message.
+                    error = True
+                    return render(request, 'prepay/log-in.html', {'form':form, 'error':error})
+            else:
+                return render(request, 'prepay/log-in.html', {'form':form})
+        return render(request, 'prepay/log-in.html',context)
 
 
 def about(request):
     login_flag=login_check(request)
+    user_balance = ''
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
@@ -243,12 +320,17 @@ def about(request):
     context = Context({
         'isBuyer': buyer,
         'login_flag':login_flag,
+        'user_balance': user_balance,
     })
     return render(request, 'prepay/about.html', context)
 
 @login_required
 def browse_listings(request, fil = None):
     login_flag=login_check(request)
+    user_balance = ''
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
+
     account_type = user_account_type(request)
     categories= Category.objects.all()
     all_listings = Listing.objects.all().order_by('-created_at')
@@ -262,56 +344,75 @@ def browse_listings(request, fil = None):
         cart = b.cart
             
     if fil!=None:
-		if fil =="biddable":
-			all_listings = all_listings.filter(Q(status = "Open for bidding") | Q(status = "Maximum reached"))
-		elif fil == "bidclosed":
-			all_listings = all_listings.filter(Q(status = "In Production") | Q(status = "Shipped"))
-		elif fil == "over":
-			all_listings = all_listings.filter(Q(status = "Closed") | Q(status = "Aborted") | Q(status = "Withdrawn"))
+        if fil =="biddable":
+            all_listings = all_listings.filter(Q(status = "Open for bidding") |
+                Q(status = "Maximum reached"))
+        elif fil == "bidclosed":
+            all_listings = all_listings.filter(Q(status = "In Production") | Q(status = "Shipped"))
+        elif fil == "over":
+            all_listings = all_listings.filter(Q(status = "Closed") | Q(status = "Aborted") | Q(status = "Withdrawn"))
     if request.method =='POST':
-		form = SearchForm(request.POST)
-		if form.is_valid:
-			keywords=request.POST.get('q')
-			form = SearchForm(request.POST, initial = {'q':keywords})
-			query = Q()
-			for term in keywords.split():
-				q = Q(name__icontains=term) | Q(description__icontains=term) | Q(product__name__icontains=term) | Q(product__description__icontains=term) | Q(product__seller__username__icontains=term)
-				query = query & q
-			all_listings = all_listings.filter(query).order_by('-created_at')
-			request.session['last_listings']=all_listings
-			request.session['oldq']=keywords
-			return render_to_response('prepay/browse_listings.html',
-                {'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'categories':categories, 'filter':fil }, 
+        form = SearchForm(request.POST)
+        if form.is_valid:
+            keywords=request.POST.get('q')
+            form = SearchForm(request.POST, initial = {'q':keywords})
+            query = Q()
+            for term in keywords.split():
+                q = Q(name__icontains=term) | Q(description__icontains=term) | Q(product__name__icontains=term) | Q(product__description__icontains=term) | Q(product__seller__username__icontains=term)
+                query = query & q
+            all_listings = all_listings.filter(query).order_by('-created_at')
+            request.session['last_listings']=all_listings
+            request.session['oldq']=keywords
+            context = {
+                'all_listings':all_listings,
+                'form':form,
+                'login_flag':login_flag,
+                'categories':categories,
+                'filter':fil,
+                'user_balance':user_balance,
+                }
+            return render_to_response('prepay/browse_listings.html',
+                context,
                 context_instance=RequestContext(request)) 
-    elif request.method == 'GET':    	
-		if 'sort' in request.GET and request.GET['sort']:
-			all_listings = request.session.get('last_listings')
-			if fil =="biddable":
-				all_listings = all_listings.filter(Q(status = "Open for bidding") | Q(status = "Maximum reached"))
-			elif fil == "bidclosed":
-				all_listings = all_listings.filter(Q(status = "In Production") | Q(status = "Shipped"))
-			elif fil == "over":
-				all_listings = all_listings.filter(Q(status = "Closed") | Q(status = "Aborted") | Q(status = "Withdrawn"))	
-			keywords = request.session.get('oldq')
-			form = SearchForm(initial = {'q':keywords})
-			if request.GET['sort']=="Date posted":
-				all_listings = all_listings.order_by('-created_at')
-			elif request.GET['sort']=="Seller":
-				all_listings = all_listings.order_by('product__seller__username')
-			elif request.GET['sort']=="Price - low to high":
-				all_listings = all_listings.order_by('price')
-			elif request.GET['sort']=="Price - high to low":
-				all_listings = all_listings.order_by('-price')
-			elif request.GET['sort']=="Status":
-				all_listings = all_listings.order_by('-status')
-			elif request.GET['sort']=="Deadline for bidding":
-				all_listings = all_listings.order_by('deadlineBid')
-			selected = request.GET['sort']
-			return render_to_response('prepay/browse_listings.html',
-                    {'all_listings':all_listings, 'form':form, 'login_flag':login_flag, 'account_type':account_type, 'selected':selected, 'filter':fil, 'categories':categories }, 
-                    context_instance=RequestContext(request))
-	
-    form = SearchForm()	
+                
+    elif request.method == 'GET':        
+        if 'sort' in request.GET and request.GET['sort']:
+            all_listings = request.session.get('last_listings')
+            if fil =="biddable":
+                all_listings = all_listings.filter(Q(status = "Open for bidding") | Q(status = "Maximum reached"))
+            elif fil == "bidclosed":
+                all_listings = all_listings.filter(Q(status = "In Production") | Q(status = "Shipped"))
+            elif fil == "over":
+                all_listings = all_listings.filter(Q(status = "Closed") | Q(status = "Aborted") | Q(status = "Withdrawn"))    
+            keywords = request.session.get('oldq')
+            form = SearchForm(initial = {'q':keywords})
+            if request.GET['sort']=="Date posted":
+                all_listings = all_listings.order_by('-created_at')
+            elif request.GET['sort']=="Seller":
+                all_listings = all_listings.order_by('product__seller__username')
+            elif request.GET['sort']=="Price - low to high":
+                all_listings = all_listings.order_by('price')
+            elif request.GET['sort']=="Price - high to low":
+                all_listings = all_listings.order_by('-price')
+            elif request.GET['sort']=="Status":
+                all_listings = all_listings.order_by('-status')
+            elif request.GET['sort']=="Deadline for bidding":
+                all_listings = all_listings.order_by('deadlineBid')
+            selected = request.GET['sort']
+            context = {
+                'all_listings':all_listings,
+                'form':form,
+                'login_flag':login_flag,
+                'selected':selected,
+                'filter':fil,
+                'categories':categories,
+                'user_balance':user_balance
+                }
+            return render_to_response('prepay/browse_listings.html',
+                context,
+                context_instance=RequestContext(request))
+    
+    form = SearchForm()    
     request.session['last_listings']=all_listings
     request.session['oldq']=None
     context = Context({
@@ -324,7 +425,8 @@ def browse_listings(request, fil = None):
         'isBuyer': buyer,
         'cart': cart,
         'buyer': b,
-	})
+        'user_balance': user_balance,
+    })
     return render(request, 'prepay/browse_listings.html', context)
 
 
@@ -332,15 +434,19 @@ def browse_listings(request, fil = None):
 @login_required
 def browse_product_requests(request):
     login_flag=login_check(request)
+    user_balance = ''
+    if login_flag:
+        user_balance = get_user_balance(request.user)
     buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
         
     all_product_requests = ProductRequest.objects.all()
     context = Context({
-		'all_product_requests': all_product_requests,
-		'login_flag': login_flag,
+        'all_product_requests': all_product_requests,
+        'login_flag': login_flag,
         'isBuyer': buyer,
+        'user_balance': user_balance,
     })
     
     return render(request, 'prepay/browse_product_requests.html', context)
@@ -348,17 +454,17 @@ def browse_product_requests(request):
 
 @login_required
 def browse_category(request, category_id):
-	login_flag=login_check(request)
-	categories = Category.objects.all()
-	category = Category.objects.filter(pk=category_id)
-	listings_by_category = Listing.objects.filter(product__categories__exact=category_id)
-	context = Context({
-		'category': category[0],
-		'listings_by_category': listings_by_category,
-		'login_flag':login_flag,
-		'categories':categories
-	})
-	return render(request, 'prepay/category.html', context)
+    login_flag=login_check(request)
+    categories = Category.objects.all()
+    category = Category.objects.filter(pk=category_id)
+    listings_by_category = Listing.objects.filter(product__categories__exact=category_id)
+    context = Context({
+        'category': category[0],
+        'listings_by_category': listings_by_category,
+        'login_flag':login_flag,
+        'categories':categories
+    })
+    return render(request, 'prepay/category.html', context)
 
 @login_required
 def listing_detail(request, listing_id):
@@ -373,51 +479,51 @@ def listing_detail(request, listing_id):
         buyer = True
         b = Buyer.objects.get(username = request.user.username)
         cart = b.cart
-	
+    
     goalreached = True
     if listing.numBidders<listing.maxGoal:
-		goalreached = False
-	
+        goalreached = False
+    
     if request.method =='POST':
-		if 'shipped' in request.POST:
-			listing.status = "Shipped"
-			listing.save()
-			orders = Order.objects.filter(listing = listing, status = "Ongoing")
-			for order in orders:
-				order.status = "Shipped"
-				order.save()
-			return HttpResponseRedirect(reverse("prepay.views.listing_detail", args=(listing.id,)))
-		form = ListingCommentForm(request.POST,request.FILES)
-		if form.is_valid():
-			comment = request.POST.get('comment')
-			rating = request.POST.get('rating')
-			image = request.FILES.get('image')
-			date = timezone.now()
-			username=request.user.username
-			User_Profile=get_object_or_404(UserProfile, username=username)
-			Listing_Comment.objects.create(listing=listing,commenter=User_Profile,comment=comment, 
+        if 'shipped' in request.POST:
+            listing.status = "Shipped"
+            listing.save()
+            orders = Order.objects.filter(listing = listing, status = "Ongoing")
+            for order in orders:
+                order.status = "Shipped"
+                order.save()
+            return HttpResponseRedirect(reverse("prepay.views.listing_detail", args=(listing.id,)))
+        form = ListingCommentForm(request.POST,request.FILES)
+        if form.is_valid():
+            comment = request.POST.get('comment')
+            rating = request.POST.get('rating')
+            image = request.FILES.get('image')
+            date = timezone.now()
+            username=request.user.username
+            User_Profile=get_object_or_404(UserProfile, username=username)
+            Listing_Comment.objects.create(listing=listing,commenter=User_Profile,comment=comment, 
                                            rating = rating,  date=date, image=image)
-			return HttpResponseRedirect(reverse("prepay.views.listing_detail", 
+            return HttpResponseRedirect(reverse("prepay.views.listing_detail", 
                     args=(listing.id,)))
             
     form = ListingCommentForm()
     
     context = Context({
-		'listing': listing,
-		'form': form,
-		'login_flag': login_flag,
-		'isBuyer': buyer,
-		'goalreached': goalreached,
+        'listing': listing,
+        'form': form,
+        'login_flag': login_flag,
+        'isBuyer': buyer,
+        'goalreached': goalreached,
         'cart': cart
-	})
+    })
     return render(request, 'prepay/detail.html',context)
 
 def login_check(request):
-	if request.user.is_authenticated():
-		login_flag=1
-	else:
-		login_flag=0
-	return login_flag
+    if request.user.is_authenticated():
+        login_flag=1
+    else:
+        login_flag=0
+    return login_flag
 
 def user_account_type(request):
     if request.user.is_authenticated():
@@ -429,11 +535,17 @@ def user_account_type(request):
         return 
 
 def confirmed(request):
-	login_flag=login_check(request)
-	total = request.session['total']
-	prev_balance = request.session['prev_balance']
-	ba = BankAccount.objects.get(user = request.user)
-	return render(request, 'prepay/confirmed.html',{'login_flag':login_flag, 'total':total, 'prev_balance':prev_balance, 'ba':ba})
+    login_flag=login_check(request)
+    total = request.session['total']
+    prev_balance = request.session['prev_balance']
+    ba = BankAccount.objects.get(user = request.user)
+    context = {
+        'login_flag':login_flag,
+        'total':total,
+        'prev_balance':prev_balance,
+        'ba':ba
+    }
+    return render(request, 'prepay/confirmed.html', context)
 
 def checkout(request, listing_id):
     login_flag=login_check(request)
@@ -441,7 +553,7 @@ def checkout(request, listing_id):
     buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
-	
+    
     listing = get_object_or_404(Listing,pk = listing_id)
     error = False ###
     exceed = False
@@ -456,7 +568,7 @@ def checkout(request, listing_id):
         form=CheckoutForm(request.POST)
         address_formset = StreetAddressFormSet(request.POST, instance = request.user)
         if form.is_valid() and address_formset.is_valid():
-	       if 'quantity' in request.POST:
+           if 'quantity' in request.POST:
                 quantity = int(request.POST.get('quantity'))
                 a = listing.numBidders + quantity
                 buyer=Buyer.objects.get(username = request.user.username)
@@ -499,69 +611,84 @@ def checkout(request, listing_id):
     return render(request, 'prepay/checkout.html', context)
 
 def withdraw(request, order_id):
-	login_flag=login_check(request)
-	order = get_object_or_404(Order,pk=order_id)
-	if order.buyer.username != request.user.username:
-		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
-	if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn" or order.status == "Returned":
-		notongoing = True
-		return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'notongoing':notongoing})
-	date = timezone.now()
-	if date>=order.listing.deadlineBid:
-		cannot = True
-		return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'cannot':cannot})
-	else:
-		if request.method=='POST':
-			order.listing.numBidders = order.listing.numBidders-1
-			order.listing.save()
-			e = Escrow.objects.get(listing=order.listing)
-			e.balance = e.balance - order.listing.price
-			e.save()
-			ba = BankAccount.objects.get(user = request.user)
-			ba.balance = ba.balance + order.listing.price
-			ba.save()
-			order.status = "Withdrawn"
-			order.date_withdrawn = date
-			order.save()
-			confirm = True
-			points = order.listing.price
-			if order.buyer.rating == None or order.buyer.rating == 0:
-				order.buyer.rating = 0
-			else:
-				order.buyer.rating = order.buyer.rating - 1
-			order.buyer.save()
-			return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order, 'confirm':confirm, 'points':points})
-	return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order})
+    login_flag=login_check(request)
+    order = get_object_or_404(Order,pk=order_id)
+    if order.buyer.username != request.user.username:
+        return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
+    if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn" or order.status == "Returned":
+        notongoing = True
+        return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'notongoing':notongoing})
+    date = timezone.now()
+    if date>=order.listing.deadlineBid:
+        cannot = True
+        return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'cannot':cannot})
+    else:
+        if request.method=='POST':
+            order.listing.numBidders = order.listing.numBidders-1
+            order.listing.save()
+            e = Escrow.objects.get(listing=order.listing)
+            e.balance = e.balance - order.listing.price
+            e.save()
+            ba = BankAccount.objects.get(user = request.user)
+            ba.balance = ba.balance + order.listing.price
+            ba.save()
+            order.status = "Withdrawn"
+            order.date_withdrawn = date
+            order.save()
+            confirm = True
+            points = order.listing.price
+            if order.buyer.rating == None or order.buyer.rating == 0:
+                order.buyer.rating = 0
+            else:
+                order.buyer.rating = order.buyer.rating - 1
+            order.buyer.save()
+            context = {
+                'login_flag':login_flag,
+                'order':order,
+                'confirm':confirm,
+                'points':points
+            }
+            return render(request, 'prepay/withdraw.html', context)
+    return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order})
 
 def confirmreceipt(request, order_id):
-	login_flag=login_check(request)
-	order = get_object_or_404(Order,pk=order_id)
-	if order.buyer.username != request.user.username:
-		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
-	if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn" or order.status == "Returned":
-		notongoing = True
-		return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'notongoing':notongoing})
-	else:
-		date = timezone.now()
-		if request.method=='POST':
-			e = Escrow.objects.get(listing=order.listing)
-			amount = order.listing.price/2
-			e.balance = e.balance - amount
-			e.save()
-			ba = BankAccount.objects.get(user = order.listing.product.seller)
-			ba.balance = ba.balance + amount
-			ba.save()
-			order.status = "Closed"
-			order.date_delivered = date
-			order.save()
-			confirm = True
-			if order.buyer.rating == None:
-				order.buyer.rating = 5
-			elif order.buyer.rating<5:
-				order.buyer.rating = order.buyer.rating + 1
-			order.buyer.save()
-			return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'order':order, 'confirm':confirm})
-	return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'order':order})
+    login_flag=login_check(request)
+    order = get_object_or_404(Order,pk=order_id)
+    if order.buyer.username != request.user.username:
+        return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
+    if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn" or order.status == "Returned":
+        notongoing = True
+        return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'notongoing':notongoing})
+    else:
+        date = timezone.now()
+        if request.method=='POST':
+            e = Escrow.objects.get(listing=order.listing)
+            amount = order.listing.price/2
+            e.balance = e.balance - amount
+            e.save()
+            ba = BankAccount.objects.get(user = order.listing.product.seller)
+            ba.balance = ba.balance + amount
+            ba.save()
+            order.status = "Closed"
+            order.date_delivered = date
+            order.save()
+            confirm = True
+            if order.buyer.rating == None:
+                order.buyer.rating = 5
+            elif order.buyer.rating<5:
+                order.buyer.rating = order.buyer.rating + 1
+            order.buyer.save()
+            context = {
+                'login_flag':login_flag,
+                'order':order,
+                'confirm':confirm
+            }
+            return render(request, 'prepay/confirmreceipt.html', context)
+    context = {
+        'login_flag':login_flag,
+        'order':order
+    }
+    return render(request, 'prepay/confirmreceipt.html', context)
 
 def orders(request, listing_id):
     login_flag=login_check(request)
@@ -570,8 +697,14 @@ def orders(request, listing_id):
     if request.user.username == listing.product.seller.username:
         mine = True
     orders = Order.objects.filter(listing = listing)
-	#return render_to_response('prepay/orders.html',{'listing':listing, 'orders':orders, 'mine':mine, 'login_flag': login_flag})
-    return render(request, 'prepay/orders.html',{'listing':listing, 'orders':orders, 'mine':mine, 'login_flag': login_flag})
+    #return render_to_response('prepay/orders.html',{'listing':listing, 'orders':orders, 'mine':mine, 'login_flag': login_flag})
+    context = {
+        'listing':listing,
+        'orders':orders,
+        'mine':mine,
+        'login_flag': login_flag
+    }
+    return render(request, 'prepay/orders.html', context)
 
 def withdrawListing(request, listing_id):
     login_flag=login_check(request)
@@ -581,13 +714,28 @@ def withdrawListing(request, listing_id):
         return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
     if listing.status == "Aborted" or listing.status =="Closed" or listing.status == "Withdrawn":
         notongoing = True
-        return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'login_flag':login_flag, 'notongoing':notongoing})
+        context = {
+            'listing':listing,
+            'login_flag':login_flag,
+            'notongoing':notongoing
+        }
+        return render(request, 'prepay/withdraw_listing.html', context)
     if date <= listing.deadlineBid and request.method!="POST":
         withdraw = True
-        return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'withdraw':withdraw, 'login_flag': login_flag})
+        context = {
+            'listing':listing,
+            'withdraw':withdraw,
+            'login_flag': login_flag
+        }
+        return render(request, 'prepay/withdraw_listing.html', context)
     if date <= listing.deadlineDeliver and request.method!="POST":
         terminate = True
-        return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'terminate':terminate, 'login_flag': login_flag})
+        context = {
+            'listing':listing,
+            'terminate':terminate,
+            'login_flag': login_flag
+        }
+        return render(request, 'prepay/withdraw_listing.html', context)
     else:
         if request.method == "POST":
             orders = Order.objects.filter(status = "Ongoing", listing = listing)
@@ -616,40 +764,62 @@ def withdrawListing(request, listing_id):
                 else:
                     listing.product.seller.rating = rating - 2
             listing.product.seller.save()
-            return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'confirm':confirm, 'login_flag': login_flag})   
-    return render(request, 'prepay/withdraw_listing.html',{'listing':listing, 'login_flag': login_flag})
+            context = {
+                'listing':listing,
+                'confirm':confirm,
+                'login_flag': login_flag
+            }
+            return render(request, 'prepay/withdraw_listing.html', context)
+    context = {
+        'listing':listing,
+        'login_flag': login_flag
+    }
+    return render(request, 'prepay/withdraw_listing.html', context)
 
 def returns(request, order_id):
-	login_flag=login_check(request)
-	date = timezone.now()
-	order = get_object_or_404(Order,pk=order_id)
-	if order.seller.username != request.user.username:
-		return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
-	if date >= (order.listing.deadlineDeliver+timedelta(weeks = 4)):
-		return render(request, 'prepay/returns.html',{'login_flag':login_flag, 'over':True})
-	if order.status == "Aborted by seller" or order.status == "Withdrawn" or order.status == "Returned":
-		notongoing = True
-		return render(request, 'prepay/returns.html',{'login_flag':login_flag, 'notongoing':notongoing})
-	else:
-		date = timezone.now()
-		if request.method=='POST':
-			e = Escrow.objects.get(listing=order.listing)
-			amount = order.listing.price/2
-			e.balance = e.balance - amount
-			e.save()
-			ba = BankAccount.objects.get(user = order.buyer)
-			ba.balance = ba.balance + amount
-			ba.save()
-			order.status = "Returned"
-			order.save()
-			confirm = True
-			if order.buyer.rating == None:
-				order.buyer.rating = 5
-			elif order.buyer.rating<5:
-				order.buyer.rating = order.buyer.rating + 1
-			order.buyer.save()
-			return render(request, 'prepay/returns.html',{'login_flag':login_flag, 'order':order, 'confirm':confirm})
-	return render(request, 'prepay/returns.html',{'login_flag':login_flag, 'order':order})
+    login_flag=login_check(request)
+    date = timezone.now()
+    order = get_object_or_404(Order,pk=order_id)
+    if order.seller.username != request.user.username:
+        return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
+    if date >= (order.listing.deadlineDeliver+timedelta(weeks = 4)):
+        return render(request, 'prepay/returns.html',{'login_flag':login_flag, 'over':True})
+    if order.status == "Aborted by seller" or order.status == "Withdrawn" or order.status == "Returned":
+        notongoing = True
+        context = {
+            'login_flag':login_flag,
+            'notongoing':notongoing
+        }
+        return render(request, 'prepay/returns.html', context)
+    else:
+        date = timezone.now()
+        if request.method=='POST':
+            e = Escrow.objects.get(listing=order.listing)
+            amount = order.listing.price/2
+            e.balance = e.balance - amount
+            e.save()
+            ba = BankAccount.objects.get(user = order.buyer)
+            ba.balance = ba.balance + amount
+            ba.save()
+            order.status = "Returned"
+            order.save()
+            confirm = True
+            if order.buyer.rating == None:
+                order.buyer.rating = 5
+            elif order.buyer.rating<5:
+                order.buyer.rating = order.buyer.rating + 1
+            order.buyer.save()
+            context = {
+                'login_flag':login_flag,
+                'order':order,
+                'confirm':confirm
+            }
+            return render(request, 'prepay/returns.html', context)
+    context = {
+        'login_flag':login_flag,
+        'order':order
+    }
+    return render(request, 'prepay/returns.html', context)
 
 def autoconfirm():
     listings = Listing.objects.filter(status = "Shipped")

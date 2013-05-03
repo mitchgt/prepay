@@ -13,6 +13,7 @@
 			<td style="padding:10px;font-size:14px;">
 				<b>Idea:</b> {{ pr.name }}</a><br/>
 				<b>Pitch:</b> {{ pr.description}}<br/>
+				<b>Suggested by:</b> <a href="{% url 'profile' user.username %}">{{pr.user.username}}</a><br/>
 				<b>Categories:</b> 
 				{% for c in pr.categories.all %} 
 					<a href="{% url 'browse_category' c.pk %}">{{ c.name }}</a>, 

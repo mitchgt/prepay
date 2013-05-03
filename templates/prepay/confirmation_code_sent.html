@@ -1,0 +1,16 @@
+{% extends "prepay/base.html" %}
+
+{% load url from future %}
+
+{% block content %}
+
+{% if not_active %}
+    <h2>Confirmation code sent to {{user.username}}</h2>
+{% elif user %}
+    <h2>{{user.username}} has already been confirmed and is activated!</h2>
+{% else %}
+    <h2>{{user_username}} is not a registered username!</h2>
+{% endif %}
+
+{% endblock %}
+

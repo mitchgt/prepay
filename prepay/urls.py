@@ -41,6 +41,11 @@ urlpatterns = patterns('',
     url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': "/"}, name="auth_logout"),
     #url(r'^logout/$', 'django.contrib.auth.views.logout', views.index, name="auth_logout"),
     url(r'^logout/(?P<next_page>.*)/$', views.index, name='auth_logout_next'),
+
+
+    url(r'^confirmation_code_sent/(?P<user_username>.*)$', views.confirmation_code_sent, name='confirmation_code_sent'),
+    url(r'^confirm_registration/(?P<confirmation_code>.*)/(?P<user_username>.*)$', views.confirm_registration, name='confirm_registration'),
+    url(r'^invalid/confirm_registration/(?P<confirmation_code>.*)/(?P<user_username>.*)$', views.invalid_confirmation_code, name='invalid_confirmation'),
 )
 
 
