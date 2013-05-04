@@ -18,13 +18,33 @@
 			<td class="proddetail">
 				<div class="listingTitle"><h2>{{ listing.name }}</h2></div>
 				<ul class="productinfo">
-					
+				{% if user.username == listing.product.seller.username %}
+				{% if listing.status == "Open for bidding" or listing.status == "Maximum reached" or listing.status == "In Production" %}
+					<form action = "{% url 'withdrawListing' listing.id %}" method = "get">
+					{% csrf_token %}
+					<input class = "button" type = "submit" value = "Withdraw listing"/>
+					</form>
+				{% endif %}
+				{% if listing.status == "In Production" %}
+					<form action = "" method = "post">
+					{% csrf_token %}
+					<input class = "button" type = "submit" name = "shipped" value = "Change status to 'Shipped'"/>
+					</form>
+				{% endif %}
+				{% endif %}
 					<li><p><b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{ listing.product.seller.username }}</a> (rating = {{ listing.product.seller.rating }}/5)</p></li>
 					<li><p><b>Categories:</b> 
 									{% for c in listing.product.categories.all %} 
 										<a href="{% url 'browse_category' c.pk %}">{{ c.name }}</a>, 
 									{% endfor %}</p></li>
 					<li><p><b>Created Date:</b> {{listing.created_at}}</p></li>
+				{% if listing.date_closed %}
+				<li><p><b>Date Closed:</b> {{listing.date_closed}}</p></li>
+				{% elif listing.date_aborted %}
+				<li><p><b>Date Aborted:</b> {{listing.date_aborted}}</p></li>
+				{% elif listing.date_withdrawn %}
+				<li><p><b>Date Withdrawn:</b> {{listing.date_withdrawn}}</p></li>
+				{% endif %}
 					<li><p><b>Price:</b> ${{listing.price}}</p></li>
 					<table>
 					<tr>
@@ -54,7 +74,10 @@
 					<li><p><b>Status:</b> {{listing.status}}</p></li>
 					<li><p><b>Minimum goal:</b> {{listing.minGoal}}</p></li>
 					<li><p><b>Maximum goal:</b> {{listing.maxGoal}}</p></li>
-					<li><p><b>Current number of bidders:</b> {{listing.numBidders}}</p></li>
+					<li><p><b>Current number of bidders:</b> {{listing.numBidders}}
+					{% if listing.product.seller.username = user.username %}
+					<a href = "{% url 'orders' listing.id %}">View current orders</a><br/>
+					{% endif %}</p></li>
 					<li><p><b>Deadline for bidding:</b> {{listing.deadlineBid}}</p></li>
 					<li><p><b>Deadline for delivery:</b> {{listing.deadlineDeliver}}</p></li>
 					<li><p><b>Product Description:</b> {{ listing.product.description }}</p></li>
@@ -104,7 +127,7 @@
 	{% endif %}
 
 {% else %}
-	hmm... we seem not to find that listing
+	Hmm... We cannot find the listing.
 {% endif %}
 	</div>
 
