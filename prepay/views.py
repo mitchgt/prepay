@@ -591,6 +591,9 @@ def review(request, order_id):
 
 def confirmed(request):
     login_flag=login_check(request)
+    user_balance = ''
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     total = request.session['total']
     prev_balance = request.session['prev_balance']
     ba = BankAccount.objects.get(user = request.user)
@@ -598,7 +601,8 @@ def confirmed(request):
         'login_flag':login_flag,
         'total':total,
         'prev_balance':prev_balance,
-        'ba':ba
+        'ba':ba,
+        'user_balance':user_balance
     }
     return render(request, 'prepay/confirmed.html', context)
 
