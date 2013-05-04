@@ -36,7 +36,7 @@ def get_user_balance(user):
     except BankAccount.DoesNotExist:
         return ''
 
-# AUX method. Sends confirmation link to registering user
+# AUX function. Sends confirmation link to registering user
 def send_registration_confirmation(user):
     #hostsite = 'http://mitchgt.com/prepay'
     hostsite = 'NAME_OF_HOSTSITE'
@@ -121,6 +121,9 @@ def index(request):
 # User registration. User becomes active after clicking confirmation link sent through email.
 def register(request):
     login_flag=login_check(request)
+    user_balance = ''
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     if request.method =='POST':
         form = RegistrationForm(request.POST)
         new_data = request.POST.copy()
@@ -149,7 +152,8 @@ def register(request):
                 context = {
                     'form':form,
                     'error':True,
-                    'login_flag': login_flag
+                    'login_flag': login_flag,
+                    'user_balance': user_balance
                 }
                 return render_to_response('prepay/register.html', context, context_instance=RequestContext(request))
     else:
@@ -157,6 +161,7 @@ def register(request):
     context = {
         'form':form,
         'login_flag': login_flag,
+        'user_balance': user_balance,
     }
     return render_to_response('prepay/register.html', context,context_instance=RequestContext(request))
 
@@ -591,6 +596,9 @@ def review(request, order_id):
 
 def confirmed(request):
     login_flag=login_check(request)
+    user_balance = ''
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     total = request.session['total']
     prev_balance = request.session['prev_balance']
     ba = BankAccount.objects.get(user = request.user)
@@ -598,7 +606,8 @@ def confirmed(request):
         'login_flag':login_flag,
         'total':total,
         'prev_balance':prev_balance,
-        'ba':ba
+        'ba':ba,
+        'user_balance':user_balance
     }
     return render(request, 'prepay/confirmed.html', context)
 

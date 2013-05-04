@@ -5,7 +5,7 @@
 {% block content %}
 
 {% if not_active %}
-    <h2>Confirmation code sent to {{user.username}}</h2>
+    <h2>Confirmation code sent to {{user.email}}</h2>
 {% elif user %}
     <h2>{{user.username}} has already been confirmed and is activated!</h2>
 {% else %}
