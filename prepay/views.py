@@ -87,6 +87,7 @@ def index(request):
     # Else, show login form
     else:
         form = LoginForm()
+        context = {}
         context['form'] = form
         
         if request.method =='POST':
@@ -172,7 +173,7 @@ def confirmation_code_sent(request, user_username):
     except User.DoesNotExist:
         pass
     context['user_username'] = user_username
-    return render_to_response('prepay/confirmation_code_sent.html', context)
+    return render_to_response('prepay/confirmation_code_sent.html', context, context_instance=RequestContext(request))
 
 
 
@@ -196,7 +197,7 @@ def invalid_confirmation_code(request, confirmation_code, user_username):
         'confirmation_code':confirmation_code,
         'user_username':user_username
     }
-    return render_to_response('prepay/invalid_confirmation_code.html', context)
+    return render_to_response('prepay/invalid_confirmation_code.html', context, context_instance=RequestContext(request))
     
     
 
