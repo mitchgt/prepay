@@ -631,10 +631,9 @@ def checkout(request, listing_id):
                 ba = BankAccount.objects.get(user = request.user)
                 if ba.balance>=total and listing.maxGoal>=a:
                     seller=listing.product.seller
-                    address=address_formset.save()
                     for i in range(quantity):
                         neworder = Order.objects.create(seller=seller, buyer=buyer, listing=listing)
-                        neworder.shipping_address = address
+                        neworder.shipping_address = address_formset.save()
                         #remove from cart
                         b.cart.listings.remove(listing)
                         b.save()
