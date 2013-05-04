@@ -3,7 +3,7 @@ from django.template import Context, loader
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User, Group
 from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm, EditProfileForm
-from prepay.forms import PhoneNumberFormSet, InstantMessengerFormSet, WebSiteFormSet, StreetAddressFormSet
+from prepay.forms import PhoneNumberFormSet, InstantMessengerFormSet, WebSiteFormSet, StreetAddressFormSet, StreetAddressFormSet2
 from prepay.forms import SearchForm, CheckoutForm, ReviewForm
 from django.shortcuts import render_to_response 
 from django.http import HttpResponseRedirect
@@ -151,7 +151,7 @@ def register(request):
                     'error':True,
                     'login_flag': login_flag
                 }
-                return render_to_response('prepay/register.html', {}, context_instance=RequestContext(request))
+                return render_to_response('prepay/register.html', context, context_instance=RequestContext(request))
     else:
         form = RegistrationForm()
     context = {
@@ -558,11 +558,10 @@ def review(request, order_id):
             order.status = "Rated"
             order.save()
             count = Review.objects.filter(seller= seller).count()
-            if count == 0:
-                if seller.rating==None:
-                    seller.rating = rating
-                else:
-                    seller.rating = (seller.rating + rating)/2
+            if seller.rating==None:
+                seller.rating = rating
+            elif count == 0:
+                seller.rating = (seller.rating + rating)/2
             else:
                 seller.rating = (seller.rating * count + int(rating))/(count+1)
             seller.save()
@@ -616,13 +615,13 @@ def checkout(request, listing_id):
     if listing.status != "Open for bidding" or not Buyer.objects.filter(username = request.user.username):
         return HttpResponseRedirect(reverse('prepay.views.listing_detail', args=(listing_id)))
     form = CheckoutForm()
-    address_formset = StreetAddressFormSet()
-    
+    address_formset = StreetAddressFormSet2()
+
     b = Buyer.objects.get(username = request.user.username)
     
     if request.method=='POST':
         form=CheckoutForm(request.POST)
-        address_formset = StreetAddressFormSet(request.POST, instance = request.user)
+        address_formset = StreetAddressFormSet2(request.POST, instance = request.user)
         if form.is_valid() and address_formset.is_valid():
            if 'quantity' in request.POST:
                 quantity = int(request.POST.get('quantity'))
@@ -895,6 +894,24 @@ def autoconfirm():
             ba.balance = ba.balance + amount
             ba.save()
             listing.status = "Closed"
+    listings = Listing.objects.filter(status = "Withdrawn")
+    for listing in listings:
+        if date >= (listing.deadlineDeliver+timedelta(weeks = 4)):
+            amount = e.balance
+            e.balance = 0
+            e.save()
+            ba = BankAccount.objects.get(user = listing.product.seller)
+            ba.balance = ba.balance + amount
+            ba.save()
+    listings = Listing.objects.filter(status = "Aborted")
+    for listing in listings:
+        if date >= (listing.deadlineDeliver+timedelta(weeks = 4)):
+            amount = e.balance
+            e.balance = 0
+            e.save()
+            ba = BankAccount.objects.get(user = listing.product.seller)
+            ba.balance = ba.balance + amount
+            ba.save()
     return
 
 def updateStatus():
