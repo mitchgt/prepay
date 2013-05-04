@@ -370,7 +370,7 @@ class StreetAddress(models.Model):
     date_modified = models.DateTimeField(_('date modified'), auto_now=True)
 
     def __unicode__(self):
-        return u"%s (%s)" % (self.city, self.location)
+        return u"%s, %s, %s %s %s (%s)" % (self.street, self.city, self.province, self.postal_code, self.country, self.location)
 
     class Meta:
         db_table = 'prepay_contacts_street_addresses'
