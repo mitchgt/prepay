@@ -575,13 +575,10 @@ def review(request, order_id):
             Review.objects.create(seller = seller, buyer = buyer, review = review, rating = rating, order = order)
             order.status = "Rated"
             order.save()
-            count = Review.objects.filter(seller= seller).count()
             if seller.rating==None:
                 seller.rating = rating
-            elif count == 0:
-                seller.rating = (seller.rating + rating)/2
             else:
-                seller.rating = (seller.rating * count + int(rating))/(count+1)
+                seller.rating = (seller.rating + int(rating) +1)/2
             seller.save()
             context = {
                 'login_flag':login_flag,
