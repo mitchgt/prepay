@@ -66,7 +66,13 @@ ${{ba.balance}}
 	<b>Product:</b> {{order.listing.name}}<br/>
 	<b>Price:</b> {{order.listing.price}}<br/>
 	<b>Seller:</b> {{order.listing.product.seller}}<br/>
-	<b>Status:</b> {{order.status}}<br/>
+	<b>Status:</b> 
+		{% if order.status == "Ongoing" %} <b style="color:blue">{{order.status}}</b><br/>
+		{% elif order.status == "Shipped" %} <b style="color:green">{{order.status}}</b><br/>
+		{% elif order.status == "Aborted by seller" %}<i style="color:maroon">{{order.status}}</i><br/>
+		{% elif order.status == "Returned" %}<b style="color:purple">{{order.status}}</b><br/>
+		{% else %}{{order.status}}<br/>
+		{% endif %}
 	<b>Date ordered:</b> {{order.date_added}}<br/>
 	{% if order.status = "Withdrawn" %}
 	<b>Date withdrawn:</b> {{order.date_withdrawn}}<br/>
