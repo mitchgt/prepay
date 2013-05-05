@@ -29,7 +29,7 @@ You can still withdraw - you will be refunded ${{order.listing.price}}.<br/>
 
 	<form action = "{% url 'withdraw' order.id %}" method = "post">
 	{% csrf_token %}
-	<input class = "button" type = "submit" value = "Confirm withdrawal"/>
+	<input class = "btn" type = "submit" value = "Confirm withdrawal"/>
 	</form>
 
 {% endif %}
