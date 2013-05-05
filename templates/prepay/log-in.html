@@ -9,11 +9,11 @@
 <p class="errmsg">Invalid login - Please try again!</p>
 {% endif %}
 
-<form enctype="multipart/form-data" action = "" method ="POST">
+<form class = "loginform" enctype="multipart/form-data" action = "" method ="POST">
 {% csrf_token %}
 
 {{form.as_p}}
-<input type = "submit" value = "Login">
+<input class = "btn" type = "submit" value = "Login">
 </form>
 
 {% endblock %}
