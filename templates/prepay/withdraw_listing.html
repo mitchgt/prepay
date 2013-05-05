@@ -24,7 +24,7 @@ Are you sure you want to withdraw the listing? Your rating will be reduced by 2.
 {% endif %}
 	<form action = "{% url 'withdrawListing' listing.id %}" method = "post">
 	{% csrf_token %}
-	<input class = "button" type = "submit" value = "Withdraw"/>
+	<input class = "btn" type = "submit" value = "Withdraw"/>
 	</form>
 {% else %}
 You cannot withdraw this listing at this time.
