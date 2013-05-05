@@ -40,8 +40,9 @@ class PLAdmin(admin.ModelAdmin):
 
     #sets product seller to be current logged in user
     def save_model(self, request, Product, form, change):
-        Product.seller = Seller.objects.get(user = request.user)
-        Product.save()
+        if not request.user.is_superuser: 
+            Product.seller = Seller.objects.get(user = request.user)
+            Product.save()
 
 # For when adding ProductRequest. Sets user as current logged in user.
 class ProductRequestAdmin(admin.ModelAdmin):
