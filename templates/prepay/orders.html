@@ -11,7 +11,12 @@
 {% for order in orders %}
 Buyer: <a href = "{% url 'profile' order.buyer.username %}">{{order.buyer}}</a><br/>
 Date ordered: {{order.date_added}}<br/>
-Status: {{order.status}}<br/>
+Status: 
+		{% if order.status == "Ongoing" %} <b style="color:blue">{{order.status}}</b><br/>
+		{% elif order.status == "Shipped" %} <b style="color:green">{{order.status}}</b><br/>
+		{% elif order.status == "Returned" %}<b style="color:purple">{{order.status}}</b><br/>
+		{% else %}{{order.status}}<br/>
+		{% endif %}
 Shipping address:
 	{% for ship in order.shipping_address.all %}
 	{{ship}}
