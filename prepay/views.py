@@ -465,6 +465,8 @@ def browse_product_requests(request):
 @login_required
 def browse_category(request, category_id):
     login_flag=login_check(request)
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     categories = Category.objects.all()
     category = Category.objects.filter(pk=category_id)
     listings_by_category = Listing.objects.filter(product__categories__exact=category_id)
@@ -472,7 +474,8 @@ def browse_category(request, category_id):
         'category': category[0],
         'listings_by_category': listings_by_category,
         'login_flag':login_flag,
-        'categories':categories
+        'categories':categories,
+        'user_balance':user_balance
     })
     return render(request, 'prepay/category.html', context)
 
@@ -613,7 +616,8 @@ def confirmed(request):
 
 def checkout(request, listing_id):
     login_flag=login_check(request)
-    
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
@@ -669,22 +673,25 @@ def checkout(request, listing_id):
                        'error':error, 
                        'exceed':exceed,
                        'isBuyer':buyer,
+                       'user_balance':user_balance
                        })
 
     return render(request, 'prepay/checkout.html', context)
 
 def withdraw(request, order_id):
     login_flag=login_check(request)
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     order = get_object_or_404(Order,pk=order_id)
     if order.buyer.username != request.user.username:
         return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
     if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn" or order.status == "Returned":
         notongoing = True
-        return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'notongoing':notongoing})
+        return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'notongoing':notongoing, 'user_balance':user_balance})
     date = timezone.now()
     if date>=order.listing.deadlineBid:
         cannot = True
-        return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'cannot':cannot})
+        return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'cannot':cannot, 'user_balance':user_balance})
     else:
         if request.method=='POST':
             order.listing.numBidders = order.listing.numBidders-1
@@ -709,19 +716,22 @@ def withdraw(request, order_id):
                 'login_flag':login_flag,
                 'order':order,
                 'confirm':confirm,
-                'points':points
+                'points':points,
+                'user_balance':user_balance
             }
             return render(request, 'prepay/withdraw.html', context)
-    return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order})
+    return render(request, 'prepay/withdraw.html',{'login_flag':login_flag, 'order':order, 'user_balance':user_balance})
 
 def confirmreceipt(request, order_id):
     login_flag=login_check(request)
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     order = get_object_or_404(Order,pk=order_id)
     if order.buyer.username != request.user.username:
         return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
     if order.status == "Aborted by seller" or order.status =="Closed" or order.status == "Withdrawn" or order.status == "Returned":
         notongoing = True
-        return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'notongoing':notongoing})
+        return render(request, 'prepay/confirmreceipt.html',{'login_flag':login_flag, 'notongoing':notongoing, 'user_balance':user_balance})
     else:
         date = timezone.now()
         if request.method=='POST':
@@ -744,17 +754,21 @@ def confirmreceipt(request, order_id):
             context = {
                 'login_flag':login_flag,
                 'order':order,
-                'confirm':confirm
+                'confirm':confirm,
+                'user_balance':user_balance
             }
             return render(request, 'prepay/confirmreceipt.html', context)
     context = {
         'login_flag':login_flag,
-        'order':order
+        'order':order,
+        'user_balance':user_balance
     }
     return render(request, 'prepay/confirmreceipt.html', context)
 
 def orders(request, listing_id):
     login_flag=login_check(request)
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     listing = get_object_or_404(Listing, pk=listing_id)
     mine = False
     if request.user.username == listing.product.seller.username:
@@ -765,12 +779,15 @@ def orders(request, listing_id):
         'listing':listing,
         'orders':orders,
         'mine':mine,
-        'login_flag': login_flag
+        'login_flag': login_flag,
+        'user_balance':user_balance
     }
     return render(request, 'prepay/orders.html', context)
 
 def withdrawListing(request, listing_id):
     login_flag=login_check(request)
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     listing = get_object_or_404(Listing, pk=listing_id)
     date = timezone.now()
     if listing.product.seller.username != request.user.username:
@@ -780,7 +797,8 @@ def withdrawListing(request, listing_id):
         context = {
             'listing':listing,
             'login_flag':login_flag,
-            'notongoing':notongoing
+            'notongoing':notongoing,
+            'user_balance':user_balance
         }
         return render(request, 'prepay/withdraw_listing.html', context)
     if date <= listing.deadlineBid and request.method!="POST":
@@ -788,7 +806,8 @@ def withdrawListing(request, listing_id):
         context = {
             'listing':listing,
             'withdraw':withdraw,
-            'login_flag': login_flag
+            'login_flag': login_flag,
+            'user_balance':user_balance
         }
         return render(request, 'prepay/withdraw_listing.html', context)
     if date <= listing.deadlineDeliver and request.method!="POST":
@@ -796,7 +815,8 @@ def withdrawListing(request, listing_id):
         context = {
             'listing':listing,
             'terminate':terminate,
-            'login_flag': login_flag
+            'login_flag': login_flag,
+            'user_balance':user_balance
         }
         return render(request, 'prepay/withdraw_listing.html', context)
     else:
@@ -830,28 +850,33 @@ def withdrawListing(request, listing_id):
             context = {
                 'listing':listing,
                 'confirm':confirm,
-                'login_flag': login_flag
+                'login_flag': login_flag,
+                'user_balance':user_balance
             }
             return render(request, 'prepay/withdraw_listing.html', context)
     context = {
         'listing':listing,
-        'login_flag': login_flag
+        'login_flag': login_flag,
+        'user_balance':user_balance
     }
     return render(request, 'prepay/withdraw_listing.html', context)
 
 def returns(request, order_id):
     login_flag=login_check(request)
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     date = timezone.now()
     order = get_object_or_404(Order,pk=order_id)
     if order.seller.username != request.user.username:
         return HttpResponseRedirect(reverse('prepay.views.profile', args=(request.user.username,)))
     if date >= (order.listing.deadlineDeliver+timedelta(weeks = 4)):
-        return render(request, 'prepay/returns.html',{'login_flag':login_flag, 'over':True})
+        return render(request, 'prepay/returns.html',{'login_flag':login_flag, 'over':True, 'user_balance':user_balance})
     if order.status == "Aborted by seller" or order.status == "Withdrawn" or order.status == "Returned":
         notongoing = True
         context = {
             'login_flag':login_flag,
-            'notongoing':notongoing
+            'notongoing':notongoing,
+            'user_balance':user_balance
         }
         return render(request, 'prepay/returns.html', context)
     else:
@@ -875,12 +900,14 @@ def returns(request, order_id):
             context = {
                 'login_flag':login_flag,
                 'order':order,
-                'confirm':confirm
+                'confirm':confirm,
+                'user_balance':user_balance
             }
             return render(request, 'prepay/returns.html', context)
     context = {
         'login_flag':login_flag,
-        'order':order
+        'order':order,
+        'user_balance':user_balance
     }
     return render(request, 'prepay/returns.html', context)
 
@@ -970,6 +997,8 @@ def refund(listing_id):
 @login_required
 def addtocart(request, listing_id):
     login_flag=login_check(request)
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     listing = get_object_or_404(Listing, pk=listing_id)
     buyer = False
     goalreached = True
@@ -993,12 +1022,15 @@ def addtocart(request, listing_id):
         'login_flag': login_flag,
         'listings': b.cart.listings.all,
         'isBuyer': buyer,
+        'user_balance':user_balance
     })
     return render(request, 'prepay/cart.html', context)
 
 @login_required
 def addtocart(request, listing_id):
     login_flag=login_check(request)
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     listing = get_object_or_404(Listing, pk=listing_id)
     buyer = False
     goalreached = True
@@ -1022,11 +1054,14 @@ def addtocart(request, listing_id):
         'login_flag': login_flag,
         'listings': b.cart.listings.all,
         'isBuyer': buyer,
+        'user_balance':user_balance
     })
     return render(request, 'prepay/cart.html', context)
 
 def removefromcart(request, listing_id):
     login_flag=login_check(request)
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     listing = get_object_or_404(Listing, pk=listing_id)
     buyer = False
     goalreached = True
@@ -1044,13 +1079,15 @@ def removefromcart(request, listing_id):
         'login_flag': login_flag,
         'listings': b.cart.listings.all,
         'isBuyer': buyer,
+        'user_balance':user_balance
     })
     return render(request, 'prepay/cart.html', context)
 
 @login_required
 def viewcart(request):
     login_flag=login_check(request)
-    
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
     buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
@@ -1065,5 +1102,6 @@ def viewcart(request):
         'login_flag': login_flag,
         'isBuyer': buyer,
         'listings': listings,
+        'user_balance':user_balance
     })
     return render(request, 'prepay/cart.html', context)
