@@ -10,6 +10,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models.signals import post_save
 import datetime
 from datetime import timedelta
+from django.core.validators import ValidationError
+from django.utils import timezone
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
@@ -161,6 +163,10 @@ class Listing(models.Model):
     
     def __unicode__(self):
         return self.name
+
+    def clean(self):
+        if self.minGoal > self.maxGoal or self.deadlineBid < timezone.now() or self.deadlineDeliver < self.deadlineBid:
+            raise ValidationError('Please check your goals and deadlines')
 
 class Cart(models.Model):
     name = models.TextField(max_length=50, null=True, blank=True)
