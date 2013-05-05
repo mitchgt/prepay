@@ -23,13 +23,13 @@
 		<tr><td>
 		<form action = "{% url 'removefromcart' listing.id %}" method = "get">
 			{% csrf_token %}
-			<input class = "button" type = "submit" value = "Remove from cart"/>
+			<input class = "btn" type = "submit" value = "Remove from cart"/>
 		</form>	
 		</td><td>
 		{% if listing.status == 'Open for bidding' and isBuyer and not goalreached %}
 		<form action = "{% url 'checkout' listing.id %}" method = "get">
 			{% csrf_token %}
-			<input class = "button" type = "submit" value = "Pre-order"/>
+			<input class = "btn" type = "submit" value = "Pre-order"/>
 		</form>
 		{% endif %}	
 		</td></tr>	
