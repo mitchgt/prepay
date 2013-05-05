@@ -963,7 +963,7 @@ def updateStatus():
                 listing.status = "Open for bidding"
                 listing.save()
         elif date >= listing.deadlineBid and (listing.status =="Open for bidding" or listing.status == "Maximum reached"):
-            if numBidders == maxGoal:
+            if numBidders >= minGoal:
                 listing.status = "In Production"
                 listing.save()
             else:
