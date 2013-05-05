@@ -22,13 +22,13 @@
 				{% if listing.status == "Open for bidding" or listing.status == "Maximum reached" or listing.status == "In Production" %}
 					<form action = "{% url 'withdrawListing' listing.id %}" method = "get">
 					{% csrf_token %}
-					<input class = "button" type = "submit" value = "Withdraw listing"/>
+					<input class = "btn" type = "submit" value = "Withdraw listing"/>
 					</form>
 				{% endif %}
 				{% if listing.status == "In Production" %}
 					<form action = "" method = "post">
 					{% csrf_token %}
-					<input class = "button" type = "submit" name = "shipped" value = "Change status to 'Shipped'"/>
+					<input class = "btn" type = "submit" name = "shipped" value = "Change status to 'Shipped'"/>
 					</form>
 				{% endif %}
 				{% endif %}
@@ -81,7 +81,7 @@
 					<li><p><b>Deadline for bidding:</b> {{listing.deadlineBid}}</p></li>
 					<li><p><b>Deadline for delivery:</b> {{listing.deadlineDeliver}}</p></li>
 					<li><p><b>Product Description:</b> {{ listing.product.description }}</p></li>
-					<li><p><b>How to produce:</b> {{ listing.description }}</p></li>
+					<li><p><b>Details:</b> {{ listing.description }}</p></li>
 				</ul>
 				
 			</td>
