@@ -63,7 +63,7 @@ ${{ba.balance}}
 <b>Orders:</b> 
 <br/><br/>
 {% for order in theuser.order_set.all %}
-	<b>Product:</b> {{order.listing.name}}<br/>
+	<b>Product:</b> <a href = "{% url 'listing_detail' order.listing.id %}">{{order.listing.name}}</a><br/>
 	<b>Price:</b> {{order.listing.price}}<br/>
 	<b>Seller:</b> {{order.listing.product.seller}}<br/>
 	<b>Status:</b> 
