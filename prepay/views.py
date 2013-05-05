@@ -26,7 +26,6 @@ import random, string
 
 
 
-
 # AUX function. Returns the BankAccount balance of user.
 # To be used in mostly all views to display balance next to username
 def get_user_balance(user):
@@ -637,7 +636,22 @@ def checkout(request, listing_id):
         form=CheckoutForm(request.POST)
         address_formset = StreetAddressFormSet2(request.POST, instance = request.user)
         if form.is_valid() and address_formset.is_valid():
-           if 'quantity' in request.POST:
+            for i in address_formset:
+                if i.has_changed():
+                    break
+                missing = True
+                #address_formset = StreetAddressFormSet2()
+                context = Context({'a_formset':address_formset,
+                       'form':form, 
+                       'login_flag':login_flag, 
+                       'listing':listing, 
+                       'missing':missing, 
+                       'isBuyer':buyer,
+                       'user_balance':user_balance
+                       })
+
+                return render(request, 'prepay/checkout.html', context)
+            if 'quantity' in request.POST:
                 quantity = int(request.POST.get('quantity'))
                 a = listing.numBidders + quantity
                 buyer=Buyer.objects.get(username = request.user.username)
