@@ -204,7 +204,8 @@ def invalid_confirmation_code(request, confirmation_code, user_username):
     }
     return render_to_response('prepay/invalid_confirmation_code.html', context, context_instance=RequestContext(request))
     
-    
+def logout(request):
+	return HttpResponseRedirect(reverse('index'))   
 
 # View profile. If user is seller, show user's listings.
 def profile(request, user_username):
