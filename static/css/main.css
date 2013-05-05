@@ -21,7 +21,7 @@ vertical-align: middle;
 margin:auto;
 position:relative;
 font-family: Tahoma, Geneva, sans-serif;
-font-size: 0.8em;
+font-size: 1.1em;
 font-style: italic;
 line-height: 1em;
 color: black;
@@ -35,7 +35,7 @@ display:inline;
 .searchform input{
 width:10em;
 border: 1px solid #999;
-height: 1.5em;
+height: 2em;
 -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
 -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
 box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
@@ -60,9 +60,9 @@ border-radius: 0.8em;
 select {
     border:0;
     background:white;
-    height:1.5em;
+    height:2em;
     border:1px solid #d8d8d8;
-    width:10em;
+    width:13em;
     -webkit-appearance: none;
 }
 
@@ -259,6 +259,10 @@ border-radius: 0.8em;
 	max-width:20%;
 }
 
+.loginform input{
+height: 2em;
+}
+	
 .editprofileform{
 margin:auto;
 position:relative;
