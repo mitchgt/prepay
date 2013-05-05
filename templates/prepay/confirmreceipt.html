@@ -24,7 +24,7 @@ Are you sure you have received the product and want to confirm receipt? Once you
 
 	<form action = "{% url 'confirmreceipt' order.id %}" method = "post">
 	{% csrf_token %}
-	<input class = "button" type = "submit" value = "Confirm receipt"/>
+	<input class = "btn" type = "submit" value = "Confirm receipt"/>
 	</form>
 
 
