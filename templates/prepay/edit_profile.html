@@ -20,21 +20,25 @@
 {{s_formset.management_form}}
 {% for field in s_formset %}
 	{{field.as_p}}<br/>	
+--------------------------------------------------<br/>
 {% endfor %}<br/>
 <b>Phone Numbers</b></br>	
 {{p_formset.management_form}}
 {% for field in p_formset %}
 	{{field.as_table}}<br/>	
+--------------------------------------------------<br/>
 {% endfor %}<br/>
 <b>Instant Messenger:</b><br>
 {{i_formset.management_form}}
 {% for field in i_formset %}
 	{{field.as_table}}<br/>	
+--------------------------------------------------<br/>
 {% endfor %}<br/>
 <b>Websites:</b><br/>
 {{w_formset.management_form}}
 {% for field in w_formset %}
 	{{field.as_table}}<br/>	
+--------------------------------------------------<br/>
 {% endfor %}<br/>
 <input  class="btn" type = "submit" value = "Save changes">
 </form>
