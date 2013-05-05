@@ -29,7 +29,7 @@ Buyer confirmed receipt on: {{order.date_delivered}}<br/>
 {% if order.status = "Closed" or order.status = "Rated" or order.status = "Ongoing" or order.status = "Shipped" %}
 <form action = "{% url 'returns' order.id %}" method = "get">
 	{% csrf_token %}
-	<input class = "button" type = "submit" value = "Return received"/>
+	<input class = "btn" type = "submit" value = "Return received"/>
 </form>
 {% endif %}
 {% endif %}
