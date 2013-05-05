@@ -34,7 +34,7 @@ class RegistrationForm(forms.Form):
 
 class ListingCommentForm(forms.Form):
 	comment = forms.CharField(max_length=1000, widget=forms.Textarea(attrs={'rows':'10', 'cols': '100'}))
-	rating = forms.ChoiceField(
+	rating = forms.ChoiceField(label = 'How much I like it',
 		choices=[(x,x) for x in range(0,6)]
 	)
 	image = forms.FileField(required=False)
