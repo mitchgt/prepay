@@ -28,16 +28,17 @@ class UserAdmin(admin.ModelAdmin):
             WebSiteInline,
     ]
     
-class ListingInline(admin.TabularInline):
+class ListingInline(admin.StackedInline):
     model = Listing
     exclude = ('numBidders','date_closed','date_withdrawn','date_aborted')
     extra = 1
+    max_num = 1
 
 # Product Listing Admin for when adding listing. Sets the listing seller as the current logged in seller.
 class PLAdmin(admin.ModelAdmin): 
     inlines = [ListingInline,]
     exclude = ('seller',)
-
+    
     #sets product seller to be current logged in user
     def save_model(self, request, Product, form, change):
         if not request.user.is_superuser: 
