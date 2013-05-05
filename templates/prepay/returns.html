@@ -28,7 +28,7 @@ Once you confirm, the other 50% of the buyer's deposit will be returned to the b
 
 	<form action = "{% url 'returns' order.id %}" method = "post">
 	{% csrf_token %}
-	<input class = "button" type = "submit" value = "Confirm"/>
+	<input class = "btn" type = "submit" value = "Confirm"/>
 	</form>
 
 
