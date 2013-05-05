@@ -16,22 +16,22 @@
 <form class="editprofileform" enctype="multipart/form-data" method="post" action="">
 {% csrf_token %}
 {{form.as_p}}
-Addresses:<br/>
+<b>Addresses:</b><br/>
 {{s_formset.management_form}}
 {% for field in s_formset %}
 	{{field.as_p}}<br/>	
 {% endfor %}<br/>
-Phone Numbers:</br>	
+<b>Phone Numbers</b></br>	
 {{p_formset.management_form}}
 {% for field in p_formset %}
 	{{field.as_table}}<br/>	
 {% endfor %}<br/>
-Instant Messenger:<br>
+<b>Instant Messenger:</b><br>
 {{i_formset.management_form}}
 {% for field in i_formset %}
 	{{field.as_table}}<br/>	
 {% endfor %}<br/>
-Websites:<br/>
+<b>Websites:</b><br/>
 {{w_formset.management_form}}
 {% for field in w_formset %}
 	{{field.as_table}}<br/>	
