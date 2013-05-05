@@ -364,8 +364,8 @@ class StreetAddress(models.Model):
     object_id = models.IntegerField(db_index=True)
     content_object = generic.GenericForeignKey()
 
-    street = models.TextField(_('street'), blank=True)
-    city = models.CharField(_('city'), max_length=200, blank=True)
+    street = models.TextField(_('street'))
+    city = models.CharField(_('city'), max_length=200)
     province = models.CharField(_('province'), max_length=200, blank=True)
     postal_code = models.CharField(_('postal code'), max_length=10, blank=True)
     country = models.CharField(_('country'), max_length=100)
