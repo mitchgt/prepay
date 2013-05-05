@@ -92,15 +92,15 @@ ${{ba.balance}}
 	{% if order.status == "Ongoing" %}
 	<form action = "{% url 'withdraw' order.id %}" method = "get">
 	{% csrf_token %}
-	<input class = "button" type = "submit" value = "Withdraw"/>
+	<input class = "btn" type = "submit" value = "Withdraw"/>
 	</form>
 	{% endif %}
 	{% if order.status == "Ongoing" or order.status == "Shipped" %}
 	<form action = "{% url 'confirmreceipt' order.id %}" method = "get">
 	{% csrf_token %}
-	<input class = "button" type = "submit" value = "Confirm receipt"/>
-	<div></form>
-	{% endif %}
+	<input class = "btn" type = "submit" value = "Confirm receipt"/>
+	</form>
+	{% endif %}<div>
 	{% if order.status == "Closed" %}
 	<form class="reviewform" action = "{% url 'review' order.id %}" method = "post">
 	{% csrf_token %}
