@@ -7,11 +7,15 @@
 <h2>Checkout</h2>
 
 {% if error %}
-You do not have enough credit to place this order!<br/>
+<p class="errmsg">You do not have enough credit to place this order!</p>
 {% endif %}
 
 {% if exceed %}
-Your quantity you order will exceed the maximum goal of the listing. Please enter a quantity smaller or equal to {{exceed}}.<br/>
+<p class="errmsg">The quantity you order will exceed the maximum goal of the listing. Please enter a quantity smaller or equal to {{exceed}}.</p>
+{% endif %}
+
+{% if missing %}
+<p class="errmsg">Please enter a shipping address!</p>
 {% endif %}
 
 Buyer: {{user}}<br/>
@@ -30,7 +34,7 @@ Price: ${{listing.price}}<br/>
 
 <input class = "btn" type = "submit" value = "Confirm"/>
 </form>
-
-<p><a href = "{% url 'listing_detail' listing.id %}">Cancel</a><p>
+<br/><br/><br/>
+<a href = "{% url 'listing_detail' listing.id %}">Cancel</a>
 
 {% endblock %}
