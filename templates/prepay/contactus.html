@@ -1,0 +1,24 @@
+{% extends "prepay/base.html" %}
+{% load prepay_tags %}
+
+{% load url from future %}
+
+{% block content %}
+
+{% if sent %}
+<h2> Message sent! </h2>
+  <p>Replies will be sent to your email address in the next few days.</p>
+<a href = "{% url 'contactus' %}">Back</a>
+{% else %}
+
+<h2>Have questions or suggestions? Send us a message using the form below:</h2>
+
+<form class = "commentform" action ="" method = "post">
+{% csrf_token %}
+{{form.as_p}}
+<input class = "btn" type = "submit" value = "Send message">
+</form>
+
+{% endif %}
+
+{% endblock %}
