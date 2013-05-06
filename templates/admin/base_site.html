@@ -19,22 +19,22 @@
           <div class="nav-collapse collapse">
 					<a href="{% url 'index' %}" class="brand" >Prepay&#0153;</a>
 					<ul class="nav">
-          		<li class="dropdown">
+          		<li style="list-style: none;" class="dropdown">
             			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Browse Listings<b class="caret"></b></a>
                 	<ul class="dropdown-menu">
-                  	<li><a href="{% url 'browse_listings' %}filter/biddable">For sale</a></li>
-                  	<li><a href="{% url 'browse_listings' %}filter/bidclosed">In production</a></li>
-                  	<li><a href="{% url 'browse_listings' %}filter/over">Completed</a></li>
+                  	<li style="list-style: none;"><a href="{% url 'browse_listings' %}filter/biddable">For sale</a></li>
+                  	<li style="list-style: none;"><a href="{% url 'browse_listings' %}filter/bidclosed">In production</a></li>
+                  	<li style="list-style: none;"><a href="{% url 'browse_listings' %}filter/over">Completed</a></li>
                   	<li class="divider"></li>
-										<li><a href="{% url 'browse_listings' %}">All</a></li>
+										<li style="list-style: none;"><a href="{% url 'browse_listings' %}">All</a></li>
                  	</ul>
             	</li>
 								
-              <li><a href="{% url 'browse_product_requests' %}">Browse Product Requests</a></li>
-              <li><a href="{% url 'admin:prepay_productrequest_add' %}">Request Product</a></li>
-							<li><a href="{% url 'admin:index' %}">Admin</a></li>
-							<li><a href="{% url 'contactus' %}">Contact us</a></li>
-							<li><a href="{% url 'about' %}">About</a></li>
+              <li style="list-style: none;"><a href="{% url 'browse_product_requests' %}">Browse Product Requests</a></li>
+              <li style="list-style: none;"><a href="{% url 'admin:prepay_productrequest_add' %}">Request Product</a></li>
+							<li style="list-style: none;"><a href="{% url 'admin:index' %}">Admin</a></li>
+							<li style="list-style: none;"><a href="{% url 'contactus' %}">Contact us</a></li>
+							<li style="list-style: none;"><a href="{% url 'about' %}">About</a></li>
             </ul>
 						</div>
         {% if user.is_active and user.is_staff %}
