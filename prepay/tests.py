@@ -6,6 +6,7 @@ from django.test import TestCase
 
 from django.core.files import File
 from django.core.urlresolvers import reverse
+from django.core import mail
 
 from django.contrib.auth.models import User, Group
 
@@ -56,8 +57,53 @@ class ModelMethodTests(TestCase):
         self.assertTrue(user.is_active)
 
 
+# Test email functionality
+class EmailTests(TestCase):
+    fixtures = ['blank_site_testdata.json']
+    
+    def test_dummy_sending(self):
+        subject = 'unit test'
+        message = 'this is a test'
+        mail.send_mail(subject, message, 'no.reply.prepay@gmail.com', ['prepay.contact.us@gmail.com'], fail_silently=False)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, 'unit test')
+        self.assertEqual(mail.outbox[0].body, "this is a test")
+        
+        subject = 'another unit test'
+        message = 'this is another test'
+        mail.send_mail(subject, message, 'no.reply.prepay@gmail.com', ['prepay.contact.us@gmail.com'], fail_silently=False)
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(mail.outbox[1].subject, "another unit test")
+        self.assertEqual(mail.outbox[1].body, "this is another test")
+        
+        
+    # Simulate email sending during registration
+    def test_send_registration_confirmation(self):
 
-
+        response = self.client.post(reverse('register'),{'username': 'testabc', 'email': 'test@test.com', 'password': 'testabc', 'confirm_password': 'testabc', 'account_type': 'Buyer'}, follow = True)
+        p = UserProfile.objects.get(username='testabc')
+        message = "Here is your confirmation link for PrePay:\n\nNAME_OF_HOSTSITE" + reverse('confirm_registration', args=(p.confirmation_code, p.username))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Prepay account confirmation")
+        self.assertEqual(mail.outbox[0].body, message)
+        
+        
+    # Simulate email sending for contact us    
+    def test_send_contactus_email(self):
+    
+        user = 'testuser'
+        password = 'testuser'
+        self.assertTrue(self.client.login(username=user, password=password))
+        
+        title = 'test title'
+        email = 'test@test.com'
+        content = 'test contactus content'
+        response = self.client.post(reverse('contactus'), {'title': title, 'email': email, 'content': content}, follow=True)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Message from " + user + ": " + title)
+        self.assertEqual(mail.outbox[0].body, "From " + user + "(" + email + ")\n\n" + content)
+        
+        
 # Test POST requests
 class PostTestsBlankSite(TestCase):
     fixtures = ['blank_site_testdata.json']
@@ -74,7 +120,6 @@ class PostTestsBlankSite(TestCase):
         self.assertEquals(response.status_code, 200)
         logged_in_index_template(self, response, "testuser")
 
-    # Test POST
 
     # Test valid registration for seller
     def test_seller_registration_success(self):
@@ -228,8 +273,12 @@ class PostTestsBlankSite(TestCase):
         response = self.client.post(reverse('register'), {'username': username, 'email': email, 'password': password, 'confirm_password': confirm_password, 'account_type': account_type}, follow=True)
 
         self.assertEquals(response.status_code, 200)
-        self.assertContains(response, "Username already taken. Please chose a different one.")
+        self.assertContains(response, "Username already taken. Please choose a different one.")
+        
+       
 
+
+        
 
 
 # Global aux function to avoid code duplication for templates testing
@@ -285,10 +334,16 @@ class TemplateTestsBlankSite(TestCase):
         self.assertContains(response, "Password")
         self.assertContains(response, "Account type")
 
-
-
-
-        # Test populating database through website
-
+    def test_about_template(self):
+        response = self.client.get(reverse('about'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "About Prepay")
+        self.assertContains(response, "Resources")
         
+    #def test_contact_template(self):
+        
+
+    # Test templates after having logged in
+
+    # Test populating database through website
 
