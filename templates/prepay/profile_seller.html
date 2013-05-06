@@ -5,8 +5,9 @@
 {% block content %}
 
 
-
-<h2>Seller Profile </h2>
+<h2>{{theuser.username}} (Seller)</h2>
+<br/>
+<br/>
 
 {% if mine %}
 <div style="font-size: 13px; background-color:white; width:200px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
@@ -22,6 +23,7 @@
     <img src="{{ theuser.get_picture_url }}" width="150" style="float:left; border:none; padding-right:8px;">
 {% endif %}
 
+<div style="font-size: 13px; background-color:white; width:200px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
 <b>Name:</b>
 {% if theuser.last_name or theuser.first_name %}
 {{theuser.title}} {{theuser.first_name}} {{theuser.middle_name}} {{theuser.last_name}} {{theuser.suffix}}
@@ -30,7 +32,6 @@
 <b>Nickname:</b> {{theuser.nickname}}<br/>
 {% endif %}
 <b>Rating:</b> {{theuser.rating}}<br/>
-<b>Username:</b> {{theuser.username}}<br/>
 {% if mine %}
 <b>Balance:</b> 
 {% for ba in theuser.bankaccount_set.all %}
@@ -58,6 +59,9 @@ ${{ba.balance}}
 {% for item in theuser.web_site.all %}
     {{item}}<br/>
 {% endfor %}{% endif %}
+</div>
+<br/>
+<div style="font-size: 13px; background-color:white; width:200px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
 <b>Products:</b> 
 {% for l in listings %}
     <a href = "{% url 'listing_detail' l.id %}">{{ l.product.name }}</a>
@@ -71,19 +75,22 @@ ${{ba.balance}}
 {% if theuser.about %}
 <b>About me:</b>
     {{theuser.about}}<br/>
-{% endif %}<br/>
-
+{% endif %}
+</div>
 
 <br/>
-<b>Reviews:</b> 
+<br/>
+<h2>Reviews:</h2> 
 <br/><br/>
 {% for review in theuser.review_set.all %}
+    <div style="font-size: 13px; position: relative; left:50px; background-color:white; width:250px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
 	<b>Product:</b> {{review.order.listing.name}}<br/>
 	<b>Buyer:</b> {{review.buyer}}<br/>
 	<b>Review:</b> {{review.review}}<br/>
 	<b>Rating:</b> {{review.rating}}<br/>
 	<b>Date reviewed:</b> {{review.date_added}}<br/>
-------------------------------------------------------<br/>
+	</div>
+	<br/>
 {% endfor %}
 
 <!--Listings: {{listings}}<br/>-->

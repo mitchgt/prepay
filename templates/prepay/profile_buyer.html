@@ -4,7 +4,10 @@
 
 {% block content %}
 
-<h2>Buyer Profile</h2>
+
+<h2>{{theuser.username}} (Buyer)</h2>
+<br/>
+<br/>
 
 {% if mine %}
 <div style="font-size: 13px; background-color:white; width:200px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
@@ -17,6 +20,8 @@
 {% if theuser.photo %}
   <img src="{{theuser.photo}}"><br/>
 {% endif %}
+
+<div style="font-size: 13px; background-color:white; width:200px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
 <b>Name:</b>
 {% if theuser.last_name or theuser.first_name %}
 {{theuser.title}} {{theuser.first_name}} {{theuser.middle_name}} {{theuser.last_name}} {{theuser.suffix}}
@@ -25,7 +30,6 @@
 <b>Nickname:</b> {{theuser.nickname}}<br/>
 {% endif %}
 <b>Rating:</b> {{theuser.rating}}<br/>
-<b>Username:</b> {{theuser.username}}<br/>
 {% if mine %}
 <b>Balance:</b> 
 {% for ba in theuser.bankaccount_set.all %}
@@ -58,11 +62,15 @@ ${{ba.balance}}
 <b>About me:</b>
   {{theuser.about}}<br/>
 {% endif %}
+</div>
+
+
 
 <br/>
-<b>Orders:</b> 
+<h2>Orders:</h2> 
 <br/><br/>
 {% for order in theuser.order_set.all %}
+    <div style="font-size: 13px; position: relative; left:50px; background-color:white; width:325px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
 	<b>Product:</b> <a href = "{% url 'listing_detail' order.listing.id %}">{{order.listing.name}}</a><br/>
 	<b>Price:</b> {{order.listing.price}}<br/>
 	<b>Seller:</b> {{order.listing.product.seller}}<br/>
@@ -88,6 +96,7 @@ ${{ba.balance}}
 	{% if order.status = "Closed" or order.status = "Rated" %}
 	<b>Date delivered/confirmed:</b> {{order.date_delivered}}<br/>
 	{% endif %}
+	<br/>
 	{% if mine %}
 	{% if order.listing.status == "Open for bidding" or order.listing.status == "Maximum reached" %}
 	{% if order.status == "Ongoing" %}
@@ -101,16 +110,20 @@ ${{ba.balance}}
 	{% csrf_token %}
 	<input class = "btn" type = "submit" value = "Confirm receipt"/>
 	</form>
-	{% endif %}<div>
+	{% endif %}<!--<div>-->
 	{% if order.status == "Closed" %}
+	<div style="font-size: 13px; position: relative; left:50px; background-color:white; width:700px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
 	<form class="reviewform" action = "{% url 'review' order.id %}" method = "post">
 	{% csrf_token %}
 	{{form.as_table}}
 	<input class = "btn" type = "submit" value = "Review"/>
-	</form></div>
+	</form><!--</div>-->
+	</div>
 	{% endif %}
 	{% endif %}
-	--------------------------------------------------------------------<br/>
+	
+	</div>
+	<br/>
 {% endfor %}
 
 
