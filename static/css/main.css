@@ -275,7 +275,7 @@ text-decoration: none;
 display:inline;
 }
 
-.editprofileform input{
+.editprofileform input:not([type="checkbox"]){
 width:15em;
 border: 1px solid #999;
 height: 2em;
