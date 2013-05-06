@@ -77,6 +77,7 @@ def index(request):
     login_flag=login_check(request)
     if login_flag==1:
         user_balance = get_user_balance(request.user)
+        buyer = False
         if Buyer.objects.filter(username = request.user.username):
             buyer = True
         context = {
@@ -101,6 +102,8 @@ def index(request):
                 if user is not None:
                     if user.is_active:
                         login(request, user)
+                        autoconfirm()
+                        updateStatus()
                         login_flag=1
                         context = Context({
                             'login_flag':login_flag,
@@ -266,6 +269,7 @@ def edit_profile(request, user_username):
     user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
+    buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
     # check current user is owner of profile
@@ -474,6 +478,7 @@ def browse_category(request, category_id):
     login_flag=login_check(request)
     if login_flag==1:
         user_balance = get_user_balance(request.user)
+    buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
     categories = Category.objects.all()
@@ -610,6 +615,7 @@ def confirmed(request):
     user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
+    buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
     total = request.session['total']
@@ -708,6 +714,7 @@ def withdraw(request, order_id):
     login_flag=login_check(request)
     if login_flag==1:
         user_balance = get_user_balance(request.user)
+    buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
     order = get_object_or_404(Order,pk=order_id)
@@ -755,6 +762,7 @@ def confirmreceipt(request, order_id):
     login_flag=login_check(request)
     if login_flag==1:
         user_balance = get_user_balance(request.user)
+    buyer = False
     if Buyer.objects.filter(username = request.user.username):
         buyer = True
     order = get_object_or_404(Order,pk=order_id)
@@ -962,24 +970,29 @@ def autoconfirm():
             ba.balance = ba.balance + amount
             ba.save()
             listing.status = "Closed"
+            listing.save() 
     listings = Listing.objects.filter(status = "Withdrawn")
     for listing in listings:
         if date >= (listing.deadlineDeliver+timedelta(weeks = 4)):
-            amount = e.balance
-            e.balance = 0
-            e.save()
-            ba = BankAccount.objects.get(user = listing.product.seller)
-            ba.balance = ba.balance + amount
-            ba.save()
+            e = Escrow.objects.get(listing=listing)
+            if e.balance!=0:
+                amount = e.balance
+                e.balance = 0
+                e.save()
+                ba = BankAccount.objects.get(user = listing.product.seller)
+                ba.balance = ba.balance + amount
+                ba.save()
     listings = Listing.objects.filter(status = "Aborted")
     for listing in listings:
         if date >= (listing.deadlineDeliver+timedelta(weeks = 4)):
-            amount = e.balance
-            e.balance = 0
-            e.save()
-            ba = BankAccount.objects.get(user = listing.product.seller)
-            ba.balance = ba.balance + amount
-            ba.save()
+            e = Escrow.objects.get(listing=listing)
+            if e.balance!=0:
+                amount = e.balance
+                e.balance = 0
+                e.save()
+                ba = BankAccount.objects.get(user = listing.product.seller)
+                ba.balance = ba.balance + amount
+                ba.save()
     return
 
 def updateStatus():
@@ -989,22 +1002,24 @@ def updateStatus():
         if listing.status =="Closed" or listing.status == "Withdrawn" or listing.status =="Aborted":
             continue
         if date < listing.deadlineBid:
-            if numBidders == maxGoal and listing.status == "Open for bidding":
+            if listing.numBidders == listing.maxGoal and listing.status == "Open for bidding":
                 listing.status = "Maximum reached"
                 listing.save()
-            elif numBidders<maxGoal and listing.status == "Maximum reached":
+            elif listing.numBidders<listing.maxGoal and listing.status == "Maximum reached":
                 listing.status = "Open for bidding"
                 listing.save()
         elif date >= listing.deadlineBid and (listing.status =="Open for bidding" or listing.status == "Maximum reached"):
-            if numBidders >= minGoal:
+            if listing.numBidders >= listing.minGoal:
                 listing.status = "In Production"
                 listing.save()
             else:
                 listing.status = "Aborted"
                 listing.date_aborted = date
+                listing.save()
                 refund(listing.id)
         elif date >= listing.deadlineDeliver and listing.status!= "Shipped":
             listing.status = "Aborted"
+            listing.save()
             if listing.product.seller.rating ==None or listing.product.seller.rating <2:
                 listing.product.seller.rating ==0
                 listing.product.seller.save()
@@ -1025,6 +1040,8 @@ def refund(listing_id):
         ba = BankAccount.objects.get(user = order.buyer)
         ba.balance = ba.balance + listing.price
         ba.save()
+        order.status = "Aborted by seller"
+        order.save()
     return
 
 @login_required
