@@ -75,6 +75,7 @@ def buyer_account_type(request):
 def index(request):
     # If logged in, set preliminary context vars for template rendering and show home
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
         buyer = False
@@ -476,6 +477,7 @@ def browse_product_requests(request):
 @login_required
 def browse_category(request, category_id):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     buyer = False
@@ -633,6 +635,7 @@ def confirmed(request):
 
 def checkout(request, listing_id):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     buyer = False
@@ -712,6 +715,7 @@ def checkout(request, listing_id):
 
 def withdraw(request, order_id):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     buyer = False
@@ -760,6 +764,7 @@ def withdraw(request, order_id):
 
 def confirmreceipt(request, order_id):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     buyer = False
@@ -808,6 +813,7 @@ def confirmreceipt(request, order_id):
 
 def orders(request, listing_id):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     listing = get_object_or_404(Listing, pk=listing_id)
@@ -827,6 +833,7 @@ def orders(request, listing_id):
 
 def withdrawListing(request, listing_id):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     listing = get_object_or_404(Listing, pk=listing_id)
@@ -904,6 +911,7 @@ def withdrawListing(request, listing_id):
 
 def returns(request, order_id):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     date = timezone.now()
@@ -1049,6 +1057,7 @@ def refund(listing_id):
 @login_required
 def addtocart(request, listing_id):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     listing = get_object_or_404(Listing, pk=listing_id)
@@ -1081,6 +1090,7 @@ def addtocart(request, listing_id):
 @login_required
 def addtocart(request, listing_id):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     listing = get_object_or_404(Listing, pk=listing_id)
@@ -1112,6 +1122,7 @@ def addtocart(request, listing_id):
 
 def removefromcart(request, listing_id):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     listing = get_object_or_404(Listing, pk=listing_id)
@@ -1138,6 +1149,7 @@ def removefromcart(request, listing_id):
 @login_required
 def viewcart(request):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     buyer = False
@@ -1160,6 +1172,7 @@ def viewcart(request):
 
 def contactus(request):
     login_flag=login_check(request)
+    user_balance = ''
     if login_flag==1:
         user_balance = get_user_balance(request.user)
     buyer = False
