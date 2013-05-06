@@ -34,24 +34,10 @@
 
     {% if not is_popup %}
     <!-- Header -->
-    <div id="header">
+    <div id="branding">
         <div id="branding">
         {% block branding %}{% endblock %}
-        </div>
-        {% if user.is_active and user.is_staff %}
-        <div id="user-tools">
-            {% trans 'Welcome,' %}
-            <a href="{% url 'profile' user.username %}">{% filter force_escape %}{% firstof user.first_name user.username %}{% endfilter %}</a>.
-            {% block userlinks %}
-                {% url 'django-admindocs-docroot' as docsroot %}
-                {% if docsroot %}
-                    <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
-                {% endif %}
-                <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
-                <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
-            {% endblock %}
-        </div>
-        {% endif %}
+        
         {% block nav-global %}{% endblock %}
     </div>
     <!-- END Header -->
