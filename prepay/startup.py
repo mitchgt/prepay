@@ -62,6 +62,16 @@ def create_default_users():
         u.slug = u.username
         u.save()
         u.bankaccount_set.create(name = u.username, user = u, balance = 0)
+        
+    if not existing_users.filter(username='testuser'):
+        acttype = 'Buyer'
+        u = Buyer.objects.create_user('testuser', 'testuser@test.net', 'testuser')
+        u.cart = Cart()
+        u.groups.add(Group.objects.get(name = acttype))
+        u.is_staff = True
+        u.slug = u.username
+        u.save()
+        u.bankaccount_set.create(name = u.username, user = u, balance = 0)
 
 def create_default_listing():
     existing_products = Product.objects.all()

@@ -32,7 +32,7 @@ class RegistrationForm(forms.Form):
 
 		if password1 and password2:
 			if password1 != password2:
-				raise forms.ValidationError("Passwords don't match")
+				raise forms.ValidationError("Passwords do not match")
 			elif len(password1) < 6:
 				raise forms.ValidationError("Password length must be at least 6 characters")
 		return self.cleaned_data

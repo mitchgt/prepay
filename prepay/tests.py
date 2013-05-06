@@ -67,7 +67,7 @@ class PostTestsBlankSite(TestCase):
     def test_login_fail(self):
         response = self.client.post(reverse('index'), {'username': 'doesnotexist', 'password': 'doesnotexist'}, follow=True)
         self.assertEquals(response.status_code, 200)
-        self.assertContains(response, "Invalid login - Please try again.")
+        self.assertContains(response, "Invalid login - Please try again!")
 
     def test_login_success(self):
         response = self.client.post(reverse('index'), {'username': 'testuser', 'password': 'testuser'}, follow=True)
@@ -129,6 +129,10 @@ class PostTestsBlankSite(TestCase):
         # add username to form. Use superusername to check namespace conflict later.
         # expect 'field required' message
         username= 'wdkim'
+        email = ''
+        password = ''
+        confirm_password = ''
+        account_type = ''
         response = self.client.post(reverse('register'), {'username': username, 'email': email, 'password': password, 'confirm_password': confirm_password, 'account_type': account_type}, follow=True)
 
         self.assertEquals(response.status_code, 200)
@@ -137,7 +141,12 @@ class PostTestsBlankSite(TestCase):
 
         # add invalid email to form
         # expect 'field required' message
+        username= 'wdkim'
         email = 'email'
+        password = ''
+        confirm_password = ''
+        account_type = ''
+        
         response = self.client.post(reverse('register'), {'username': username, 'email': email, 'password': password, 'confirm_password': confirm_password, 'account_type': account_type}, follow=True)
 
         self.assertEquals(response.status_code, 200)
@@ -152,67 +161,81 @@ class PostTestsBlankSite(TestCase):
 
         self.assertEquals(response.status_code, 200)
         self.assertContains(response, "This field is required.")
+        self.assertNotContains(response, "Enter a valid e-mail address.")
 
-        # add (short) password to form
+        # add (short) password to form, but not confirm_password
         # expect 'field required' message
+        username= 'wdkim'
+        email = 'test@email.com'
         password='test'
+        confirm_password = ''
+        account_type = ''
+
         response = self.client.post(reverse('register'), {'username': username, 'email': email, 'password': password, 'confirm_password': confirm_password, 'account_type': account_type}, follow=True)
 
         self.assertEquals(response.status_code, 200)
         self.assertContains(response, "This field is required.")
 
         # add mismatching confirm_password to form
-        # expect 'mismatch' message
+        # expect 'field missing' because account_type is empty
+        username= 'wdkim'
+        email = 'test@email.com'
+        password='test'
         confirm_password='testtttt'
+        account_type=''
+
         response = self.client.post(reverse('register'), {'username': username, 'email': email, 'password': password, 'confirm_password': confirm_password, 'account_type': account_type}, follow=True)
 
         self.assertEquals(response.status_code, 200)
         self.assertContains(response, "This field is required.")
 
-        # correct to mismatch to the (short) password
-        # expect 'field required' message
-        confirm_password='test'
+        # add account_type
+        # expect 'password mismatch' message
+        username= 'wdkim'
+        email = 'test@email.com'
+        password='test'
+        confirm_password='testtttt'
+        account_type='Buyer'
+
         response = self.client.post(reverse('register'), {'username': username, 'email': email, 'password': password, 'confirm_password': confirm_password, 'account_type': account_type}, follow=True)
 
         self.assertEquals(response.status_code, 200)
-        self.assertContains(response, "Password length must be at least 6 characters.")
+        self.assertContains(response, "Passwords do not match")
 
 
-        # add account_type to form
+        # Make short passwords
+        # expect 'password short' message
+        username= 'wdkim'
+        email = 'test@email.com'
+        password='test'
+        confirm_password='test'
+        account_type = 'Buyer'
+        response = self.client.post(reverse('register'), {'username': username, 'email': email, 'password': password, 'confirm_password': confirm_password, 'account_type': account_type}, follow=True)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertNotContains(response, "This field is required.")
+        self.assertContains(response, "Password length must be at least 6 characters")
+
+        
+
+        # change password to be longer than 6 characters
         # expect 'username taken' message
+        username= 'wdkim'
+        email = 'test@email.com'
+        password='testtest'
+        confirm_password='testtest'
         account_type = 'Buyer'
         response = self.client.post(reverse('register'), {'username': username, 'email': email, 'password': password, 'confirm_password': confirm_password, 'account_type': account_type}, follow=True)
 
         self.assertEquals(response.status_code, 200)
         self.assertContains(response, "Username already taken. Please chose a different one.")
 
-        
 
-        # change password to be shorter than 6 characters
-         # expect 'password too short' message
-        password = 'test'
-        confirm_password = 'test'
-        response = self.client.post(reverse('register'), {'username': username, 'email': email, 'password': password, 'confirm_password': confirm_password, 'account_type': account_type}, follow=True)
-
-        self.assertEquals(response.status_code, 200)
-        self.assertContains(response, "Password length must be at least 6 characters")
-
-
-        # change both to longer password.
-        # expect complaint about username
-        password = 'testtest'
-        confirm_password = 'testtest'
-        response = self.client.post(reverse('register'), {'username': username, 'email': email, 'password': password, 'confirm_password': confirm_password, 'account_type': account_type}, follow=True)
-
-        self.assertEquals(response.status_code, 200)
-        self.assertContains(response, "Username already taken. Please choose a different one.")
 
 # Global aux function to avoid code duplication for templates testing
 def logged_in_index_template(self, response, username):
     self.assertContains(response, username)
-    self.assertContains(response, "change password")
     self.assertContains(response, "logout")
-    self.assertContains(response, "No Listings are available.")
 
 
 # Test templates
@@ -228,31 +251,25 @@ class TemplateTestsBlankSite(TestCase):
 
     def test_index_template_logged_in(self):
         self.assertTrue(self.client.login(username='testuser', password='testuser'))
-        response = self.client.get(reverse('index'), follow=True)
-        self.assertContains(response, "change password")
+        response = self.client.get(reverse('browse_listings'), follow=True)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "logout")
         self.assertContains(response, "No Listings are available.")
 
     def test_browse_listings_template_no_login(self):
-        response = self.client.get(reverse('browse_listings'), follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Welcome to PrePay")
-        self.assertContains(response, "Username")
-        self.assertContains(response, "Password")
+        response = self.client.get(reverse('browse_listings'))
+        self.assertEqual(response.status_code, 302)
 
     def test_browse_listings_template_logged_in(self):
         self.assertTrue(self.client.login(username='testuser', password='testuser'))
         response = self.client.get(reverse('browse_listings'), follow=True)
-        self.assertContains(response, "change password")
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "logout")
         self.assertContains(response, "No Listings are available.")
 
     def test_browse_product_requests_template_no_login(self):
-        response = self.client.get(reverse('browse_product_requests'), follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Welcome to PrePay")
-        self.assertContains(response, "Username")
-        self.assertContains(response, "Password")
+        response = self.client.get(reverse('browse_product_requests'))
+        self.assertEqual(response.status_code, 302)
 
     def test_browse_product_requests_template_logged_in(self):
         self.assertTrue(self.client.login(username='testuser', password='testuser'))

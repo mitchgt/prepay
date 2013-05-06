@@ -225,10 +225,10 @@
         }
     }, 
     {
-        "pk": "592686d19a0fa611dca41e21ca78bd1b", 
+        "pk": "6e2bf52534fe0a40a806ee5dc382018e", 
         "model": "sessions.session", 
         "fields": {
-            "expire_date": "2013-05-15T00:01:11.884Z", 
+            "expire_date": "2013-05-20T20:52:05.967Z", 
             "session_data": "MmRhOGY2NmMyNTcxZTM3MTYxMjkwMjBhMzBhMjgwZWE1M2RmZjkwZDqAAn1xAS4=\n"
         }
     }, 
@@ -952,20 +952,78 @@
         "pk": 1, 
         "model": "auth.user", 
         "fields": {
+            "username": "wdkim", 
+            "first_name": "", 
+            "last_name": "", 
+            "is_active": true, 
+            "is_superuser": true, 
+            "is_staff": true, 
+            "last_login": "2013-05-06T20:51:38.255Z", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "pbkdf2_sha256$10000$BHVDPCxPDu45$DkfkPiRMBBgift8IeNyuEUWMlnoBNCqyHYCXv7Bsomg=", 
+            "email": "wdkim@emory.edu", 
+            "date_joined": "2013-05-06T20:51:38.255Z"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "joeseller", 
+            "first_name": "", 
+            "last_name": "", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": true, 
+            "last_login": "2013-05-06T20:52:02.264Z", 
+            "groups": [
+                2
+            ], 
+            "user_permissions": [], 
+            "password": "pbkdf2_sha256$10000$6XL0t6zrmuPE$s5jfEIcPMPfgmk6NerdChZcpOyY6jsTgcyehsANn3Yg=", 
+            "email": "joe@whitehouse.gov", 
+            "date_joined": "2013-05-06T20:52:02.264Z"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "joebuyer", 
+            "first_name": "", 
+            "last_name": "", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": true, 
+            "last_login": "2013-05-06T20:52:03.481Z", 
+            "groups": [
+                1
+            ], 
+            "user_permissions": [], 
+            "password": "pbkdf2_sha256$10000$8DzQ5u5NmnRL$Mz1hxLkgjJJP6Q3zH8mGIZc3u7+cYgNH17l+uW70FWQ=", 
+            "email": "joe@buyers.net", 
+            "date_joined": "2013-05-06T20:52:03.481Z"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "auth.user", 
+        "fields": {
             "username": "testuser", 
             "first_name": "", 
             "last_name": "", 
             "is_active": true, 
             "is_superuser": false, 
             "is_staff": true, 
-            "last_login": "2013-05-01T00:01:07.071Z", 
+            "last_login": "2013-05-06T20:52:04.616Z", 
             "groups": [
                 1
             ], 
             "user_permissions": [], 
-            "password": "pbkdf2_sha256$10000$nEYyXFiv4928$PrR+8PdYPVWSy4Sl2EBXsbICwAJFc0np+t+exqa2j9c=", 
-            "email": "testuser@email.com", 
-            "date_joined": "2013-05-01T00:01:05.611Z"
+            "password": "pbkdf2_sha256$10000$pAHUGUfdcwTk$sj7ENOQfNr7CneIYZHODyCFq4QUlrheO2tnk/4VhQck=", 
+            "email": "testuser@test.net", 
+            "date_joined": "2013-05-06T20:52:04.616Z"
         }
     }, 
     {
@@ -973,18 +1031,73 @@
         "model": "prepay.bankaccount", 
         "fields": {
             "balance": "0", 
-            "name": "testuser", 
-            "user": 1
+            "name": "joeseller", 
+            "user": 2
         }
     }, 
     {
-        "pk": 1, 
+        "pk": 2, 
+        "model": "prepay.bankaccount", 
+        "fields": {
+            "balance": "0", 
+            "name": "joebuyer", 
+            "user": 3
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "prepay.bankaccount", 
+        "fields": {
+            "balance": "0", 
+            "name": "testuser", 
+            "user": 4
+        }
+    }, 
+    {
+        "pk": 2, 
         "model": "prepay.userprofile", 
         "fields": {
             "about": "", 
             "middle_name": null, 
             "suffix": null, 
             "title": "", 
+            "confirmation_code": "", 
+            "photo": "", 
+            "groups": [
+                2
+            ], 
+            "user_permissions": [], 
+            "nickname": "", 
+            "slug": "joeseller"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "prepay.userprofile", 
+        "fields": {
+            "about": "", 
+            "middle_name": null, 
+            "suffix": null, 
+            "title": "", 
+            "confirmation_code": "", 
+            "photo": "", 
+            "groups": [
+                1
+            ], 
+            "user_permissions": [], 
+            "nickname": "", 
+            "slug": "joebuyer"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "prepay.userprofile", 
+        "fields": {
+            "about": "", 
+            "middle_name": null, 
+            "suffix": null, 
+            "title": "", 
+            "confirmation_code": "", 
             "photo": "", 
             "groups": [
                 1
@@ -995,7 +1108,30 @@
         }
     }, 
     {
-        "pk": 1, 
+        "pk": 2, 
+        "model": "prepay.seller", 
+        "fields": {
+            "user_permissions": [], 
+            "rating": null, 
+            "groups": [
+                2
+            ]
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "prepay.buyer", 
+        "fields": {
+            "user_permissions": [], 
+            "rating": null, 
+            "groups": [
+                1
+            ], 
+            "cart": null
+        }
+    }, 
+    {
+        "pk": 4, 
         "model": "prepay.buyer", 
         "fields": {
             "user_permissions": [], 
