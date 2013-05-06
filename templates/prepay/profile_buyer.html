@@ -89,12 +89,13 @@ ${{ba.balance}}
 	<b>Date delivered/confirmed:</b> {{order.date_delivered}}<br/>
 	{% endif %}
 	{% if mine %}
+	{% if order.listing.status == "Open for bidding" or order.listing.status == "Maximum reached" %}
 	{% if order.status == "Ongoing" %}
 	<form action = "{% url 'withdraw' order.id %}" method = "get">
 	{% csrf_token %}
 	<input class = "btn" type = "submit" value = "Withdraw"/>
 	</form>
-	{% endif %}
+	{% endif %}{% endif %}
 	{% if order.status == "Ongoing" or order.status == "Shipped" %}
 	<form action = "{% url 'confirmreceipt' order.id %}" method = "get">
 	{% csrf_token %}
