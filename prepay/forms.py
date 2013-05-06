@@ -5,6 +5,11 @@ from django.forms import ModelForm
 from django.contrib.contenttypes.generic import generic_inlineformset_factory 
 from prepay import settings
 
+class EmailForm(forms.Form):
+	title = forms.CharField(max_length=100)
+	email = forms.EmailField(max_length=70)
+	content = forms.CharField(max_length=1000, widget=forms.Textarea(attrs={'rows':'10', 'cols': '100'}))
+
 class CheckoutForm(forms.Form):
 	quantity = forms.IntegerField(min_value=1)
 
