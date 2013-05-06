@@ -22,9 +22,9 @@
           		<li class="dropdown">
             			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Browse Listings<b class="caret"></b></a>
                 	<ul class="dropdown-menu">
-                  	<li><a href="#">For sale</a></li>
-                  	<li><a href="#">In production</a></li>
-                  	<li><a href="#">Completed</a></li>
+                  	<li><a href="{% url 'browse_listings' %}filter/biddable">For sale</a></li>
+                  	<li><a href="{% url 'browse_listings' %}filter/bidclosed">In production</a></li>
+                  	<li><a href="{% url 'browse_listings' %}filter/over">Completed</a></li>
                   	<li class="divider"></li>
 										<li><a href="{% url 'browse_listings' %}">All</a></li>
                  	</ul>
@@ -35,10 +35,27 @@
 							<li><a href="{% url 'admin:index' %}">Admin</a></li>
 							<li><a href="{% url 'about' %}">About</a></li>
             </ul>
-						
-          </div><!--/.nav-collapse -->
+						</div>
+        {% if user.is_active and user.is_staff %}
+        <div id="user-tools">
+            <b style="color:white">{% trans 'Welcome,' %}</b>
+            <a href="{% url 'profile' user.username %}">{% filter force_escape %}{% firstof user.first_name user.username %}{% endfilter %}</a><b style="color:white">.</b>
+            {% block userlinks %}
+                {% url 'django-admindocs-docroot' as docsroot %}
+                {% if docsroot %}
+                    <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
+                {% endif %}
+                <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> <b style="color:white">/</b>
+                <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+            {% endblock %}
         </div>
+        {% endif %}
+          </div><!--/.nav-collapse -->
+
+        </div>
+
       </div>
+
     </div>
 
 
