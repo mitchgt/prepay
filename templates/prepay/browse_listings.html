@@ -15,7 +15,6 @@
  {% if filter = "bidclosed" %} <b>{% endif %} <a href="{% url 'filter' 'bidclosed' %}">In Production</a>   {% if filter = "bidclosed" %} </b>{% endif %} &#149;
  {% if filter = "over" %} <b>{% endif %} <a href="{% url 'filter' 'over' %}">Completed</a> {% if filter = "over" %} </b>{% endif %}
 
-
 		<div class="span4">
 			<form class="searchform" action="" method="post">
 					{% csrf_token %} 
@@ -37,14 +36,17 @@
 				</select>
 			 </form>
 		</div>
+<a class = "btn" href = "{% url 'admin:prepay_product_add' %}">Create listing</a><br/>
 	</div>
 
 
 
 {% if all_listings %}
-	<div class="container-fluid">	
-		{% for listing in all_listings %}	
-       <div class="span4 ListingWrapper">
+		<div class="container-fluid">
+		{% for listing in all_listings %}
+		{% if forloop.counter0|divisibleby:"3" and not forloop.first %}	</div>	{% endif %}	
+		{% if forloop.counter0|divisibleby:"3" or forloop.first %}	<div class="container-fluid">	{% endif %}	
+       <div class="span3 ListingWrapper">
        	<table width="100%" style="border-style: solid; border-color: #ccc; border-radius: 5px;background-color:white;">
 					<tr>			
 						<a href="{% url 'listing_detail' listing.pk %}">
@@ -86,7 +88,7 @@
 				</tr>		
 			</table>
             </div><!--/span-->
-            
+		{% if forloop.counter0|divisibleby:"3" and forloop.last %}</div>{% endif %}
 	{% endfor %}
 	</div>
 	
