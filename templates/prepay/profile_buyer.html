@@ -18,10 +18,11 @@
 {% endif %}
 
 {% if theuser.photo %}
-  <img src="{{theuser.photo}}"><br/>
+    <img src="{{ theuser.get_picture_url }}" width="200" style="float:left; border:none; padding-right:8px;">
+<br clear = "all"/><br/>
 {% endif %}
 
-<div style="font-size: 13px; background-color:white; width:200px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
+<div style="font-size: 13px; background-color:white; width:300px; padding:5px; border-style: solid; border-width: 1px; border-color: #ccc; border-radius: 5px;">
 <b>Name:</b>
 {% if theuser.last_name or theuser.first_name %}
 {{theuser.title}} {{theuser.first_name}} {{theuser.middle_name}} {{theuser.last_name}} {{theuser.suffix}}
