@@ -979,7 +979,10 @@ def autoconfirm():
             ba.save()
             listing.status = "Closed"
             listing.date_closed = date
-            listing.save() 
+            listing.save()
+            subject = "Prepay: Updates on your listing"
+            body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached completion. All payments have been added to your account.\n\nLog in and view your listing at: NAME_OF_HOSTSITE/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
+            send_mail(subject, body, 'no.reply.prepay@gmail.com',[listing.product.seller.email],fail_silently=False)
     listings = Listing.objects.filter(status = "Withdrawn")
     for listing in listings:
         if date >= (listing.deadlineDeliver+timedelta(weeks = 4)):
@@ -1021,14 +1024,23 @@ def updateStatus():
             if listing.numBidders >= listing.minGoal:
                 listing.status = "In Production"
                 listing.save()
+                subject = "Prepay: Updates on your listing"
+                body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached its bidding deadline. Since your minimum goal was reached, its status has been changed to 'In Production'. Please start producing your product.\n\nLog in and view your listing at: NAME_OF_HOSTSITE/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
+                send_mail(subject, body, 'no.reply.prepay@gmail.com',[listing.product.seller.email],fail_silently=False)
             else:
                 listing.status = "Aborted"
                 listing.date_aborted = date
                 listing.save()
+                subject = "Prepay: Updates on your listing"
+                body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached its bidding deadline. Unfortunately your minimum goal was not reached, so its status has been changed to 'Aborted'. Please feel free to create a new listing.\n\nLog in and view your listing at: NAME_OF_HOSTSITE/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
+                send_mail(subject, body, 'no.reply.prepay@gmail.com',[listing.product.seller.email],fail_silently=False)
                 refund(listing.id)
         elif date >= listing.deadlineDeliver and listing.status!= "Shipped":
             listing.status = "Aborted"
             listing.save()
+            subject = "Prepay: Updates on your listing"
+            body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached its delivery deadline. As you have not indicated that you have shipped all of the items, its status has been changed to 'Aborted'. All buyers who have not confirmed receipt of the product have been refunded.\n\nLog in and view your listing at: NAME_OF_HOSTSITE/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
+            send_mail(subject, body, 'no.reply.prepay@gmail.com',[listing.product.seller.email],fail_silently=False)
             if listing.product.seller.rating ==None or listing.product.seller.rating <2:
                 listing.product.seller.rating ==0
                 listing.product.seller.save()
