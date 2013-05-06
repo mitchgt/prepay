@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User, Group
 from prepay.forms import LoginForm, RegistrationForm, ListingCommentForm, EditProfileForm
 from prepay.forms import PhoneNumberFormSet, InstantMessengerFormSet, WebSiteFormSet, StreetAddressFormSet, StreetAddressFormSet2
-from prepay.forms import SearchForm, CheckoutForm, ReviewForm
+from prepay.forms import SearchForm, CheckoutForm, ReviewForm, EmailForm
 from django.shortcuts import render_to_response 
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
@@ -1157,3 +1157,32 @@ def viewcart(request):
         'user_balance':user_balance
     })
     return render(request, 'prepay/cart.html', context)
+
+def contactus(request):
+    login_flag=login_check(request)
+    if login_flag==1:
+        user_balance = get_user_balance(request.user)
+    buyer = False
+    if Buyer.objects.filter(username = request.user.username):
+        buyer = True
+    context = Context({
+            'login_flag': login_flag,
+            'isBuyer': buyer,
+            'user_balance':user_balance,
+    })
+    form = EmailForm()
+    if request.method == "POST":
+        form = EmailForm(request.POST)
+        if form.is_valid():
+            title = request.POST['title']
+            subject = "Message from " + request.user.username + ": " +title
+            email = request.POST['email']
+            content = request.POST['content']
+            body = "From "+ request.user.username + "("+ email+")\n\n" + content
+            send_mail(subject, body, 'no.reply.prepay@gmail.com', ['prepay.contact.us@gmail.com'], fail_silently=False)
+            sent = True
+            context['sent']=sent
+            context['form']=form
+            return render(request, 'prepay/contactus.html', context)
+    context['form']=form
+    return render(request, 'prepay/contactus.html', context)
