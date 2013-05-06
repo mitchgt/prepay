@@ -5,8 +5,8 @@
 {% block content %}
 
 <h2>{{ category.name }} Listings</h2>
-
-{% if listings_by_category %}
+<div class = "container-fluid">
+{% if listings_by_category %}<div class = "span11">
 	{% for listing in listings_by_category %}
 	<p>
 		<a href="{% url 'listing_detail' listing.pk %}"><img src="{{ listing.product.get_picture_url }}" width="150" align="left" style="border:none; padding-right:8px;"></a>
@@ -26,12 +26,13 @@
 {% else %}
 	<p>No Listings are available.</p>
 {% endif %}
-
-All Categories:<br/>
+</div>
+<div class = "span.pull-right">
+<b>All Categories:</b><br/>
 {% for c in categories %}
 <a href="{% url 'browse_category' c.id %}">{{c.name}}</a> <br/>
 {% endfor %}
-
+</div></div>
 {% endblock %}
 
 
