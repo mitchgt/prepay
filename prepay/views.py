@@ -376,7 +376,7 @@ def browse_listings(request, fil = None):
             form = SearchForm(request.POST, initial = {'q':keywords})
             query = Q()
             for term in keywords.split():
-                q = Q(name__icontains=term) | Q(description__icontains=term) | Q(product__name__icontains=term) | Q(product__description__icontains=term) | Q(product__seller__username__icontains=term)
+                q = Q(name__icontains=term) | Q(description__icontains=term) | Q(product__name__icontains=term) | Q(product__description__icontains=term) | Q(product__seller__username__icontains=term)| Q(product__categories__name__icontains=term)
                 query = query & q
             all_listings = all_listings.filter(query).order_by('-created_at')
             request.session['last_listings']=all_listings
@@ -970,6 +970,7 @@ def autoconfirm():
             ba.balance = ba.balance + amount
             ba.save()
             listing.status = "Closed"
+            listing.date_closed = date
             listing.save() 
     listings = Listing.objects.filter(status = "Withdrawn")
     for listing in listings:
@@ -1027,6 +1028,7 @@ def updateStatus():
                 listing.product.seller.rating = listing.product.seller.rating -2
                 listing.product.seller.save()
             listing.date_aborted = date
+            listing.save()
             refund(listing.id)
     return
 
