@@ -32,7 +32,7 @@
 					</form>
 				{% endif %}
 				{% endif %}
-					<li><p><b>Product</b>{{listing.product.name}}</p></li>
+					<li><p><b>Product:</b> {{listing.product.name}}</p></li>
 					<li><p><b>Seller:</b> <a href="{% url 'profile' listing.product.seller.username %}">{{ listing.product.seller.username }}</a> (rating = {{ listing.product.seller.rating }}/5)</p></li>
 					<li><p><b>Categories:</b> 
 									{% for c in listing.product.categories.all %} 
