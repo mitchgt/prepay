@@ -685,8 +685,9 @@ def checkout(request, listing_id):
                         neworder = Order.objects.create(seller=seller, buyer=buyer, listing=listing)
                         neworder.shipping_address = address_formset.save()
                         #remove from cart
-                        b.cart.listings.remove(listing)
-                        b.save()
+                        if b.cart!=None:
+                            b.cart.listings.remove(listing)
+                            b.save()
                     listing.numBidders = a
                     listing.save()
                     prev_balance = ba.balance
