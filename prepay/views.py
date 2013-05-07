@@ -38,7 +38,7 @@ def get_user_balance(user):
 # AUX function. Sends confirmation link to registering user
 def send_registration_confirmation(user):
     #hostsite = 'http://mitchgt.com/prepay'
-    hostsite = 'NAME_OF_HOSTSITE'
+    hostsite = 'mitchgt.com'
     p = UserProfile.objects.get(username=user.username)
     title = "Prepay account confirmation"
     content = "Here is your confirmation link for PrePay:\n\n" + hostsite + reverse('confirm_registration', args=(p.confirmation_code, user.username))
@@ -145,7 +145,7 @@ def register(request):
                 u.is_staff = True
                 u.is_active = False # must confirm
                 u.slug = username1 
-                u.bankaccount_set.create(name = u.username, user = u, balance = 0)
+                u.bankaccount_set.create(name = u.username, user = u, balance = 1000)
                 u.save()
                 p = UserProfile.objects.get(username=username1)
                 # generate 33 character confirmation code
@@ -447,6 +447,8 @@ def browse_listings(request, fil = None):
         'buyer': b,
         'user_balance': user_balance,
     })
+    autoconfirm()
+    updateStatus()
     return render(request, 'prepay/browse_listings.html', context)
 
 
@@ -981,7 +983,7 @@ def autoconfirm():
             listing.date_closed = date
             listing.save()
             subject = "Prepay: Updates on your listing"
-            body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached completion. All payments have been added to your account.\n\nLog in and view your listing at: NAME_OF_HOSTSITE/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
+            body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached completion. All payments have been added to your account.\n\nLog in and view your listing at: mitchgt.com/prepay/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
             send_mail(subject, body, 'no.reply.prepay@gmail.com',[listing.product.seller.email],fail_silently=False)
     listings = Listing.objects.filter(status = "Withdrawn")
     for listing in listings:
@@ -1025,21 +1027,21 @@ def updateStatus():
                 listing.status = "In Production"
                 listing.save()
                 subject = "Prepay: Updates on your listing"
-                body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached its bidding deadline. Since your minimum goal was reached, its status has been changed to 'In Production'. Please start producing your product.\n\nLog in and view your listing at: NAME_OF_HOSTSITE/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
+                body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached its bidding deadline. Since your minimum goal was reached, its status has been changed to 'In Production'. Please start producing your product.\n\nLog in and view your listing at: mitchgt.com/prepay/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
                 send_mail(subject, body, 'no.reply.prepay@gmail.com',[listing.product.seller.email],fail_silently=False)
             else:
                 listing.status = "Aborted"
                 listing.date_aborted = date
                 listing.save()
                 subject = "Prepay: Updates on your listing"
-                body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached its bidding deadline. Unfortunately your minimum goal was not reached, so its status has been changed to 'Aborted'. Please feel free to create a new listing.\n\nLog in and view your listing at: NAME_OF_HOSTSITE/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
+                body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached its bidding deadline. Unfortunately your minimum goal was not reached, so its status has been changed to 'Aborted'. Please feel free to create a new listing.\n\nLog in and view your listing at: mitchgt.com/prepay/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
                 send_mail(subject, body, 'no.reply.prepay@gmail.com',[listing.product.seller.email],fail_silently=False)
                 refund(listing.id)
         elif date >= listing.deadlineDeliver and listing.status!= "Shipped":
             listing.status = "Aborted"
             listing.save()
             subject = "Prepay: Updates on your listing"
-            body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached its delivery deadline. As you have not indicated that you have shipped all of the items, its status has been changed to 'Aborted'. All buyers who have not confirmed receipt of the product have been refunded.\n\nLog in and view your listing at: NAME_OF_HOSTSITE/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
+            body = "Dear "+listing.product.seller.username+",\n\nThis is to notify you that your listing "+listing.name+" has reached its delivery deadline. As you have not indicated that you have shipped all of the items, its status has been changed to 'Aborted'. All buyers who have not confirmed receipt of the product have been refunded.\n\nLog in and view your listing at: mitchgt.com/prepay/listings/"+str(listing.id)+"\n\nIf you have any questions, please contact us at prepay.contact.us@gmail.com.\n\nBest regards,\nPrepay team."
             send_mail(subject, body, 'no.reply.prepay@gmail.com',[listing.product.seller.email],fail_silently=False)
             if listing.product.seller.rating ==None or listing.product.seller.rating <2:
                 listing.product.seller.rating ==0
